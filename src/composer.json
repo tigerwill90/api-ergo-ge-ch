@@ -1,0 +1,27 @@
+{
+    "name": "tigerwill90/api-ergo",
+    "description": "RESTful service for ergotherapie-ge.ch",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Sylvain",
+            "email": "sylvain.muller90@gmail.com"
+        }
+    ],
+    "require": {
+      "php": "^7.2",
+      "slim/slim": "^3.11",
+      "vlucas/phpdotenv": "^2.5.1"
+    },
+    "require-dev" : {
+      "roave/security-advisories": "dev-master",
+      "phpunit/phpunit": "^7.4.4",
+      "phpstan/phpstan": "^0.10.5",
+      "squizlabs/php_codesniffer" : "^3.3.2"
+    },
+    "autoload": {
+      "psr-4": {
+        "Ergo\\": "app/"
+      }
+    }
+}

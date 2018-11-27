@@ -1,0 +1,17 @@
+version: '3'
+services:
+  httpd:
+    build:
+      context: .
+    container_name: httpd
+    ports:
+      - 80:80
+    restart: always
+    volumes:
+      - ./src:/var/www/html
+      - ./logs/apache2:/var/log/apache2
+    networks:
+      - backend
+networks:
+  backend:
+    driver: bridge
