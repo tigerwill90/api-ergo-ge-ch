@@ -36,7 +36,8 @@ $container['notAllowedHandler'] = function (ContainerInterface $c) : Closure {
         return $response
             ->withBody($body)
             ->withStatus(405)
-            ->withHeader('Allow', implode(', ', $methods));
+            ->withHeader('Allow', implode(', ', $methods))
+            ->withHeader('Content-Type', 'application/json');
     };
 };
 
@@ -50,7 +51,8 @@ $container['notFoundHandler'] = function (ContainerInterface $c) : Closure {
         $body->write(json_encode(['error' => 'resource not found']));
         return $response
             ->withBody($body)
-            ->withStatus(404);
+            ->withStatus(404)
+            ->withHeader('Content-Type', 'application/json');
         };
 };
 

@@ -12,8 +12,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
-class ReadIndependents
+final class ReadIndependents
 {
+    /** @var LoggerInterface  */
     private $logger;
 
     public function __construct(LoggerInterface $logger = null)
@@ -26,14 +27,17 @@ class ReadIndependents
         $body = $response->getBody();
         $body->write(json_encode(['status' => 'running']));
         $this->log('test');
-        return $response->withBody($body);
+        return $response
+            ->withBody($body)
+            ->withHeader('Content-Type', 'application/json');
     }
 
     /**
      * @param string $message
      * @param array|null $context
      */
-    private function log(string $message, array $context = []) : void {
+    private function log(string $message, array $context = []) : void
+    {
         $this->logger->debug($message, $context);
     }
 }

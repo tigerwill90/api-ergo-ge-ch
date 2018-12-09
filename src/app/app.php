@@ -4,6 +4,7 @@ require __DIR__ . '/../vendor/autoload.php';
 $envLoader = new \Dotenv\Dotenv(__DIR__ . '/../');
 $envLoader->load();
 $envLoader->required('TIMEZONE')->notEmpty();
+$envLoader->required('DEBUG')->notEmpty()->isBoolean();
 date_default_timezone_set(getenv('TIMEZONE'));
 
 $app = new \Slim\App([
@@ -14,7 +15,6 @@ $app = new \Slim\App([
 
 require __DIR__ . '/config/dependencies.php';
 require __DIR__ . '/config/errorsHandler.php';
-require __DIR__ . '/config/middlewares.php';
 require __DIR__ . '/routes/public.php';
 
 $app->run();

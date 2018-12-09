@@ -7,3 +7,4 @@
  */
 
 $app->get('/independents', \Ergo\Controllers\ReadIndependents::class);
+$app->get('/documents/{name}', \Ergo\Controllers\DownloadDocuments::class);

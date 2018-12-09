@@ -19,7 +19,6 @@ RUN set -x \
 ###
 RUN set -x \
   && apt-get update \
-  && apt-get upgrade \
   && apt-get install --no-install-recommends --no-install-suggests -y \
     unzip \
     zlib1g-dev \

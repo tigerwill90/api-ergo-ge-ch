@@ -4,3 +4,6 @@ src/vendor
 *.lock
 .env
 *.log
+*.mwb
+*.mwb.bak
+*.pdf

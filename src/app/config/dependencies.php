@@ -9,11 +9,26 @@ use Psr\Container\ContainerInterface;
 
 $container = $app->getContainer();
 
-$container[Ergo\Controllers\ReadIndependents::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadIndependents {
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadIndependents
+ */
+$container[Ergo\Controllers\ReadIndependents::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadIndependents
+{
    return new Ergo\Controllers\ReadIndependents($c->get('appDebug'));
 };
 
-$container['appDebug'] = function () : Monolog\Logger {
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\DownloadDocuments
+ */
+$container[\Ergo\Controllers\DownloadDocuments::class] = function (ContainerInterface $c)  : \Ergo\Controllers\DownloadDocuments
+{
+    return new \Ergo\Controllers\DownloadDocuments($c->get('appDebug'));
+};
+
+$container['appDebug'] = function () : Monolog\Logger
+{
     $log = new \Monolog\Logger('ergo_debug');
     $formatter = new \Monolog\Formatter\LineFormatter(
         "[%datetime%] [%level_name%]: %message% %context%\n",
