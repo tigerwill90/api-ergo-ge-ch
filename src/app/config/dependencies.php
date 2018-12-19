@@ -27,6 +27,27 @@ $container[\Ergo\Controllers\DownloadDocuments::class] = function (ContainerInte
     return new \Ergo\Controllers\DownloadDocuments($c->get('appDebug'));
 };
 
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadEvents
+ */
+$container[\Ergo\Controllers\ReadEvents::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadEvents
+{
+    return new \Ergo\Controllers\ReadEvents($c->get('calendarClient'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Services\CalendarClient
+ */
+$container['calendarClient'] = function (ContainerInterface $c) : \Ergo\Services\CalendarClient
+{
+  return new \Ergo\Services\CalendarClient($c->get('appDebug'));
+};
+
+/**
+ * @return \Monolog\Logger
+ */
 $container['appDebug'] = function () : Monolog\Logger
 {
     $log = new \Monolog\Logger('ergo_debug');

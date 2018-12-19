@@ -7,3 +7,4 @@ src/vendor
 *.mwb
 *.mwb.bak
 *.pdf
+*.json

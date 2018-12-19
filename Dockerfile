@@ -22,8 +22,18 @@ RUN set -x \
   && apt-get install --no-install-recommends --no-install-suggests -y \
     unzip \
     zlib1g-dev \
+    libgmp-dev \
+    libsodium-dev \
+  \
   && docker-php-ext-install zip \
-  && docker-php-ext-enable zip
+  && docker-php-ext-enable zip \
+  \
+  && ln /usr/include/x86_64-linux-gnu/gmp.h /usr/include/ \
+  && docker-php-ext-install gmp \
+  && docker-php-ext-enable gmp \
+  \
+  && docker-php-ext-install sodium \
+  && docker-php-ext-enable sodium
 
 
 
@@ -59,8 +69,6 @@ RUN set -x \
 ### Init project and fix permission
 ###
 RUN set -x \
-  && mkdir -p /var/www/html/public \
-  && mkdir -p /var/www/html/logs \
   && chmod 0755 /var/www/html/public \
   && chmod -R 777 /var/www/html/logs \
   && chown -R ${USER}:${GROUP} /var/www/html

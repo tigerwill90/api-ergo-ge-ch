@@ -4,6 +4,9 @@ require __DIR__ . '/../vendor/autoload.php';
 $envLoader = new \Dotenv\Dotenv(__DIR__ . '/../');
 $envLoader->load();
 $envLoader->required('TIMEZONE')->notEmpty();
+$envLoader->required('API_KEY_DIR')->notEmpty();
+$envLoader->required('GOOGLE_APPLICATION_CREDENTIALS')->notEmpty();
+$envLoader->required('CALENDAR_ID')->notEmpty();
 $envLoader->required('DEBUG')->notEmpty()->isBoolean();
 date_default_timezone_set(getenv('TIMEZONE'));
 

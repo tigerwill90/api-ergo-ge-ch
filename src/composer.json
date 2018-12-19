@@ -10,11 +10,13 @@
     ],
     "require": {
       "php": "^7.2",
+      "ext-gmp" : "*",
       "slim/slim": "^3.11",
       "vlucas/phpdotenv": "^2.5.1",
       "monolog/monolog": "^1.24",
       "ext-json": "*",
-      "ext-pdo": "*"
+      "ext-pdo": "*",
+        "google/apiclient": "2.0"
     },
     "require-dev" : {
       "roave/security-advisories": "dev-master",
