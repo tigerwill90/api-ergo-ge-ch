@@ -33,7 +33,7 @@ $container[\Ergo\Controllers\DownloadDocuments::class] = function (ContainerInte
  */
 $container[\Ergo\Controllers\ReadEvents::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadEvents
 {
-    return new \Ergo\Controllers\ReadEvents($c->get('calendarClient'), $c->get('appDebug'));
+    return new \Ergo\Controllers\ReadEvents($c->get('calendarClient'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
 /**
@@ -43,6 +43,14 @@ $container[\Ergo\Controllers\ReadEvents::class] = function (ContainerInterface $
 $container['calendarClient'] = function (ContainerInterface $c) : \Ergo\Services\CalendarClient
 {
   return new \Ergo\Services\CalendarClient($c->get('appDebug'));
+};
+
+/**
+ * @return \Ergo\Services\DataWrapper
+ */
+$container['dataWrapper'] = function () : \Ergo\Services\DataWrapper
+{
+    return new \Ergo\Services\DataWrapper();
 };
 
 /**

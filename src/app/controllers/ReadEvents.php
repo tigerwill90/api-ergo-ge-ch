@@ -10,6 +10,7 @@ namespace Ergo\Controllers;
 
 use Ergo\Exceptions\InvalidDateTimeRange;
 use Ergo\Services\CalendarClient;
+use Ergo\Services\DataWrapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -22,9 +23,13 @@ final class ReadEvents
     /** @var CalendarClient  */
     private $calendarClient;
 
-    public function __construct(CalendarClient $calendarClient, LoggerInterface $logger = null)
+    /** @var DataWrapper  */
+    private $wrapper;
+
+    public function __construct(CalendarClient $calendarClient, DataWrapper $wrapper, LoggerInterface $logger = null)
     {
         $this->logger = $logger;
+        $this->wrapper = $wrapper;
         $this->calendarClient = $calendarClient;
     }
 
@@ -47,17 +52,15 @@ final class ReadEvents
             $this->validateDate($start, $end, $timeMin, $timeMax);
 
         } catch (InvalidDateTimeRange $e) {
-            $body->write(json_encode(['error' => 'bad request', 'error_description' => $e->getMessage()]));
-            return $response
-                ->withBody($body)
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(400);
+            return $this->wrapper
+                ->addData(['error' => 'bad request', 'error_description' => $e->getMessage()])
+                ->addMeta()
+                ->throwResponse($response, 400);
         } catch (\Exception $e) {
-            $body->write(json_encode(['error' => 'bad request', 'error_description' => 'invalid date format']));
-            return $response
-                ->withBody($body)
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(400);
+            return $this->wrapper
+                ->addData(['error' => 'bad request', 'error_description' => 'invalid date format'])
+                ->addMeta()
+                ->throwResponse($response, 400);
         }
 
         $service =  $this->calendarClient->getCalendarService();
@@ -72,11 +75,10 @@ final class ReadEvents
         try {
             $results = $service->events->listEvents($calendarId, $optParams);
         } catch (\Exception $e) {
-            $body->write(json_encode(['error' => 'unauthorized', 'error_description' => 'an error occured with google calendar api']));
-            return $response
-                ->withBody($body)
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(401);
+            return $this->wrapper
+                ->addData(['error' => 'unauthorized', 'error_description' => 'an error occured with google calendar api'])
+                ->addMeta()
+                ->throwResponse($response, 401);
         }
 
         $items = $results->getItems();
@@ -85,27 +87,33 @@ final class ReadEvents
             $events[] = [
                 'id' => $item->getId(),
                 'kind' => $item->getKind(),
-                'summary' => $item->getSummary(),
+                'title' => $item->getSummary(),
                 'description' => $item->getDescription(),
                 'location' => $item->getLocation(),
+                'color' => $item->getColorId(),
                 'organizer' => [
                     'name' => $item->getOrganizer()->getDisplayName(),
                     'email' => $item->getOrganizer()->getEmail()
                 ],
-                'start' => [
-                    'date' => $item->getStart()->getDate(),
-                    'time' => $item->getStart()->getDateTime(),
-                    'timezone' => $item->getStart()->getTimeZone()
-                ],
-                'end' => [
-                    'date' => $item->getEnd()->getDate(),
-                    'time' => $item->getEnd()->getDateTime(),
-                    'timezone' => $item->getEnd()->getTimeZone()
-                ]
+                'start' => call_user_func(function () use ($item) {
+                    if ($item->getStart()->getDate() === null) {
+                        return $item->getStart()->getDateTime();
+                    }
+                    return $item->getStart()->getDate();
+                }),
+                'end' => call_user_func(function () use ($item) {
+                    if ($item->getEnd()->getDate() === null) {
+                        return $item->getEnd()->getDateTime();
+                    }
+                    return $item->getEnd()->getDate();
+                }),
+                'timezone' => $item->getStart()->getTimeZone()
             ];
         }
-        $body->write(json_encode($events));
-        return $response->withBody($body)->withHeader('Content-Type', 'application/json');
+        return $this->wrapper
+            ->addData($events)
+            ->addMeta()
+            ->throwResponse($response);
     }
 
     /**
