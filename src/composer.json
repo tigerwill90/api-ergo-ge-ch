@@ -8,6 +8,12 @@
             "email": "sylvain.muller90@gmail.com"
         }
     ],
+    "repositories":  [
+      {
+        "type": "vcs",
+        "url": "git@gitlab.muller.local:tigerwill90/server-timing.git"
+      }
+    ],
     "require": {
       "php": "^7.2",
       "ext-gmp" : "*",
@@ -16,8 +22,9 @@
       "monolog/monolog": "^1.24",
       "ext-json": "*",
       "ext-pdo": "*",
-        "google/apiclient": "2.0",
-        "tuupola/cors-middleware": "^0.9.1"
+      "google/apiclient": "2.0",
+      "tuupola/cors-middleware": "^0.9.1",
+      "tigerwill90/server-timing": "0.x-dev"
     },
     "require-dev" : {
       "roave/security-advisories": "dev-master",

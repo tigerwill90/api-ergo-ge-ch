@@ -7,4 +7,5 @@ src/vendor
 *.mwb
 *.mwb.bak
 *.pdf
-*.json
+ergo-dev.json
+id_rsa

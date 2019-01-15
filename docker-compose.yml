@@ -1,8 +1,7 @@
 version: '3'
 services:
   httpd:
-    build:
-      context: .
+    image: tigerwill90/7.2.13-apache:latest
     container_name: httpd
     ports:
       - 80:80

@@ -1,4 +1,4 @@
-FROM php:7.2.12-apache
+FROM php:7.2.13-apache
 
 ENV USER="ergo" \
     GROUP="ergo" \
@@ -21,6 +21,8 @@ RUN set -x \
   && apt-get update \
   && apt-get install --no-install-recommends --no-install-suggests -y \
     unzip \
+    git \
+    openssh-client \
     zlib1g-dev \
     libgmp-dev \
     libsodium-dev \
@@ -34,8 +36,6 @@ RUN set -x \
   \
   && docker-php-ext-install sodium \
   && docker-php-ext-enable sodium
-
-
 
 ###
 ### Install PDO
@@ -64,6 +64,30 @@ RUN set -x \
   && a2dissite 000-default.conf \
   && a2ensite vhost.conf \
   && a2enmod rewrite
+
+###
+### Adding rsa key
+### You need to manualy add ssh key with command eval $(ssh-agent -s) && ssh-add /home/ergo/ssh/id_rsa
+###
+RUN set -x \
+    && mkdir /root/.ssh \
+    && mkdir /home/${USER}/.ssh \
+    && echo "IdentityFile /root/.ssh/id_rsa" >> /root/.ssh/config \
+    && echo "IdentityFile /home/${USER}/.ssh/id_rsa" >> /home/${USER}/.ssh/config \
+    && touch /root/.ssh/known_hosts \
+    && touch /home/${USER}/.ssh/known_hosts
+ADD id_rsa /root/.ssh
+ADD id_rsa /home/${USER}/.ssh
+RUN set -x \
+    && chmod 700 /root/.ssh \
+    && chmod 600 /root/.ssh/id_rsa \
+    && chmod 600 /root/.ssh/config \
+    && chmod 600 /root/.ssh/known_hosts \
+    && chmod 700 /home/${USER}/.ssh \
+    && chmod 600 /home/${USER}/.ssh/id_rsa \
+    && chmod 600 /home/${USER}/.ssh/config \
+    && chmod 600 /home/${USER}/.ssh/known_hosts \
+    && chown -R ${USER}:${GROUP} /home/${USER}/.ssh
 
 ###
 ### Init project and fix permission
