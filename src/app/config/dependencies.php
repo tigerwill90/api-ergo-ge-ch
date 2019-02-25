@@ -83,6 +83,15 @@ $container[\Ergo\Controllers\ReadOffices::class] = function (ContainerInterface 
     return new \Ergo\Controllers\ReadOffices($c->get('officesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadTherapist
+ */
+$container[\Ergo\Controllers\ReadTherapist::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadTherapist
+{
+    return new \Ergo\Controllers\ReadTherapist($c->get('therapistsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
 /** ----------------- DOMAINS ----------------- */
 
 /**
@@ -101,6 +110,15 @@ $container['categoriesDao'] = function (ContainerInterface $c) : \Ergo\domains\C
 $container['officesDao'] = function (ContainerInterface $c) : \Ergo\domains\OfficesDao
 {
     return new \Ergo\domains\OfficesDao($c->get('pdo'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\domains\TherapistsDao
+ */
+$container['therapistsDao'] = function (ContainerInterface $c) : \Ergo\domains\TherapistsDao
+{
+    return new \Ergo\domains\TherapistsDao($c->get('pdo'), $c->get('appDebug'));
 };
 
 /** ----------------- SERVICES ----------------- */

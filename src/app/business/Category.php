@@ -21,7 +21,7 @@ class Category implements EntityInterface
 
     public function __construct(array $category)
     {
-        if (!empty($category['id'])) $this->id = $category['id'];
+        if (!empty($category['id'])) $this->id = (int)$category['id'];
         $this->name = $category['name'];
         if (!empty($category['description'])) $this->description = $category['description'];
     }
