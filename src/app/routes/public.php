@@ -8,4 +8,7 @@
 
 $app->get('/independents', \Ergo\Controllers\ReadIndependents::class);
 $app->get('/events', \Ergo\Controllers\ReadEvents::class);
-$app->get('/documents/{name}', \Ergo\Controllers\DownloadDocuments::class);
+$app->group('/documents', function (\Slim\App $app) {
+    $app->get('', \Ergo\Controllers\ListDocuments::class);
+    $app->get('/{name}', \Ergo\Controllers\DownloadDocuments::class);
+});

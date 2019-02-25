@@ -18,6 +18,7 @@ final class DownloadDocuments
     /** @var LoggerInterface  */
     private $logger;
 
+    private const SCAN_PATH = __DIR__ . '/../../pdf/*.pdf';
     private const PATH = '/../../pdf/';
 
     public function __construct(LoggerInterface $logger = null)
@@ -28,7 +29,7 @@ final class DownloadDocuments
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $filename = $request->getAttribute('name');
-        if (file_exists(__DIR__. self::PATH . $filename . '.pdf')) {
+        if ($this->pdfExist($filename)) {
             $fh = fopen(__DIR__. self::PATH . $filename . '.pdf', 'rb');
             $stream = new Stream($fh);
             $disposition = $request->getQueryParams()['disposition'];
@@ -55,6 +56,20 @@ final class DownloadDocuments
             ->withBody($body)
             ->withStatus(404)
             ->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * Secure way to check if a pdf filename exist in pdf directory
+     * @param string $filename
+     * @return bool
+     */
+    private function pdfExist(string $filename) : bool {
+        foreach (glob(self::SCAN_PATH) as $file) {
+            if ($filename . '.pdf' === end(explode('/', rtrim($file, '/')))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

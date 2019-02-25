@@ -1,4 +1,4 @@
-FROM php:7.2.13-apache
+FROM php:7.2.15-apache
 
 ENV USER="ergo" \
     GROUP="ergo" \
@@ -67,7 +67,6 @@ RUN set -x \
 
 ###
 ### Adding rsa key
-### You need to manualy add ssh key with command eval $(ssh-agent -s) && ssh-add /home/ergo/ssh/id_rsa
 ###
 RUN set -x \
     && mkdir /root/.ssh \
@@ -87,6 +86,7 @@ RUN set -x \
     && chmod 600 /home/${USER}/.ssh/id_rsa \
     && chmod 600 /home/${USER}/.ssh/config \
     && chmod 600 /home/${USER}/.ssh/known_hosts \
+    # requered for non-root user
     && chown -R ${USER}:${GROUP} /home/${USER}/.ssh
 
 ###
@@ -101,6 +101,6 @@ RUN set -x service apache2 restart
 
 VOLUME /var/www/html
 
-EXPOSE 80
+EXPOSE 80 443
 
 WORKDIR /var/www/html

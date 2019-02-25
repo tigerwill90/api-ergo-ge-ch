@@ -33,7 +33,24 @@ $container[\Ergo\Controllers\DownloadDocuments::class] = function (ContainerInte
  */
 $container[\Ergo\Controllers\ReadEvents::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadEvents
 {
-    return new \Ergo\Controllers\ReadEvents($c->get('calendarClient'), $c->get('dataWrapper'), $c->get('appDebug'));
+    return new \Ergo\Controllers\ReadEvents($c->get('calendarClient'), $c->get('dataWrapper'), $c->get('serverTimingManager'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ListDocuments
+ */
+$container[\Ergo\Controllers\ListDocuments::class] = function (ContainerInterface $c) : \Ergo\Controllers\ListDocuments
+{
+    return new \Ergo\Controllers\ListDocuments($c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @return \Tigerwill90\ServerTiming\ServerTimingManager
+ */
+$container['serverTimingManager'] = function () : \Tigerwill90\ServerTiming\ServerTimingManager
+{
+    return new \Tigerwill90\ServerTiming\ServerTimingManager();
 };
 
 /**
