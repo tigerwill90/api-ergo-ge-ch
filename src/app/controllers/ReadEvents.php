@@ -8,6 +8,7 @@
 
 namespace Ergo\Controllers;
 
+use Ergo\Business\Error;
 use Ergo\Exceptions\InvalidDateTimeRange;
 use Ergo\Services\CalendarClient;
 use Ergo\Services\DataWrapper;
@@ -61,12 +62,12 @@ final class ReadEvents
 
         } catch (InvalidDateTimeRange $e) {
             return $this->wrapper
-                ->addData(['error' => 'bad request', 'error_description' => $e->getMessage()])
+                ->addEntity(new Error(Error::ERR_BAD_REQUEST, $e->getMessage()))
                 ->addMeta()
                 ->throwResponse($response, 400);
         } catch (\Exception $e) {
             return $this->wrapper
-                ->addData(['error' => 'bad request', 'error_description' => 'invalid date format'])
+                ->addEntity(new Error(Error::ERR_BAD_REQUEST, 'invalid date format'))
                 ->addMeta()
                 ->throwResponse($response, 400);
         }
@@ -87,7 +88,7 @@ final class ReadEvents
             $results = $service->events->listEvents($calendarId, $optParams);
         } catch (\Exception $e) {
             return $this->wrapper
-                ->addData(['error' => 'unauthorized', 'error_description' => 'an error occured with google calendar api'])
+                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'an error occured with google calendar api'))
                 ->addMeta()
                 ->throwResponse($response, 401);
         }
@@ -125,7 +126,7 @@ final class ReadEvents
         $createResponse->stop();
         $all->stop();
         return $this->wrapper
-            ->addData($events)
+            ->addArray($events)
             ->addMeta()
             ->throwResponse($response)
             ->withHeader('Server-Timing', $this->stm->createHeader());

@@ -9,6 +9,8 @@ use Psr\Container\ContainerInterface;
 
 $container = $app->getContainer();
 
+/** ----------------- CONTROLLERS ----------------- */
+
 /**
  * @param ContainerInterface $c
  * @return \Ergo\Controllers\ReadIndependents
@@ -44,6 +46,64 @@ $container[\Ergo\Controllers\ListDocuments::class] = function (ContainerInterfac
 {
     return new \Ergo\Controllers\ListDocuments($c->get('dataWrapper'), $c->get('appDebug'));
 };
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadCategory
+ */
+$container[\Ergo\Controllers\ReadCategory::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadCategory
+{
+    return new \Ergo\Controllers\ReadCategory($c->get('categoriesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadCategories$
+ */
+$container[\Ergo\Controllers\ReadCategories::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadCategories
+{
+    return new \Ergo\Controllers\ReadCategories($c->get('categoriesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadOffice
+ */
+$container[\Ergo\Controllers\ReadOffice::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadOffice
+{
+    return new \Ergo\Controllers\ReadOffice($c->get('officesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadOffices
+ */
+$container[\Ergo\Controllers\ReadOffices::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadOffices
+{
+    return new \Ergo\Controllers\ReadOffices($c->get('officesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/** ----------------- DOMAINS ----------------- */
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\domains\CategoriesDao
+ */
+$container['categoriesDao'] = function (ContainerInterface $c) : \Ergo\domains\CategoriesDao
+{
+    return new \Ergo\domains\CategoriesDao($c->get('pdo'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\domains\OfficesDao
+ */
+$container['officesDao'] = function (ContainerInterface $c) : \Ergo\domains\OfficesDao
+{
+    return new \Ergo\domains\OfficesDao($c->get('pdo'), $c->get('appDebug'));
+};
+
+/** ----------------- SERVICES ----------------- */
 
 /**
  * @return \Tigerwill90\ServerTiming\ServerTimingManager
@@ -86,4 +146,14 @@ $container['appDebug'] = function () : Monolog\Logger
     $stream->setFormatter($formatter);
     $log->pushHandler($stream);
     return $log;
+};
+
+/**
+ * @return PDO
+ */
+$container['pdo'] = function () : PDO
+{
+    $pdo = new PDO('mysql:host=' . getenv('DB_HOST') . ';' . 'dbname=' . getenv('DB_NAME') . ';charset=utf8', getenv('DB_USER'), getenv('DB_PASSWORD'));
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    return $pdo;
 };

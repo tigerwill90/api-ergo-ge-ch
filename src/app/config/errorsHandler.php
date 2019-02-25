@@ -17,7 +17,7 @@ $container['errorHandler'] = function (ContainerInterface $c) : Closure {
     return function (ServerRequestInterface $request, ResponseInterface $response, Exception $e) use ($c) : ResponseInterface {
         error_log($e->getMessage()); // TODO suppress
         $body = $response->getBody();
-        $body->write(json_encode(['error' => 'something goes wrong']));
+        $body->write(json_encode(['error' => 'Something goes wrong']));
         return $response
                 ->withBody($body)
                 ->withStatus(500)
@@ -32,7 +32,7 @@ $container['errorHandler'] = function (ContainerInterface $c) : Closure {
 $container['notAllowedHandler'] = function (ContainerInterface $c) : Closure {
     return function (ServerRequestInterface $request, ResponseInterface $response, array $methods) use ($c) : ResponseInterface {
         $body = $response->getBody();
-        $body->write(json_encode(['error' => 'method not allowed']));
+        $body->write(json_encode(['error' => 'Method not allowed']));
         return $response
             ->withBody($body)
             ->withStatus(405)
@@ -48,7 +48,7 @@ $container['notAllowedHandler'] = function (ContainerInterface $c) : Closure {
 $container['notFoundHandler'] = function (ContainerInterface $c) : Closure {
     return function (ServerRequestInterface $request, ResponseInterface $response) use ($c) : ResponseInterface {
         $body = $response->getBody();
-        $body->write(json_encode(['error' => 'resource not found']));
+        $body->write(json_encode(['error' => 'Resource not found']));
         return $response
             ->withBody($body)
             ->withStatus(404)

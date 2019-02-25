@@ -3,28 +3,33 @@
  * Created by PhpStorm.
  * User: Sylvain
  * Date: 25.02.2019
- * Time: 11:48
+ * Time: 21:30
  */
 
 namespace Ergo\Controllers;
 
+use Ergo\Business\Error;
+use Ergo\Domains\OfficesDao;
+use Ergo\Exceptions\NoEntityException;
 use Ergo\Services\DataWrapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
-final class ListDocuments
+final class ReadOffice
 {
-
-    /** @var LoggerInterface  */
+    /** @var LoggerInterface */
     private $logger;
 
+    /** @var OfficesDao */
+    private $officesDao;
+
+    /** @var DataWrapper */
     private $wrapper;
 
-    private const SCAN_PATH = __DIR__ . '/../../pdf/*.pdf';
-
-    public function __construct(DataWrapper $wrapper, LoggerInterface $logger = null)
+    public function __construct(OfficesDao $officesDao, DataWrapper $wrapper, LoggerInterface $logger = null)
     {
+        $this->officesDao = $officesDao;
         $this->wrapper = $wrapper;
         $this->logger = $logger;
     }
@@ -33,26 +38,26 @@ final class ListDocuments
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface
+     * @throws \Exception
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
-        $pdfList = $this->scanPdfDirectory();
+        $attribute = $request->getAttribute('attribute');
+        try {
+            $office = $this->officesDao->getOffice($attribute);
+        } catch (NoEntityException $e) {
+            return $this->wrapper
+                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addMeta()
+                ->throwResponse($response, 404);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
         return $this->wrapper
-            ->addArray($pdfList)
+            ->addEntity($office)
             ->addMeta()
             ->throwResponse($response);
-    }
-
-    /**
-     * Return a list of pdf content in pdf directory
-     * @return array
-     */
-    private function scanPdfDirectory() : array {
-        $files = [];
-        foreach (glob(self::SCAN_PATH) as $file) {
-            $files[] = end(explode('/', rtrim($file, '/')));
-        }
-        return $files;
     }
 
     /**

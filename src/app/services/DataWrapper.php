@@ -8,7 +8,7 @@
 
 namespace Ergo\Services;
 
-
+use Ergo\Business\EntityInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
@@ -26,10 +26,32 @@ class DataWrapper
     }
 
     /**
+     * @param EntityInterface $entity
+     * @return DataWrapper
+     */
+    public function addEntity(EntityInterface $entity) : self
+    {
+        $this->wrapper['data'] = $entity->getEntity();
+        return $this;
+    }
+
+    /**
+     * @param EntityInterface[] $collection
+     * @return DataWrapper
+     */
+    public function addCollection(array $collection) : self
+    {
+        foreach ($collection as $entity) {
+            $this->wrapper['data'][] = $entity->getEntity();
+        }
+        return $this;
+    }
+
+    /**
      * @param array $data
      * @return DataWrapper
      */
-    public function addData(array $data) : self
+    public function addArray(array $data): self
     {
         $this->wrapper['data'] = $data;
         return $this;
@@ -41,7 +63,7 @@ class DataWrapper
     public function addMeta() : self
     {
         $this->wrapper['meta'] = [
-            'api_versions' => '0.0.1'
+            'api_versions' => getenv('API_VERSION')
         ];
         return $this;
     }
@@ -54,10 +76,10 @@ class DataWrapper
     public function throwResponse(ResponseInterface $response, int $status = 200) : ResponseInterface
     {
         $body = $response->getBody();
-        $body->write(json_encode($this->wrapper));
+        $body->write(json_encode($this->wrapper, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK));
         return $response
             ->withBody($body)
-            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Content-Type', 'application/json; charset=utf-8')
             ->withStatus($status);
     }
 

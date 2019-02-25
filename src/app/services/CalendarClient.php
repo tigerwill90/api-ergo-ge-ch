@@ -8,7 +8,6 @@
 
 namespace Ergo\Services;
 
-use Ergo\Exceptions\GoogleCalendarError;
 use Psr\Log\LoggerInterface;
 
 class CalendarClient
