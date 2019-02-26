@@ -26,7 +26,16 @@ $container[Ergo\Controllers\ReadIndependents::class] = function (ContainerInterf
  */
 $container[\Ergo\Controllers\DownloadDocuments::class] = function (ContainerInterface $c)  : \Ergo\Controllers\DownloadDocuments
 {
-    return new \Ergo\Controllers\DownloadDocuments($c->get('appDebug'));
+    return new \Ergo\Controllers\DownloadDocuments($c->get('fileUtility'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\DownloadImage
+ */
+$container[\Ergo\Controllers\DownloadImage::class] = function (ContainerInterface $c)  : \Ergo\Controllers\DownloadImage
+{
+    return new \Ergo\Controllers\DownloadImage($c->get('fileUtility'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
 /**
@@ -44,7 +53,16 @@ $container[\Ergo\Controllers\ReadEvents::class] = function (ContainerInterface $
  */
 $container[\Ergo\Controllers\ListDocuments::class] = function (ContainerInterface $c) : \Ergo\Controllers\ListDocuments
 {
-    return new \Ergo\Controllers\ListDocuments($c->get('dataWrapper'), $c->get('appDebug'));
+    return new \Ergo\Controllers\ListDocuments($c->get('dataWrapper'), $c->get('fileUtility'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ListImages
+ */
+$container[\Ergo\Controllers\ListImages::class] = function (ContainerInterface $c) : \Ergo\Controllers\ListImages
+{
+    return new \Ergo\Controllers\ListImages($c->get('dataWrapper'), $c->get('fileUtility'), $c->get('appDebug'));
 };
 
 /**
@@ -164,6 +182,14 @@ $container['calendarClient'] = function (ContainerInterface $c) : \Ergo\Services
 $container['dataWrapper'] = function () : \Ergo\Services\DataWrapper
 {
     return new \Ergo\Services\DataWrapper();
+};
+
+/**
+ * @return \Ergo\Services\FileUtility
+ */
+$container['fileUtility'] = function () : \Ergo\Services\FileUtility
+{
+    return new \Ergo\Services\FileUtility();
 };
 
 /**

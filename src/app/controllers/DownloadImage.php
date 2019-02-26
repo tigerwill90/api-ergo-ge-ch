@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: Sylvain
- * Date: 09.12.2018
- * Time: 12:42
+ * Date: 26.02.2019
+ * Time: 17:47
  */
 
 namespace Ergo\Controllers;
@@ -16,7 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Slim\Http\Stream;
 
-final class DownloadDocuments
+final class DownloadImage
 {
     /** @var LoggerInterface  */
     private $logger;
@@ -24,10 +24,10 @@ final class DownloadDocuments
     /** @var FileUtility */
     private $utils;
 
-    /** @var DataWrapper */
+    /** @var DataWrapper  */
     private $wrapper;
 
-    private const PATH = __DIR__ . '/../../pdf/';
+    private const PATH = __DIR__ . '/../../assets/images/';
 
     public function __construct(FileUtility $utils , DataWrapper $wrapper, LoggerInterface $logger = null)
     {
@@ -44,29 +44,16 @@ final class DownloadDocuments
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $filename = $request->getAttribute('name');
-        if (null !== $file = $this->utils->searchFile($filename, ['pdf'], self::PATH)) {
+        if (null !== $file = $this->utils->searchFile($filename, ['png', 'jpg'], self::PATH)) {
             $fh = fopen(self::PATH . $file['filename'] . '.' . $file['extension'], 'rb');
             $stream = new Stream($fh);
-            $disposition = $request->getQueryParams()['disposition'];
-            $newResponse = $response
+            return $response
                 ->withBody($stream)
-                ->withHeader('Content-Type', 'application/pdf')
-                ->withHeader('Content-Description', 'File Transfer')
-                ->withHeader('Content-Transfer-Encoding', 'binary');
-
-            if (!empty($disposition) && $disposition === 'download') {
-                return $newResponse
-                    ->withHeader('Content-Type', 'application/download')
-                    ->withHeader('Content-Type', 'application/force-download')
-                    ->withHeader('Content-Disposition', 'attachment; filename=' . $filename . '.pdf');
-            }
-
-            return $newResponse
-                ->withHeader('Content-Disposition', 'inline; filename=' . $filename . '.pdf');
+                ->withHeader('Content-Type', 'image/' . $file['extension']);
         }
 
         return $this->wrapper
-            ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No pdf entity found for this name : ' . $filename))
+            ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No image entity found for this name : ' . $filename))
             ->addMeta()
             ->throwResponse($response, 404);
     }

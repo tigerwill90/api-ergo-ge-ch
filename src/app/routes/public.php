@@ -12,6 +12,10 @@ $app->group('/documents', function (\Slim\App $app) {
     $app->get('', \Ergo\Controllers\ListDocuments::class);
     $app->get('/{name}', \Ergo\Controllers\DownloadDocuments::class);
 });
+$app->group('/images', function (\Slim\App $app) {
+    $app->get('', \Ergo\Controllers\ListImages::class);
+    $app->get('/{name}', \Ergo\Controllers\DownloadImage::class);
+});
 $app->group('/categories', function(\Slim\App $app) {
     $app->get('', \Ergo\Controllers\ReadCategories::class);
     $app->get('/{id:[0-9]+}', \Ergo\Controllers\ReadCategory::class);

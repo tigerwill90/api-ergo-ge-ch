@@ -7,5 +7,7 @@ src/vendor
 *.mwb
 *.mwb.bak
 *.pdf
+*.png
+*.jpg
 ergo-dev.json
 id_rsa

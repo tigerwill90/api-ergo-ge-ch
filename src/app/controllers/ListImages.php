@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: Sylvain
- * Date: 25.02.2019
- * Time: 11:48
+ * Date: 26.02.2019
+ * Time: 19:34
  */
 
 namespace Ergo\Controllers;
@@ -14,9 +14,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
-final class ListDocuments
+final class ListImages
 {
-
     /** @var LoggerInterface  */
     private $logger;
 
@@ -26,7 +25,7 @@ final class ListDocuments
     /** @var FileUtility */
     private $fileUtility;
 
-    private const SCAN_PATH = __DIR__ . '/../../pdf/';
+    private const SCAN_PATH = __DIR__ . '/../../assets/images/';
 
     public function __construct(DataWrapper $wrapper, FileUtility $fileUtility, LoggerInterface $logger = null)
     {
@@ -42,9 +41,9 @@ final class ListDocuments
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
-        $pdfList = $this->fileUtility->scanDirectory(['pdf'], self::SCAN_PATH);
+        $imageList = $this->fileUtility->scanDirectory(['png', 'jpg'], self::SCAN_PATH);
         return $this->wrapper
-            ->addArray($pdfList)
+            ->addArray($imageList)
             ->addMeta()
             ->throwResponse($response);
     }
