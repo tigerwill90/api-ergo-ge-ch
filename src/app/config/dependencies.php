@@ -67,6 +67,15 @@ $container[\Ergo\Controllers\ReadCategories::class] = function (ContainerInterfa
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadCategoriesOffice
+ */
+$container[\Ergo\Controllers\ReadCategoriesOffice::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadCategoriesOffice
+{
+    return new \Ergo\Controllers\ReadCategoriesOffice($c->get('categoriesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\ReadOffice
  */
 $container[\Ergo\Controllers\ReadOffice::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadOffice

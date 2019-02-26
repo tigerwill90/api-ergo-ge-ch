@@ -20,6 +20,7 @@ $app->group('/offices', function(\Slim\App $app) {
     $app->get('', \Ergo\Controllers\ReadOffices::class);
     $app->get('/{attribute}', \Ergo\Controllers\ReadOffice::class);
     $app->get('/{id:[0-9]+}/therapists', \Ergo\Controllers\ReadTherapistsOffice::class);
+    $app->get('/{id:[0-9]+}/categories', \Ergo\Controllers\ReadCategoriesOffice::class);
 });
 $app->group('/therapists', function(\Slim\App $app) {
     $app->get('/{id:[0-9]+}', \Ergo\Controllers\ReadTherapist::class);
