@@ -57,13 +57,13 @@ class TherapistsDao
             if (empty($data)) {
                 throw new NoEntityException('No entity found for this therapist id : ' . $id);
             }
-            
+
             $phonesId = $emailsId = $phones = $emails = $categories = $categoriesId = [];
             foreach ($data as $contact) {
                     if ($contact['phoneId'] !== null && !in_array($contact['phoneId'], $phonesId, true)) {
                         $phones[] = [
                             'type' => $contact['phoneType'],
-                            'number' => $contact['phoneNumber']
+                            'number' => (string)$contact['phoneNumber']
                         ];
                         $phonesId[] = $contact['phoneId'];
                     }
@@ -89,10 +89,13 @@ class TherapistsDao
     }
 
     /**
-     * @param int $officeId
+     * Get all information about therapists. An office id parameter can be passed to fetch therapists for a given office
+     * @param int|null $officeId
      * @return Therapist[]
+     * @throws NoEntityException
+     * @throws \Exception
      */
-    public function getTherapistsByOffice(int $officeId) : array
+    public function getTherapists(?int $officeId = null) : array
     {
         $sql =
             '
@@ -106,13 +109,62 @@ class TherapistsDao
                         LEFT JOIN emails ON therapists_id = emails_therapists_id
                         LEFT JOIN therapistsCategories ON therapists_id = therapistsCategories_therapists_id
                         LEFT JOIN categories ON categories_id = therapistsCategories_categories_id
-                        WHERE therapists_offices_id = 
-            ' . $officeId;
-    }
+                ';
 
-    public function getCategoriesByOffice(int $officeId) : array
-    {
+        if ($officeId !== null) {
+            $sql .= 'WHERE therapists_offices_id = ' . $officeId;
+        }
 
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                throw new NoEntityException('No therapists entity found for this office id : ' . $officeId);
+            }
+
+            $therapists = $therapistsId = [];
+            foreach ($data as $therapist) {
+                if (!in_array($therapist['id'], $therapistsId, true)) {
+                    $currentTherapist = new Therapist($therapist);
+
+                    $phonesId = $emailsId = $phones = $emails = $categories = $categoriesId = [];
+                    foreach ($data as $contact) {
+                        if ($therapist['id'] === $contact['id']) {
+                            if ($contact['phoneId'] !== null && !in_array($contact['phoneId'], $phonesId, true)) {
+                                $phones[] = [
+                                    'type' => $contact['phoneType'],
+                                    'number' => (string)$contact['phoneNumber']
+                                ];
+                                $phonesId[] = $contact['phoneId'];
+                            }
+
+                            if ($contact['emailId'] !== null && !in_array($contact['emailId'], $emailsId, true)) {
+                                $emails[] = $contact['emailAddress'];
+                                $emailsId[] = $contact['emailId'];
+                            }
+
+                            if ($contact['categoryId'] !== null && !in_array($contact['categoryId'], $categoriesId, true)) {
+                                $categories[] = [
+                                    'name' => $contact['categoryName'],
+                                    'description' => $contact['categoryDescription']
+                                ];
+                                $categoriesId[] = $contact['categoryId'];
+                            }
+                        }
+                    }
+                    $currentTherapist->setPhones($phones);
+                    $currentTherapist->setEmails($emails);
+                    $currentTherapist->setCategories($categories);
+                    $therapists[] = $currentTherapist;
+                    $therapistsId[] = $therapist['id'];
+                }
+            }
+
+            return $therapists;
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     /**

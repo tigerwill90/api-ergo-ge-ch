@@ -80,6 +80,36 @@ class CategoriesDao
         }
     }
 
+    /**
+     * @param int $officeId
+     * @return Category[]
+     */
+    public function getCategoriesByOffice(int $officeId) : array
+    {
+        $sql =
+            '
+                SELECT categories_id AS id, categories_names AS name, categories_description AS description FROM categories
+                  JOIN therapistsCategories ON categories_id = therapistsCategories_categories_id
+                  JOIN therapists ON therapists_id = therapistsCategories_therapists_id
+                  JOIN offices ON offices_id = therapists_offices_id
+                  WHERE offices_id = 
+            ' . $officeId;
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                throw new NoEntityException('No categories entities found for this office id : ' . $officeId);
+            }
+            echo print_r($data, true);
+            return [];
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+    }
+
     public function createCategory(Category $category): void
     {
 

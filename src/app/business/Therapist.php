@@ -37,7 +37,7 @@ class Therapist implements EntityInterface
     /** @var array */
     private $categories;
 
-    public function __construct(array $therapist, array $phones, array $emails, array $categories)
+    public function __construct(array $therapist, array $phones = [], array $emails = [], array $categories = [])
     {
         if (!empty($therapist['id'])) $this->id = (int)$therapist['id'];
         if (!empty($therapist['officeId'])) $this->officeId = (int)$therapist['officeId'];

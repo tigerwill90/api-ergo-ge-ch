@@ -59,9 +59,9 @@ class OfficesDao
     }
 
     /**
-     * @param string $orderAttribute
-     * @param string $sortAttribute
-     * @return Office[]
+     * @param string|null $orderAttribute
+     * @param string|null $sortAttribute
+     * @return array
      * @throws NoEntityException
      * @throws \Exception
      */

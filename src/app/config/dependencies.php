@@ -92,6 +92,15 @@ $container[\Ergo\Controllers\ReadTherapist::class] = function (ContainerInterfac
     return new \Ergo\Controllers\ReadTherapist($c->get('therapistsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadTherapistsOffice
+ */
+$container[\Ergo\Controllers\ReadTherapistsOffice::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadTherapistsOffice
+{
+    return new \Ergo\Controllers\ReadTherapistsOffice($c->get('therapistsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
 /** ----------------- DOMAINS ----------------- */
 
 /**
