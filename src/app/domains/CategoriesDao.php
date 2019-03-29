@@ -90,17 +90,17 @@ class CategoriesDao
     {
         $sql =
             '
-                SELECT categories_id AS id, categories_name AS name, categories_description AS description FROM categories
+                SELECT DISTINCT categories_id AS id, categories_name AS name, categories_description AS description FROM categories
                   JOIN therapistsCategories ON categories_id = therapistsCategories_categories_id
                   JOIN therapists ON therapists_id = therapistsCategories_therapists_id
-                  JOIN offices ON offices_id = therapists_offices_id
-                  WHERE offices_id = 
-            ' . $officeId;
+                  JOIN officesTherapists ON officesTherapists_therapists_id = therapists_id
+                  WHERE officesTherapists_offices_id = 
+            ' . $officeId . ' ORDER BY categories_name ASC';
 
         try {
             $stmt = $this->pdo->query($sql);
             $stmt->execute();
-            $data = array_unique($stmt->fetchAll(PDO::FETCH_ASSOC), SORT_REGULAR);
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (empty($data)) {
                 throw new NoEntityException('No categories entities found for this office id : ' . $officeId);
             }

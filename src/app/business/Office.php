@@ -14,44 +14,20 @@ class Office implements EntityInterface
     private $id;
 
     /** @var string */
-    private $address;
-
-    /** @var string */
-    private $npa;
-
-    /** @var  string */
-    private $city;
-
-    /** @var string */
-    private $cp;
-
-    /** @var string */
     private $name;
-
-    /** @var string */
-    private $phone;
-
-    /** @var string */
-    private $fax;
 
     /** @var string */
     private $email;
 
-    /** @var string */
-    private $district;
+    /** @var Contact[] */
+    private $contacts;
 
-    public function __construct(array $office)
+    public function __construct(array $office, array $contacts = [])
     {
         if (!empty($office['id'])) $this->id = (int)$office['id'];
-        if (!empty($office['cp'])) $this->cp = $office['cp'];
-        if (!empty($office['phone'])) $this->phone = $office['phone'];
-        if (!empty($office['fax'])) $this->fax = $office['fax'];
-        if (!empty($office['district'])) $this->district = $office['district'];
-        $this->address = $office['address'];
-        $this->npa = $office['npa'];
-        $this->city = $office['city'];
         $this->name = $office['name'];
         $this->email = $office['email'];
+        $this->contacts = $contacts;
     }
 
     /**
@@ -69,78 +45,6 @@ class Office implements EntityInterface
     public function setId(int $id): self
     {
         $this->id = $id;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAddress(): string
-    {
-        return $this->address;
-    }
-
-    /**
-     * @param string $address
-     * @return Office
-     */
-    public function setAddress(string $address): self
-    {
-        $this->address = $address;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getNpa(): string
-    {
-        return $this->npa;
-    }
-
-    /**
-     * @param string $npa
-     * @return Office
-     */
-    public function setNpa(string $npa): self
-    {
-        $this->npa = $npa;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCity(): string
-    {
-        return $this->city;
-    }
-
-    /**
-     * @param string $city
-     * @return Office
-     */
-    public function setCity(string $city): self
-    {
-        $this->city = $city;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCp(): string
-    {
-        return $this->cp;
-    }
-
-    /**
-     * @param string $cp
-     * @return Office
-     */
-    public function setCp(string $cp): self
-    {
-        $this->cp = $cp;
         return $this;
     }
 
@@ -165,42 +69,6 @@ class Office implements EntityInterface
     /**
      * @return string
      */
-    public function getPhone(): string
-    {
-        return $this->phone;
-    }
-
-    /**
-     * @param string $phone
-     * @return Office
-     */
-    public function setPhone(string $phone): self
-    {
-        $this->phone = $phone;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFax(): string
-    {
-        return $this->fax;
-    }
-
-    /**
-     * @param string $fax
-     * @return Office
-     */
-    public function setFax(string $fax): self
-    {
-        $this->fax = $fax;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
     public function getEmail(): string
     {
         return $this->email;
@@ -217,20 +85,20 @@ class Office implements EntityInterface
     }
 
     /**
-     * @return string
+     * @return Contact[]
      */
-    public function getDistrict(): string
+    public function getContacts(): array
     {
-        return $this->district;
+        return $this->contacts;
     }
 
     /**
-     * @param string $district
+     * @param Contact[] $contacts
      * @return Office
      */
-    public function setDistrict(string $district): self
+    public function setContacts(array $contacts): self
     {
-        $this->district = $district;
+        $this->contacts = $contacts;
         return $this;
     }
 
@@ -239,17 +107,17 @@ class Office implements EntityInterface
      */
     public function getEntity(): array
     {
-        return [
+        $entity = [
             'id' => $this->id,
             'name' => $this->name,
-            'address' => $this->address,
-            'npa' => $this->npa,
-            'city' => $this->city,
-            'cp' => $this->cp,
-            'phone' => $this->phone,
-            'fax' => $this->fax,
             'email' => $this->email,
-            'district' => $this->district
+            'contacts' => []
         ];
+
+        foreach ($this->contacts as $contact) {
+            $entity['contacts'][] = $contact->getEntity();
+        }
+
+        return $entity;
     }
 }

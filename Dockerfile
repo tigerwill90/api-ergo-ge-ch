@@ -1,4 +1,4 @@
-FROM php:7.2.15-apache
+FROM php:7.2.16-apache
 
 ENV USER="ergo" \
     GROUP="ergo" \

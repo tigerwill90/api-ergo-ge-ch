@@ -103,10 +103,14 @@ final class ReadEvents
                 'title' => $item->getSummary(),
                 'description' => $item->getDescription(),
                 'location' => $item->getLocation(),
-                'color' => $item->getColorId(),
+                'htmlLink' => $item->getHtmlLink(),
                 'organizer' => [
                     'name' => $item->getOrganizer()->getDisplayName(),
                     'email' => $item->getOrganizer()->getEmail()
+                ],
+                'creator' => [
+                    'name' => $item->getCreator()->getDisplayName(),
+                    'email' => $item->getCreator()->getEmail()
                 ],
                 'start' => call_user_func(function () use ($item) {
                     if ($item->getStart()->getDate() === null) {

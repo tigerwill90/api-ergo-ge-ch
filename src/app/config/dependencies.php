@@ -13,15 +13,6 @@ $container = $app->getContainer();
 
 /**
  * @param ContainerInterface $c
- * @return \Ergo\Controllers\ReadIndependents
- */
-$container[Ergo\Controllers\ReadIndependents::class] = function (ContainerInterface $c) : \Ergo\Controllers\ReadIndependents
-{
-   return new Ergo\Controllers\ReadIndependents($c->get('appDebug'));
-};
-
-/**
- * @param ContainerInterface $c
  * @return \Ergo\Controllers\DownloadDocuments
  */
 $container[\Ergo\Controllers\DownloadDocuments::class] = function (ContainerInterface $c)  : \Ergo\Controllers\DownloadDocuments

@@ -3,6 +3,8 @@ logs/apache2
 src/vendor
 *.lock
 .env
+.env.production
+.env.dev
 *.log
 *.mwb
 *.mwb.bak
@@ -10,4 +12,5 @@ src/vendor
 *.png
 *.jpg
 ergo-dev.json
+pfak_ergo.sql
 id_rsa

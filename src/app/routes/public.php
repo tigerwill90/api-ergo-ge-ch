@@ -6,7 +6,6 @@
  * Time: 22:01
  */
 
-$app->get('/independents', \Ergo\Controllers\ReadIndependents::class);
 $app->get('/events', \Ergo\Controllers\ReadEvents::class);
 $app->group('/documents', function (\Slim\App $app) {
     $app->get('', \Ergo\Controllers\ListDocuments::class);

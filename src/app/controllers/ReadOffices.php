@@ -8,7 +8,6 @@
 
 namespace Ergo\Controllers;
 
-
 use Ergo\Business\Error;
 use Ergo\Domains\OfficesDao;
 use Ergo\Exceptions\NoEntityException;

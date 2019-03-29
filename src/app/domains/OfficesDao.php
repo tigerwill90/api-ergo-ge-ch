@@ -8,6 +8,7 @@
 
 namespace Ergo\Domains;
 
+use Ergo\Business\Contact;
 use Ergo\Business\Office;
 use Ergo\Exceptions\NoEntityException;
 use PDO;
@@ -38,9 +39,10 @@ class OfficesDao
         $sql =
             '
                 SELECT DISTINCT 
-                    offices_id AS id, offices_address AS address, offices_npa AS npa, offices_city AS city, offices_cp AS cp, offices_name AS name,
-                    offices_phone AS phone, offices_fax AS fax, offices_email AS email, offices_district AS district
+                    offices_id AS id, offices_email AS email, offices_name AS name,
+                    contacts_street AS street, contacts_city AS city, contacts_npa AS npa, contacts_cp AS cp, contacts_phone AS phone, contacts_fax AS fax
                     FROM offices
+                    LEFT JOIN contacts ON offices_id = contacts_offices_id
                     WHERE offices_id = :attribute OR offices_name = :attribute
             ';
 
@@ -52,7 +54,11 @@ class OfficesDao
             if (empty($data)) {
                 throw new NoEntityException('No entity found for this office attribute : ' . $attribute);
             }
-            return new Office($data[0]);
+            $contacts = [];
+            foreach ($data as $contact) {
+                $contacts[] = new Contact($contact);
+            }
+            return new Office($data[0], $contacts);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -67,7 +73,7 @@ class OfficesDao
      */
     public function getOffices(?string $orderAttribute = 'name', ?string $sortAttribute = 'ASC') : array
     {
-        $orderable = ['name', 'npa', 'district'];
+        $orderable = ['name', 'email'];
         $sortable = ['ASC', 'DESC'];
 
         $order = $orderable[array_search(strtolower($orderAttribute), $orderable, true) | 0];
@@ -75,9 +81,10 @@ class OfficesDao
         $sql =
             '
                 SELECT 
-                    offices_id AS id, offices_address AS address, offices_npa AS npa, offices_city AS city, offices_cp AS cp, offices_name AS name,
-                    offices_phone AS phone, offices_fax AS fax, offices_email AS email, offices_district AS district
+                    offices_id AS id, offices_name AS name, offices_email AS email,
+                    contacts_street AS street, contacts_city AS city, contacts_npa AS npa, contacts_cp AS cp, contacts_phone AS phone, contacts_fax AS fax
                     FROM offices
+                    LEFT JOIN contacts ON offices_id = contacts_offices_id
                     ORDER BY 
             ' . $order . ' ' . $sort;
 
@@ -88,9 +95,18 @@ class OfficesDao
             if (empty($data)) {
                 throw new NoEntityException('No entity found for offices');
             }
-            $offices = [];
+            $offices = $officesId = [];
             foreach ($data as $office) {
-                $offices[] = new Office($office);
+                if (!in_array($office['id'], $officesId, true)) {
+                    $contacts = [];
+                    foreach ($data as $contact) {
+                        if ($office['id'] === $contact['id']) {
+                            $contacts[] = new Contact($contact);
+                        }
+                    }
+                    $offices[] = new Office($office, $contacts);
+                    $officesId[] = $office['id'];
+                }
             }
             return $offices;
         } catch (\Exception $e) {

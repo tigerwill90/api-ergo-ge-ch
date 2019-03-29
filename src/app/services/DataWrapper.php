@@ -71,15 +71,16 @@ class DataWrapper
     /**
      * @param ResponseInterface $response
      * @param int $status
+     * @param int $options
      * @return ResponseInterface
      */
-    public function throwResponse(ResponseInterface $response, int $status = 200) : ResponseInterface
+    public function throwResponse(ResponseInterface $response, int $status = 200, int $options = JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) : ResponseInterface
     {
         $body = $response->getBody();
-        $body->write(json_encode($this->wrapper, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK));
+        $body->write(json_encode($this->wrapper, $options));
         return $response
             ->withBody($body)
-            ->withHeader('Content-Type', 'application/json; charset=utf-8')
+            ->withHeader('Content-Type', 'application/json')
             ->withStatus($status);
     }
 

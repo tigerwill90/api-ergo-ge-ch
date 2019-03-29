@@ -38,11 +38,13 @@ class TherapistsDao
         $sql =
             '
                 SELECT 
-                    therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home, therapists_offices_id AS officeId,
+                    therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home,
+                    officesTherapists_offices_id AS officeId,
                     phones_id AS phoneId ,phones_type AS phoneType, phones_number AS phoneNumber,
                     emails_id AS emailId, emails_address AS emailAddress,
                     categories_id AS categoryId, categories_name AS categoryName, categories_description AS categoryDescription
                         FROM therapists
+                        LEFT JOIN officesTherapists ON therapists_id = officesTherapists_therapists_id
                         LEFT JOIN phones ON therapists_id = phones_therapists_id
                         LEFT JOIN emails ON therapists_id = emails_therapists_id
                         LEFT JOIN therapistsCategories ON therapists_id = therapistsCategories_therapists_id
@@ -58,7 +60,7 @@ class TherapistsDao
                 throw new NoEntityException('No entity found for this therapist id : ' . $id);
             }
 
-            $phonesId = $emailsId = $phones = $emails = $categories = $categoriesId = [];
+            $phonesId = $emailsId = $phones = $emails = $categories = $categoriesId = $officesId = [];
             foreach ($data as $contact) {
                     if ($contact['phoneId'] !== null && !in_array($contact['phoneId'], $phonesId, true)) {
                         $phones[] = [
@@ -80,9 +82,13 @@ class TherapistsDao
                         ];
                         $categoriesId[] = $contact['categoryId'];
                     }
+
+                    if ($contact['officeId'] !== null && !in_array($contact['officeId'], $officesId, true)) {
+                        $officesId[] = $contact['officeId'];
+                    }
             }
 
-            return new Therapist($data[0], $phones, $emails, $categories);
+            return new Therapist($data[0], $phones, $emails, $categories, $officesId);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -100,11 +106,13 @@ class TherapistsDao
         $sql =
             '
                 SELECT 
-                    therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home, therapists_offices_id AS officeId,
+                    therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home,
+                    officesTherapists_offices_id AS officeId,
                     phones_id AS phoneId ,phones_type AS phoneType, phones_number AS phoneNumber,
                     emails_id AS emailId, emails_address AS emailAddress,
                     categories_id AS categoryId, categories_name AS categoryName, categories_description AS categoryDescription
                         FROM therapists
+                        LEFT JOIN officesTherapists ON therapists_id = officesTherapists_therapists_id
                         LEFT JOIN phones ON therapists_id = phones_therapists_id
                         LEFT JOIN emails ON therapists_id = emails_therapists_id
                         LEFT JOIN therapistsCategories ON therapists_id = therapistsCategories_therapists_id
@@ -112,7 +120,7 @@ class TherapistsDao
                 ';
 
         if ($officeId !== null) {
-            $sql .= 'WHERE therapists_offices_id = ' . $officeId;
+            $sql .= 'WHERE officesTherapists_offices_id = ' . $officeId;
         }
 
         try {

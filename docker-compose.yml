@@ -1,7 +1,7 @@
 version: '3'
 services:
   httpd:
-    image: tigerwill90/7.2.15-apache:latest
+    image: tigerwill90/7.2.16-apache:latest
     container_name: httpd
     ports:
       - 80:80
@@ -11,6 +11,9 @@ services:
       - ./logs/apache2:/var/log/apache2
     networks:
       - api
+    dns:
+      - 192.168.192.91
+      - 8.8.8.8
   mysql:
     image: mysql:5.7.22
     container_name: mysql
