@@ -110,7 +110,7 @@ class Office implements EntityInterface
         $entity = [
             'id' => $this->id,
             'name' => $this->name,
-            'email' => $this->email,
+            'email' => strtolower($this->email),
             'contacts' => []
         ];
 

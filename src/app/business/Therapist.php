@@ -219,12 +219,12 @@ class Therapist implements EntityInterface
     {
         $entity = [
             'id' => $this->id,
-            'title' => $this->title,
-            'firstname' => $this->firstname,
-            'lastname' => strtoupper($this->lastname),
+            'title' => ucfirst($this->title),
+            'firstname' => ucfirst($this->firstname),
+            'lastname' => ucfirst($this->lastname),
             'home' => $this->home,
             'phones' => $this->phones,
-            'emails' => $this->emails,
+            'emails' => array_map('strtolower', $this->emails),
             'categories' => $this->categories
         ];
 

@@ -73,7 +73,7 @@ class OfficesDao
      */
     public function getOffices(?string $orderAttribute = 'name', ?string $sortAttribute = 'ASC') : array
     {
-        $orderable = ['name', 'email'];
+        $orderable = ['name', 'email', 'id'];
         $sortable = ['ASC', 'DESC'];
 
         $order = $orderable[array_search(strtolower($orderAttribute), $orderable, true) | 0];
