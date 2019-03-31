@@ -44,7 +44,7 @@ final class DownloadImage
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $filename = $request->getAttribute('name');
-        if (null !== $file = $this->utils->searchFile($filename, ['png', 'jpg'], self::PATH)) {
+        if (null !== $file = $this->utils->searchFile($filename, ['png', 'jpg', 'jpeg'], self::PATH)) {
             $fh = fopen(self::PATH . $file['filename'] . '.' . $file['extension'], 'rb');
             $stream = new Stream($fh);
             return $response

@@ -120,8 +120,11 @@ class TherapistsDao
                 ';
 
         if ($officeId !== null) {
-            $sql .= 'WHERE officesTherapists_offices_id = ' . $officeId;
+            $sql .= ' WHERE officesTherapists_offices_id = ' . $officeId;
         }
+
+        // TODO order by firstname, lastname, title, home
+        $sql .= ' ORDER BY lastname ASC';
 
         try {
             $stmt = $this->pdo->query($sql);
