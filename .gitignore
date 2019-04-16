@@ -6,11 +6,9 @@ src/vendor
 .env.production
 .env.dev
 *.log
-*.mwb
 *.mwb.bak
 *.pdf
 *.png
 *.jpg
 ergo-dev.json
-pfak_ergo.sql
 id_rsa
