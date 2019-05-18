@@ -22,13 +22,13 @@ class User implements EntityInterface
     /** @var []int */
     private $officesId;
 
-    public function __construct(array $user, array $officesId, array $officesName)
+    public function __construct(array $user, array $officesId = [], array $officesName = [])
     {
-        if (!empty($user['id'])) $this->id = (int)$user['id'];
+        if (!empty($user['id'])) $this->id = (int) $user['id'];
         $this->email = $user['email'];
         $this->hashedPassword = $user['hashedPassword'];
         $this->roles = $user['roles'];
-        if (!empty($officesId)) $this->officesId = $officesId;
+        $this->officesId = $officesId;
         $this->officesName = $officesName;
     }
 
@@ -147,7 +147,7 @@ class User implements EntityInterface
     {
         return [
             'email' => $this->email,
-            'roles' => $this->roles,
+            'roles' => explode(' ', $this->roles),
             'offices_name' => $this->officesName,
             'offices_id' => $this->officesId
         ];

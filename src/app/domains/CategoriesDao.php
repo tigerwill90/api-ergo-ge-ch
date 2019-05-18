@@ -31,7 +31,7 @@ class CategoriesDao
      * @param int $id
      * @return Category
      * @throws NoEntityException
-     * @throws \Exception
+     * @throws \PDOException
      */
     public function getCategory(int $id) : Category
     {
@@ -49,7 +49,7 @@ class CategoriesDao
                 throw new NoEntityException('No entity found for this category id : ' . $id);
             }
             return new Category($data[0]);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             throw $e;
         }
     }
@@ -57,7 +57,7 @@ class CategoriesDao
     /**
      * @return Category[]
      * @throws NoEntityException
-     * @throws \Exception
+     * @throws \PDOException
      */
     public function getCategories() : array
     {
@@ -75,7 +75,7 @@ class CategoriesDao
                 $categories[] = new Category($category);
             }
             return $categories;
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             throw $e;
         }
     }
@@ -84,7 +84,7 @@ class CategoriesDao
      * @param int $officeId
      * @return Category[]
      * @throws NoEntityException
-     * @throws \Exception
+     * @throws \PDOException
      */
     public function getCategoriesByOffice(int $officeId) : array
     {
@@ -109,7 +109,7 @@ class CategoriesDao
                 $categories[] = new Category($category);
             }
             return $categories;
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             throw $e;
         }
 

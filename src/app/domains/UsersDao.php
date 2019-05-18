@@ -4,6 +4,7 @@ namespace Ergo\Domains;
 
 use Ergo\Business\User;
 use Ergo\Exceptions\NoEntityException;
+use Ergo\Exceptions\UniqueException;
 use Psr\Log\LoggerInterface;
 use PDO;
 
@@ -15,6 +16,8 @@ class UsersDao
     /** @var LoggerInterface  */
     private $logger;
 
+    private const INTEGRITY_CONSTRAINT_VIOLATION = 23000;
+
     public function __construct(PDO $pdo, LoggerInterface $logger = null)
     {
         $this->pdo = $pdo;
@@ -24,7 +27,7 @@ class UsersDao
     /**
      * @param string $attribute
      * @return User
-     * @throws \Exception
+     * @throws \PDOException
      * @throws NoEntityException
      */
     public function getUser(string $attribute): User
@@ -53,7 +56,7 @@ class UsersDao
                 $officesName[] = $office['officeName'];
             }
             return new User($data[0], $officesId, $officesName);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             throw $e;
         }
     }
@@ -61,7 +64,7 @@ class UsersDao
     /**
      * @param string $email
      * @return User
-     * @throws \Exception
+     * @throws \PDOException
      * @throws NoEntityException
      */
     public function authenticateUser(string $email): User
@@ -90,14 +93,15 @@ class UsersDao
                 $officesName[] = $office['officeName'];
             }
             return new User($data[0], $officesId, $officesName);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             throw $e;
         }
     }
 
     /**
      * @param User $user
-     * @throws \Exception
+     * @throws \PDOException
+     * @throws UniqueException
      */
     public function createUser(User $user) : void
     {
@@ -121,15 +125,20 @@ class UsersDao
             }
 
             $this->pdo->commit();
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             $this->pdo->rollBack();
+            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+                if (strpos($e->getMessage(), $user->getEmail()) !== false) {
+                    throw new UniqueException('This user email already exist', $e->getCode());
+                }
+            }
             throw $e;
         }
     }
 
     /**
      * @param User $user
-     * @throws \Exception
+     * @throws \PDOException
      */
     public function linkUserToOffices(User $user) : void
     {
@@ -144,19 +153,64 @@ class UsersDao
                 $stmt->bindParam('officeId', $officeId);
                 $stmt->execute();
             }
-        } catch (\Exception $e) {
-            $this->pdo->rollBack();
+        } catch (\PDOException $e) {
             throw $e;
         }
     }
 
-    public function updateUser(User $user) : void
+    /**
+     * @param int $id
+     */
+    public function deleteUserToOfficesLinkByUserId(int $id): void
     {
+        $sql = 'DELETE FROM officesUsers WHERE officesUsers_users_id ' . $id;
+
         try {
-            echo 'update user';
-        } catch (\Exception $e) {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+        } catch (\PDOException $e) {
             throw $e;
         }
+    }
+
+    /**
+     * @param User $user
+     * @throws UniqueException
+     */
+    public function updateUser(User $user) : void
+    {
+       $sql = '
+                UPDATE users SET
+                    users_email = :email,
+                    users_hashed_password = :hashedPassword,
+                    users_roles = :roles
+                    WHERE users_id = :id
+              ';
+
+       try {
+           $this->pdo->beginTransaction();
+           $stmt = $this->pdo->prepare($sql);
+           $email = $user->getEmail();
+           $stmt->bindParam(':email', $email);
+           $hashedPassword = $user->getHashedPassword();
+           $stmt->bindParam(':hashedPassword', $hashedPassword);
+           $roles = $user->getRoles();
+           $stmt->bindParam(':roles', $roles);
+           $stmt->execute();
+
+           $this->deleteUserToOfficesLinkByUserId($user->getId());
+           $this->linkUserToOffices($user);
+
+           $this->pdo->commit();
+       } catch (\PDOException $e) {
+           $this->pdo->rollBack();
+           if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+               if (strpos($e->getMessage(), $user->getEmail()) !== false) {
+                   throw new UniqueException('This user email already exist', $e->getCode());
+               }
+           }
+           throw $e;
+       }
     }
 
     /**

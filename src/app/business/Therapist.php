@@ -39,11 +39,11 @@ class Therapist implements EntityInterface
 
     public function __construct(array $therapist, array $phones = [], array $emails = [], array $categories = [], array $officesId = [])
     {
-        if (!empty($therapist['id'])) $this->id = (int)$therapist['id'];
+        if (!empty($therapist['id'])) $this->id = (int) $therapist['id'];
         $this->title = $therapist['title'];
         $this->firstname = $therapist['firstname'];
         $this->lastname = $therapist['lastname'];
-        $this->home = (bool)$therapist['home'];
+        $this->home = (bool) $therapist['home'];
         $this->phones = $phones;
         $this->emails = $emails;
         $this->categories = $categories;

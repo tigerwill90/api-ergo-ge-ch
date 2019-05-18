@@ -22,9 +22,13 @@
       "monolog/monolog": "^1.24",
       "ext-json": "*",
       "ext-pdo": "*",
-      "google/apiclient": "2.0",
+      "google/apiclient": "^2.0",
       "tuupola/cors-middleware": "^0.9.1",
-      "tigerwill90/server-timing": "0.x-dev"
+      "tigerwill90/server-timing": "0.x-dev",
+      "tuupola/slim-jwt-auth": "^3.3",
+      "firebase/php-jwt": "^5.0",
+        "ircmaxell/random-lib": "^1.2",
+        "respect/validation": "^1.1"
     },
     "require-dev" : {
       "roave/security-advisories": "dev-master",

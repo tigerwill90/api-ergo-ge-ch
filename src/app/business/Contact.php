@@ -33,7 +33,7 @@ class Contact implements EntityInterface
 
     public function __construct(array $contact)
     {
-        if (!empty($contact['id'])) $this->id = (int)$contact['id'];
+        if (!empty($contact['id'])) $this->id = (int) $contact['id'];
         $this->street = $contact['street'];
         $this->city = $contact['city'];
         $this->npa = $contact['npa'];

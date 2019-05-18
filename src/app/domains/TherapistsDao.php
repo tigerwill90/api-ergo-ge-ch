@@ -31,7 +31,7 @@ class TherapistsDao
      * @param int $id
      * @return Therapist
      * @throws NoEntityException
-     * @throws \Exception
+     * @throws \PDOException
      */
     public function getTherapist(int $id) : Therapist
     {
@@ -89,7 +89,7 @@ class TherapistsDao
             }
 
             return new Therapist($data[0], $phones, $emails, $categories, $officesId);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             throw $e;
         }
     }
@@ -99,7 +99,7 @@ class TherapistsDao
      * @param int|null $officeId
      * @return Therapist[]
      * @throws NoEntityException
-     * @throws \Exception
+     * @throws \PDOException
      */
     public function getTherapists(?int $officeId = null) : array
     {
@@ -173,7 +173,7 @@ class TherapistsDao
             }
 
             return $therapists;
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             throw $e;
         }
     }

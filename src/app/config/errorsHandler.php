@@ -13,14 +13,13 @@ use Psr\Http\Message\ResponseInterface;
  * @param ContainerInterface $c
  * @return Closure
  */
-$container['errorHandler'] = function (ContainerInterface $c) : Closure {
-    return function (ServerRequestInterface $request, ResponseInterface $response, Exception $e) use ($c) : ResponseInterface {
+$container['errorHandler'] = static function (ContainerInterface $c) : Closure {
+    return static function (ServerRequestInterface $request, ResponseInterface $response, Exception $e) use ($c) : ResponseInterface {
         error_log($e->getMessage()); // TODO suppress
         error_log($e->getTraceAsString());
         $body = $response->getBody();
         $error = new \Ergo\Business\Error('Internal server error', 'Oups something goes wrong');
-        $data['data'] = $error->getEntity();
-        $body->write(json_encode($data));
+        $body->write(json_encode(['data' => $error->getEntity()]));
         return $response
                 ->withBody($body)
                 ->withStatus(500)
@@ -32,12 +31,12 @@ $container['errorHandler'] = function (ContainerInterface $c) : Closure {
  * @param ContainerInterface $c
  * @return Closure
  */
-$container['notAllowedHandler'] = function (ContainerInterface $c) : Closure {
-    return function (ServerRequestInterface $request, ResponseInterface $response, array $methods) use ($c) : ResponseInterface {
+$container['notAllowedHandler'] = static function (ContainerInterface $c) : Closure {
+    return static function (ServerRequestInterface $request, ResponseInterface $response, array $methods) use ($c) : ResponseInterface {
         $body = $response->getBody();
-        $error = new \Ergo\Business\Error('Method not allowed', $request->getMethod() . ' method is not allowed');
-        $data['data'] = $error->getEntity();
-        $body->write(json_encode($data));
+        $resource = explode('/', $request->getUri()->getPath());
+        $error = new \Ergo\Business\Error('Method not allowed', $request->getMethod() . ' method is not allowed for ' . end($resource) . ' resource');
+        $body->write(json_encode(['data' => $error->getEntity()]));
         return $response
             ->withBody($body)
             ->withStatus(405)
@@ -50,10 +49,12 @@ $container['notAllowedHandler'] = function (ContainerInterface $c) : Closure {
  * @param ContainerInterface $c
  * @return Closure
  */
-$container['notFoundHandler'] = function (ContainerInterface $c) : Closure {
-    return function (ServerRequestInterface $request, ResponseInterface $response) use ($c) : ResponseInterface {
+$container['notFoundHandler'] = static function (ContainerInterface $c) : Closure {
+    return static function (ServerRequestInterface $request, ResponseInterface $response) use ($c) : ResponseInterface {
         $body = $response->getBody();
-        $body->write(json_encode(['error' => 'Resource not found']));
+        $resource = explode('/', $request->getUri()->getPath());
+        $error = new \Ergo\Business\Error('Not found', end($resource) . ' isn\'t a resource');
+        $body->write(json_encode(['data' => $error->getEntity()]));
         return $response
             ->withBody($body)
             ->withStatus(404)

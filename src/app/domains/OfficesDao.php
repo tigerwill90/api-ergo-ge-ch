@@ -32,7 +32,7 @@ class OfficesDao
      * @param string $attribute
      * @return Office
      * @throws NoEntityException
-     * @throws \Exception
+     * @throws \PDOException
      */
     public function getOffice(string $attribute) : Office
     {
@@ -59,7 +59,40 @@ class OfficesDao
                 $contacts[] = new Contact($contact);
             }
             return new Office($data[0], $contacts);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @param array $officesId
+     * @return array
+     * @throws NoEntityException
+     */
+    public function getOfficeNameByOfficesId(array $officesId) : array
+    {
+        $sql = 'SELECT DISTINCT offices_name AS name FROM offices WHERE offices_id = :id';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $notFound = [];
+            $officesName = [];
+            foreach ($officesId as $officeId) {
+                $stmt->bindParam(':id', $officeId);
+                $stmt->execute();
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                if (empty($data)) {
+                    $notFound[] = $officeId;
+                }
+                $officesName[] = $data[0]['name'];
+            }
+
+            if (!empty($notFound)) {
+                throw new NoEntityException('No entity found for their offices id : [' . implode(', ', $notFound) . ']');
+            }
+            return $officesName;
+
+        } catch (\PDOException $e) {
             throw $e;
         }
     }
@@ -69,7 +102,7 @@ class OfficesDao
      * @param string|null $sortAttribute
      * @return array
      * @throws NoEntityException
-     * @throws \Exception
+     * @throws \PDOException
      */
     public function getOffices(?string $orderAttribute = 'name', ?string $sortAttribute = 'ASC') : array
     {
@@ -109,7 +142,7 @@ class OfficesDao
                 }
             }
             return $offices;
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             throw $e;
         }
     }

@@ -134,7 +134,16 @@ $container[\Ergo\Controllers\Authentication::class] = static function (Container
  */
 $container[\Ergo\Controllers\CreateUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateUser
 {
-    return new \Ergo\Controllers\CreateUser($c->get('usersDao'), $c->get('dataWrapper'), $c->get('authenticationService'), $c->get('appDebug'));
+    return new \Ergo\Controllers\CreateUser($c->get('validationManager') ,$c->get('usersDao'), $c->get('officesDao'), $c->get('dataWrapper'), $c->get('authenticationService'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\UpdateUser
+ */
+$container[\Ergo\Controllers\UpdateUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\UpdateUser
+{
+    return new \Ergo\Controllers\UpdateUser($c->get('validationManager') ,$c->get('usersDao'), $c->get('authenticationService'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
 /** ----------------- DOMAINS ----------------- */
@@ -212,11 +221,58 @@ $container['fileUtility'] = static function () : \Ergo\Services\FileUtility
 
 /**
  * @param ContainerInterface $c
- * @return \Ergo\Services\Authentication
+ * @return \Ergo\Services\Auth
  */
-$container['authenticationService'] = static function (ContainerInterface $c) : \Ergo\Services\Authentication
+$container['authenticationService'] = static function (ContainerInterface $c) : \Ergo\Services\Auth
 {
-  return new \Ergo\Services\Authentication($c->get('usersDao'), $c->get('appDebug'));
+    return new \Ergo\Services\Auth($c->get('usersDao'), $c->get('randomGenerator'), $c->get('appDebug'));
+};
+
+/**
+ * @return \RandomLib\Generator
+ */
+$container['randomGenerator'] = static function () : \RandomLib\Generator
+{
+    $factory = new \RandomLib\Factory();
+    return $factory->getGenerator(new \SecurityLib\Strength(\SecurityLib\Strength::MEDIUM));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Services\Validators\ValidatorManagerInterface
+ */
+$container['validationManager'] = static function (ContainerInterface $c) : \Ergo\Services\Validators\ValidatorManagerInterface
+{
+    $validatorManager = new \Ergo\Services\Validators\ValidatorManager();
+    return $validatorManager
+        ->add('create_user', [$c->get('userCreateParameter')])
+        ->add('update_user', [$c->get('userUpdateParameter')]);
+};
+
+/**
+ * @return \Ergo\Services\Validators\Validator
+ */
+$container['userCreateParameter'] = static function () : \Ergo\Services\Validators\Validator
+{
+      $validator = new \Ergo\Services\Validators\ParameterValidator();
+      return $validator
+          ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(true))
+          ->add('password', new \Ergo\Services\Validators\Rules\PasswordRule(true))
+          ->add('roles', new \Ergo\Services\Validators\Rules\RolesRule(true))
+          ->add('offices_id', new \Ergo\Services\Validators\Rules\OfficesIdRule(false));
+};
+
+/**
+ * @return \Ergo\Services\Validators\Validator
+ */
+$container['userUpdateParameter'] = static function () : \Ergo\Services\Validators\Validator
+{
+    $validator = new \Ergo\Services\Validators\ParameterValidator();
+    return $validator
+        ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(false))
+        ->add('password', new \Ergo\Services\Validators\Rules\PasswordRule(false))
+        ->add('roles', new \Ergo\Services\Validators\Rules\RolesRule(false))
+        ->add('offices_id', new \Ergo\Services\Validators\Rules\OfficesIdRule(false));
 };
 
 /**

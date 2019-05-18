@@ -24,7 +24,7 @@ class Office implements EntityInterface
 
     public function __construct(array $office, array $contacts = [])
     {
-        if (!empty($office['id'])) $this->id = (int)$office['id'];
+        if (!empty($office['id'])) $this->id = (int) $office['id'];
         $this->name = $office['name'];
         $this->email = $office['email'];
         $this->contacts = $contacts;

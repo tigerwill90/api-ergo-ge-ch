@@ -6,6 +6,7 @@ use Ergo\Business\Error;
 use Ergo\Domains\UsersDao;
 use Ergo\Exceptions\NoEntityException;
 use Ergo\Services\DataWrapper;
+use Ergo\Services\Auth;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -18,18 +19,18 @@ final class Authentication
     /** @var DataWrapper  */
     private $dataWrapper;
 
-    /** @var \Ergo\Services\Authentication  */
-    private $authentication;
+    /** @var Auth  */
+    private $auth;
 
     /** @var LoggerInterface  */
     private $logger;
 
-    public function __construct(UsersDao $usersDao, DataWrapper $dataWrapper, \Ergo\Services\Authentication $authentication, LoggerInterface $logger = null)
+    public function __construct(UsersDao $usersDao, DataWrapper $dataWrapper, Auth $auth, LoggerInterface $logger = null)
     {
         $this->userDao = $usersDao;
         $this->dataWrapper = $dataWrapper;
         $this->logger = $logger;
-        $this->authentication = $authentication;
+        $this->auth = $auth;
     }
 
     /**
@@ -46,21 +47,22 @@ final class Authentication
 
         if (empty($header)) {
             return $this->dataWrapper
-                ->addEntity(new Error('Unauthorized', 'Use http basic authentication to connect'))
+                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Use http basic authentication to connect'))
                 ->throwResponse($response, 401);
         }
 
         $basicAuth = explode('Basic ', $header[0]);
         if (count($basicAuth) !== 2) {
             return $this->dataWrapper
-                ->addEntity(new Error('Unauthorized', 'Incorrect http basic authentication scheme'))
+                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Incorrect http basic authentication scheme'))
                 ->throwResponse($response, 401);
         }
 
-        $emailPassword = explode(':', base64_decode($basicAuth[1]));
+        // explode at the first occurrence of delimiter, keep password with special ":" char
+        $emailPassword = explode(':', base64_decode($basicAuth[1]), 2);
         if (count($emailPassword) !== 2) {
             return $this->dataWrapper
-                ->addEntity(new Error('Unauthorized', 'Incorrect http basic authentication scheme'))
+                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Incorrect http basic authentication scheme'))
                 ->throwResponse($response, 401);
         }
 
@@ -68,21 +70,34 @@ final class Authentication
             $user = $this->userDao
                 ->authenticateUser($emailPassword[0]);
 
-            if (!$this->authentication->verifyPassword($emailPassword[1], $user)) {
+            if (!$this->auth->verifyPassword($emailPassword[1], $user)) {
                 return $this->dataWrapper
-                    ->addEntity(new Error('Unauthorized', 'Invalid email or password'))
+                    ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Invalid email or password'))
                     ->throwResponse($response, 401);
             }
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error('Unauthorized', 'Invalid email or password'))
+                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Invalid email or password'))
                 ->throwResponse($response, 401);
         } catch (\Exception $e) {
             throw $e;
         }
 
+        $exp = time() + getenv('TOKEN_EXPIRATION');
+
+        $data = [
+          'user' => $user->getEntity(),
+          'authorization' => [
+              'access_token' => $this->auth->createJwt($user, $exp),
+              'token_type' => 'jwt',
+              'expires_in' => $exp,
+              'scope' => $user->getRoles()
+          ]
+        ];
+
+
         return $this->dataWrapper
-            ->addEntity($user)
+            ->addArray($data)
             ->throwResponse($response, 401);
     }
 

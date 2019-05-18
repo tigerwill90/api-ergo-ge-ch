@@ -16,15 +16,20 @@ class Error implements EntityInterface
     /** @var string */
     private $description;
 
+    /** @var array  */
+    private $context;
+
     /** const */
     public const ERR_NOT_FOUND = 'Not Found';
     public const ERR_BAD_REQUEST = 'Bad Request';
     public const ERR_UNAUTHORIZED = 'Unauthorized';
+    public const ERR_CONFLICT = 'Conflict';
 
-    public function __construct(string $name, string $description)
+    public function __construct(string $name, string $description, array $context = [])
     {
         $this->name = $name;
         $this->description = $description;
+        $this->context = $context;
     }
 
     /**
@@ -66,11 +71,35 @@ class Error implements EntityInterface
     /**
      * @return array
      */
+    public function getContext(): array
+    {
+        return $this->context;
+    }
+
+    /**
+     * @param array $context
+     * @return Error
+     */
+    public function setContext(array $context): self
+    {
+        $this->context = $context;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
     public function getEntity(): array
     {
-        return [
-            'error' => $this->name,
+        $error = [
+            'error' => ucfirst($this->name),
             'error_description' => ucfirst($this->description)
         ];
+
+        if (!empty($this->context)) {
+            $error['error_context'] = $this->context;
+        }
+
+        return $error;
     }
 }
