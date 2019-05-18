@@ -64,6 +64,8 @@ final class DownloadImage
      */
     private function log(string $message, array $context = []) : void
     {
-        $this->logger->debug($message, $context);
+        if ($this->logger !== null) {
+            $this->logger->debug($message, $context);
+        }
     }
 }

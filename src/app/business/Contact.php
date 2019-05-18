@@ -31,15 +31,15 @@ class Contact implements EntityInterface
     /** @var string */
     private $fax;
 
-    public function __construct(array $contacts)
+    public function __construct(array $contact)
     {
-        if (!empty($contacts['id'])) $this->id = (int)$contacts['id'];
-        $this->street = $contacts['street'];
-        $this->city = $contacts['city'];
-        $this->npa = $contacts['npa'];
-        if (!empty($contacts['cp'])) $this->cp = $contacts['cp'];
-        if (!empty($contacts['phone'])) $this->phone = $contacts['phone'];
-        if (!empty($contacts['fax'])) $this->fax = $contacts['fax'];
+        if (!empty($contact['id'])) $this->id = (int)$contact['id'];
+        $this->street = $contact['street'];
+        $this->city = $contact['city'];
+        $this->npa = $contact['npa'];
+        if (!empty($contact['cp'])) $this->cp = $contact['cp'];
+        if (!empty($contact['phone'])) $this->phone = $contact['phone'];
+        if (!empty($contact['fax'])) $this->fax = $contact['fax'];
     }
 
     /**

@@ -16,8 +16,11 @@ use Psr\Http\Message\ResponseInterface;
 $container['errorHandler'] = function (ContainerInterface $c) : Closure {
     return function (ServerRequestInterface $request, ResponseInterface $response, Exception $e) use ($c) : ResponseInterface {
         error_log($e->getMessage()); // TODO suppress
+        error_log($e->getTraceAsString());
         $body = $response->getBody();
-        $body->write(json_encode(['error' => 'Something goes wrong']));
+        $error = new \Ergo\Business\Error('Internal server error', 'Oups something goes wrong');
+        $data['data'] = $error->getEntity();
+        $body->write(json_encode($data));
         return $response
                 ->withBody($body)
                 ->withStatus(500)
@@ -32,7 +35,9 @@ $container['errorHandler'] = function (ContainerInterface $c) : Closure {
 $container['notAllowedHandler'] = function (ContainerInterface $c) : Closure {
     return function (ServerRequestInterface $request, ResponseInterface $response, array $methods) use ($c) : ResponseInterface {
         $body = $response->getBody();
-        $body->write(json_encode(['error' => 'Method not allowed']));
+        $error = new \Ergo\Business\Error('Method not allowed', $request->getMethod() . ' method is not allowed');
+        $data['data'] = $error->getEntity();
+        $body->write(json_encode($data));
         return $response
             ->withBody($body)
             ->withStatus(405)
