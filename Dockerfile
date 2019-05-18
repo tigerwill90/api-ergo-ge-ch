@@ -99,6 +99,13 @@ RUN set -x \
 
 RUN set -x service apache2 restart
 
+###
+### forward request and error logs to docker log collector
+###
+RUN set -x \
+    && ln -sf /dev/stdout /var/log/apache2/other_vhosts_access.log \
+    && ln -sf /dev/stderr /var/log/apache2/error.log
+
 VOLUME /var/www/html
 
 EXPOSE 80 443
