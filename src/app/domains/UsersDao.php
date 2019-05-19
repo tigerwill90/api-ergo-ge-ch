@@ -163,7 +163,7 @@ class UsersDao
      */
     public function deleteUserToOfficesLinkByUserId(int $id): void
     {
-        $sql = 'DELETE FROM officesUsers WHERE officesUsers_users_id ' . $id;
+        $sql = 'DELETE FROM officesUsers WHERE officesUsers_users_id = ' . $id;
 
         try {
             $stmt = $this->pdo->query($sql);
@@ -196,6 +196,8 @@ class UsersDao
            $stmt->bindParam(':hashedPassword', $hashedPassword);
            $roles = $user->getRoles();
            $stmt->bindParam(':roles', $roles);
+           $id = $user->getId();
+           $stmt->bindParam(':id', $id);
            $stmt->execute();
 
            $this->deleteUserToOfficesLinkByUserId($user->getId());
@@ -211,6 +213,30 @@ class UsersDao
            }
            throw $e;
        }
+    }
+
+    /**
+     * @param int $id
+     * @throws NoEntityException
+     */
+    public function deleteUser(int $id) : void
+    {
+        $sql = 'DELETE FROM users WHERE users_id = :id';
+
+        try {
+            $this->pdo->beginTransaction();
+            $this->deleteUserToOfficesLinkByUserId($id);
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+            if ($stmt->rowCount() === 0) {
+                throw new NoEntityException('No entity found for this user id : ' . $id);
+            }
+            $this->pdo->commit();
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
 
     /**

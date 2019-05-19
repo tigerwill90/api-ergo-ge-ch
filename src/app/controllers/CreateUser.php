@@ -47,6 +47,13 @@ final class CreateUser
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
+        $scopes = explode(' ', $request->getAttribute('token')['scope']);
+        if (!in_array('admin', $scopes, true)) {
+            return $this->dataWrapper
+                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'No privilege to create this user resource'))
+                ->throwResponse($response, 403);
+        }
+
         if ($this->validatorManager->validate(['create_user'], $request)) {
             $params = $request->getParsedBody();
             $data['email'] = $params['email'];

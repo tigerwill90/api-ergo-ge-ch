@@ -33,4 +33,5 @@ $app->get('/auth', \Ergo\Controllers\Authentication::class);
 $app->group('/users', function (\Slim\App $app) {
     $app->post('', \Ergo\Controllers\CreateUser::class);
     $app->patch('/{id:[0-9]+}', \Ergo\Controllers\UpdateUser::class);
+    $app->delete('/{id:[0-9]+}', \Ergo\Controllers\DeleteUser::class);
 });

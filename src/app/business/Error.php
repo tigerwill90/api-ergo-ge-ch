@@ -24,6 +24,7 @@ class Error implements EntityInterface
     public const ERR_BAD_REQUEST = 'Bad Request';
     public const ERR_UNAUTHORIZED = 'Unauthorized';
     public const ERR_CONFLICT = 'Conflict';
+    public const ERR_FORBIDDEN = 'Forbidden';
 
     public function __construct(string $name, string $description, array $context = [])
     {

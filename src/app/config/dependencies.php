@@ -146,6 +146,15 @@ $container[\Ergo\Controllers\UpdateUser::class] = static function (ContainerInte
     return new \Ergo\Controllers\UpdateUser($c->get('validationManager') ,$c->get('usersDao'), $c->get('authenticationService'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\DeleteUser
+ */
+$container[\Ergo\Controllers\DeleteUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\DeleteUser
+{
+    return new \Ergo\Controllers\DeleteUser($c->get('usersDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
 /** ----------------- DOMAINS ----------------- */
 
 /**

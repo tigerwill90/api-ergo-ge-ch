@@ -146,6 +146,7 @@ class User implements EntityInterface
     public function getEntity(): array
     {
         return [
+            'id' => $this->id,
             'email' => $this->email,
             'roles' => explode(' ', $this->roles),
             'offices_name' => $this->officesName,
