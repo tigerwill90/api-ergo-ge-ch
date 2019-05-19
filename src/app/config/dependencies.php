@@ -139,6 +139,33 @@ $container[\Ergo\Controllers\ReadTherapist::class] = static function (ContainerI
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\CreateTherapist
+ */
+$container[\Ergo\Controllers\CreateTherapist::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateTherapist
+{
+    return new \Ergo\Controllers\CreateTherapist($c->get('validationManager'), $c->get('therapistsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\UpdateTherapist
+ */
+$container[\Ergo\Controllers\UpdateTherapist::class] = static function (ContainerInterface $c) : \Ergo\Controllers\UpdateTherapist
+{
+    return new \Ergo\Controllers\UpdateTherapist($c->get('validationManager'), $c->get('therapistsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\DeleteTherapist
+ */
+$container[\Ergo\Controllers\DeleteTherapist::class] = static function (ContainerInterface $c) : \Ergo\Controllers\DeleteTherapist
+{
+    return new \Ergo\Controllers\DeleteTherapist($c->get('therapistsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\ReadTherapistsOffice
  */
 $container[\Ergo\Controllers\ReadTherapistsOffice::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ReadTherapistsOffice
@@ -311,7 +338,8 @@ $container['validationManager'] = static function (ContainerInterface $c) : \Erg
         ->add('create_user', [$c->get('userCreateParameter')])
         ->add('update_user', [$c->get('userUpdateParameter')])
         ->add('contact_email', [$c->get('contactSendMailParameter')])
-        ->add('office', [$c->get('officeParameter')]);
+        ->add('office', [$c->get('officeParameter')])
+        ->add('therapist', [$c->get('therapistParameter')]);
 };
 
 /**
@@ -326,8 +354,8 @@ $container['userCreateParameter'] = static function () : \Ergo\Services\Validato
           ->add('roles', new \Ergo\Services\Validators\Rules\RolesRule(true))
           ->add('first_name', new \Ergo\Services\Validators\Rules\NameRule(true))
           ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(true))
-          ->add('active', new \Ergo\Services\Validators\Rules\ActiveRule(true))
-          ->add('offices_id', new \Ergo\Services\Validators\Rules\OfficesIdRule(false));
+          ->add('active', new \Ergo\Services\Validators\Rules\BoolRule(true))
+          ->add('offices_id', new \Ergo\Services\Validators\Rules\IntArrayRule(false));
 };
 
 /**
@@ -342,8 +370,8 @@ $container['userUpdateParameter'] = static function () : \Ergo\Services\Validato
         ->add('roles', new \Ergo\Services\Validators\Rules\RolesRule(false))
         ->add('first_name', new \Ergo\Services\Validators\Rules\NameRule(false))
         ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(false))
-        ->add('active', new \Ergo\Services\Validators\Rules\ActiveRule(false))
-        ->add('offices_id', new \Ergo\Services\Validators\Rules\OfficesIdRule(false));
+        ->add('active', new \Ergo\Services\Validators\Rules\BoolRule(false))
+        ->add('offices_id', new \Ergo\Services\Validators\Rules\IntArrayRule(false));
 };
 
 /**
@@ -357,6 +385,22 @@ $container['officeParameter'] = static function () : \Ergo\Services\Validators\V
         ->add('name', new \Ergo\Services\Validators\Rules\NameRule(true))
         ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(true))
         ->add('contacts', new \Ergo\Services\Validators\Rules\ContactsRule(true));
+};
+
+/**
+ * @return \Ergo\Services\Validators\Validator
+ */
+$container['therapistParameter'] = static function () : \Ergo\Services\Validators\Validator
+{
+    $validator = new \Ergo\Services\Validators\ParameterValidator();
+    return $validator
+        ->add('first_name', new \Ergo\Services\Validators\Rules\NameRule(true))
+        ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(true))
+        ->add('title', new \Ergo\Services\Validators\Rules\TitleRule(true))
+        ->add('home', new \Ergo\Services\Validators\Rules\BoolRule(true))
+        ->add('emails', new \Ergo\Services\Validators\Rules\EmailsRule(true))
+        ->add('phones', new \Ergo\Services\Validators\Rules\PhonesRule(true))
+        ->add('categories', new \Ergo\Services\Validators\Rules\IntArrayRule(true));
 };
 
 /**

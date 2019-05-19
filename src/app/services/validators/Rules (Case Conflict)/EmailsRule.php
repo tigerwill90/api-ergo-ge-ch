@@ -5,7 +5,7 @@ namespace Ergo\Services\Validators\Rules;
 use Ergo\Services\Validators\RuleValidator;
 use Respect\Validation\Validator;
 
-class ActiveRule extends RuleValidator
+class EmailsRule extends RuleValidator
 {
     /**
      * Get a validator instance
@@ -13,6 +13,6 @@ class ActiveRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::boolType()->boolVal();
+        return Validator::arrayType()->notEmpty()->each(Validator::email()->notBlank());
     }
 }

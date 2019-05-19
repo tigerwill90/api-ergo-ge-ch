@@ -53,7 +53,7 @@ $container['notFoundHandler'] = static function (ContainerInterface $c) : Closur
     return static function (ServerRequestInterface $request, ResponseInterface $response) use ($c) : ResponseInterface {
         $body = $response->getBody();
         $resource = explode('/', $request->getUri()->getPath());
-        $error = new \Ergo\Business\Error('Not found', end($resource) . ' isn\'t a resource');
+        $error = new \Ergo\Business\Error('Not found', end($resource) . ' is not a resource');
         $body->write(json_encode(['data' => $error->getEntity()]));
         return $response
             ->withBody($body)

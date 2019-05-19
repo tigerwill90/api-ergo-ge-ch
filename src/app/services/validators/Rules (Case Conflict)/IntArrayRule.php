@@ -5,7 +5,7 @@ namespace Ergo\Services\Validators\Rules;
 use Ergo\Services\Validators\RuleValidator;
 use Respect\Validation\Validator;
 
-class OfficesIdRule extends RuleValidator
+class IntArrayRule extends RuleValidator
 {
     /**
      * Get a validator instance

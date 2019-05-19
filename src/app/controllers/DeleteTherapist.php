@@ -4,16 +4,12 @@ namespace Ergo\Controllers;
 
 use Ergo\Domains\TherapistsDao;
 use Ergo\Services\DataWrapper;
-use Ergo\Services\Validators\ValidatorManagerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
-final class CreateTherapist
+final class DeleteTherapist
 {
-    /** @var ValidatorManagerInterface  */
-    private $validatorManager;
-
     /** @var TherapistsDao  */
     private $therapistsDao;
 
@@ -23,9 +19,8 @@ final class CreateTherapist
     /** @var LoggerInterface  */
     private $logger;
 
-    public function __construct(ValidatorManagerInterface $validatorManager, TherapistsDao $therapistsDao, DataWrapper $dataWrapper, LoggerInterface $logger = null)
+    public function __construct(TherapistsDao $therapistsDao, DataWrapper $dataWrapper, LoggerInterface $logger = null)
     {
-        $this->validatorManager = $validatorManager;
         $this->therapistsDao = $therapistsDao;
         $this->dataWrapper = $dataWrapper;
         $this->logger = $logger;

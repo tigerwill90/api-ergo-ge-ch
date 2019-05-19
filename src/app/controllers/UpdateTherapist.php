@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
-final class CreateTherapist
+final class UpdateTherapist
 {
     /** @var ValidatorManagerInterface  */
     private $validatorManager;
