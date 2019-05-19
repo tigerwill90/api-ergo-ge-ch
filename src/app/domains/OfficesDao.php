@@ -213,7 +213,7 @@ class OfficesDao
             $stmt->bindParam(':email', $email);
             $stmt->execute();
 
-            $office->setId($this->pdo->lastInsertId());
+            $office->setId((int) $this->pdo->lastInsertId());
             $this->createContact($office->getId(), $office->getContacts());
 
             $this->pdo->commit();
