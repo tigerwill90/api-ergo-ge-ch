@@ -213,7 +213,7 @@ class UsersDao
     }
 
     /**
-     * @param int $idlastname
+     * @param int $id
      */
     public function deleteUserToOfficesLinkByUserId(int $id): void
     {

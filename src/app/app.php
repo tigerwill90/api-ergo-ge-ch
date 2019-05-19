@@ -22,6 +22,7 @@ $envLoader->required('SMTP_USER')->notEmpty();
 $envLoader->required('SMTP_PASSWORD')->notEmpty();
 $envLoader->required('SMTP_PORT')->isInteger()->notEmpty();
 $envLoader->required('ADDRESS_FROM')->notEmpty();
+$envLoader->required('RECAPTCHA_SECRET')->notEmpty();
 date_default_timezone_set(getenv('TIMEZONE'));
 
 $app = new \Slim\App([

@@ -13,22 +13,21 @@ $container['corsMiddleware'] = static function () : \Tuupola\Middleware\CorsMidd
 {
     return new \Tuupola\Middleware\CorsMiddleware([
         'origin' => explode(',', getenv('ORIGIN')),
-        'methods' => ['GET'],
-        'headers.allow' => [],
+        'methods' => ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+        'headers.allow' => ['Content-Type'],
         'headers.expose' => [],
         'credentials' => false,
         'cache' => 0
     ]);
 };
 
-$container['jwtAuthentication'] = static function (\Psr\Container\ContainerInterface $c) : Tuupola\Middleware\JwtAuthentication
+$container['jwtAuthentication'] = static function () : Tuupola\Middleware\JwtAuthentication
 {
   return new \Tuupola\Middleware\JwtAuthentication([
       'secret' => getenv('API_SECRET'),
       'algorithm' => 'HS256',
       'secure' => true,
       'relaxed' => ['localhost'],
-      'logger' => $c->get('appDebug'),
       'error' => function (\Psr\Http\Message\ResponseInterface $response, array $arguments) {
            $error = new \Ergo\Business\Error('Unauthorized', $arguments['message']);
            $body = $response->getBody();

@@ -11,6 +11,7 @@ namespace Ergo\Domains;
 use Ergo\Business\Contact;
 use Ergo\Business\Office;
 use Ergo\Exceptions\NoEntityException;
+use Ergo\Exceptions\UniqueException;
 use PDO;
 use Psr\Log\LoggerInterface;
 
@@ -21,6 +22,8 @@ class OfficesDao
 
     /** @var LoggerInterface */
     private $logger;
+
+    private const INTEGRITY_CONSTRAINT_VIOLATION = 23000;
 
     public function __construct(PDO $pdo, LoggerInterface $logger = null)
     {
@@ -147,14 +150,155 @@ class OfficesDao
         }
     }
 
+    /**
+     * @param Office $office
+     * @throws UniqueException
+     */
     public function updateOffice(Office $office) : void
     {
+        $sql = '
+                    UPDATE offices SET
+                        offices_name = :name,
+                        offices_email = :email
+                        WHERE offices_id = :id
+               ';
 
+        try {
+            $this->pdo->beginTransaction();
+
+            // delete and create contact on transaction
+            $this->deleteContactByOfficeId($office->getId());
+            $this->createContact($office->getId(), $office->getContacts());
+
+            $stmt = $this->pdo->prepare($sql);
+            $name = $office->getName();
+            $stmt->bindParam(':name', $name);
+            $email = $office->getEmail();
+            $stmt->bindParam(':email', $email);
+            $id = $office->getId();
+            $stmt->bindParam(':id',$id);
+            $stmt->execute();
+
+            $this->pdo->commit();
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+                if (strpos($e->getMessage(), $office->getEmail()) !== false) {
+                    throw new UniqueException('This office email already exist', $e->getCode());
+                }
+
+                if (strpos($e->getMessage(), $office->getName()) !== false) {
+                    throw new UniqueException('This office name already exist', $e->getCode());
+                }
+            }
+            throw $e;
+        }
     }
 
+    /**
+     * @param Office $office
+     * @throws UniqueException
+     */
     public function createOffice(Office $office) : void
     {
+        $sql = 'INSERT INTO offices (offices_name, offices_email) values (:name, :email)';
 
+        try {
+            $this->pdo->beginTransaction();
+            $stmt = $this->pdo->prepare($sql);
+            $name = $office->getName();
+            $stmt->bindParam(':name', $name);
+            $email = $office->getEmail();
+            $stmt->bindParam(':email', $email);
+            $stmt->execute();
+
+            $office->setId($this->pdo->lastInsertId());
+            $this->createContact($office->getId(), $office->getContacts());
+
+            $this->pdo->commit();
+
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+                if (strpos($e->getMessage(), $office->getEmail()) !== false) {
+                    throw new UniqueException('This office email already exist', $e->getCode());
+                }
+
+                if (strpos($e->getMessage(), $office->getName()) !== false) {
+                    throw new UniqueException('This office name already exist', $e->getCode());
+                }
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * @param int $officeId
+     * @param Contact[] $contacts
+     */
+    public function createContact(int $officeId, array $contacts) : void
+    {
+        $sql = '
+                    INSERT INTO contacts (contacts_street, contacts_city, contacts_npa, contacts_cp, contacts_phone, contacts_fax, contacts_offices_id) 
+                        VALUES (:street, :city, :npa, :cp, :phone, :fax, :officeId) 
+               ';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            foreach ($contacts as $contact) {
+                $street = $contact->getStreet();
+                $stmt->bindParam(':street', $street);
+                $city = $contact->getCity();
+                $stmt->bindParam(':city', $city);
+                $npa = $contact->getNpa();
+                $stmt->bindParam(':npa', $npa);
+                $cp = $contact->getCp();
+                $stmt->bindParam(':cp', $cp);
+                $phone = $contact->getPhone();
+                $stmt->bindParam(':phone', $phone);
+                $fax = $contact->getFax();
+                $stmt->bindParam(':fax', $fax);
+                $stmt->bindParam(':officeId', $officeId);
+                $stmt->execute();
+            }
+
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @param int $id
+     */
+    public function deleteOffice(int $id) : void
+    {
+        $sql = 'DELETE FROM offices WHERE offices_id = ' . $id;
+
+        try {
+            $this->pdo->beginTransaction();
+            $this->deleteContactByOfficeId($id);
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+            $this->pdo->commit();
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * @param int $id
+     */
+    public function deleteContactByOfficeId(int $id) : void
+    {
+        $sql = 'DELETE FROM contacts WHERE contacts_offices_id = ' . $id;
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            throw $e;
+        }
     }
 
     /**

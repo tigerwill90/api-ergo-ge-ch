@@ -179,7 +179,7 @@ $container[\Ergo\Controllers\ReadUser::class] = static function (ContainerInterf
  */
 $container[\Ergo\Controllers\SendContactMail::class] = static function (ContainerInterface $c) : \Ergo\Controllers\SendContactMail
 {
-    return new \Ergo\Controllers\SendContactMail($c->get('validationManager'), $c->get('phpMailer'), $c->get('dataWrapper'), $c->get('appDebug'));
+    return new \Ergo\Controllers\SendContactMail($c->get('validationManager'), $c->get('phpMailer'), $c->get('dataWrapper'), $c->get('reCaptcha'), $c->get('appDebug'));
 };
 
 /** ----------------- DOMAINS ----------------- */
@@ -325,11 +325,11 @@ $container['contactSendMailParameter'] = static function () : \Ergo\Services\Val
 {
     $validator = new \Ergo\Services\Validators\ParameterValidator();
     return $validator
-        ->add('first_name', new \Ergo\Services\Validators\Rules\NameRule(true))
-        ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(true))
+        ->add('name', new \Ergo\Services\Validators\Rules\NameRule(true))
         ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(true))
         ->add('subject', new \Ergo\Services\Validators\Rules\SubjectRule(true))
-        ->add('message', new \Ergo\Services\Validators\Rules\MessageRule(true));
+        ->add('message', new \Ergo\Services\Validators\Rules\MessageRule(true))
+        ->add('token', new \Ergo\Services\Validators\Rules\TokenRule(true));
 };
 
 /**
@@ -338,7 +338,7 @@ $container['contactSendMailParameter'] = static function () : \Ergo\Services\Val
 $container['phpMailer'] = static function () : \PHPMailer\PHPMailer\PHPMailer
 {
     $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-    $mail->SMTPDebug    = 2;
+    $mail->SMTPDebug    = filter_var(getenv('DEBUG'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ? 2 : 0;
     $mail->isSMTP();
     $mail->Host         = getenv('SMTP_SERVER');
     $mail->SMTPAuth     = true;
@@ -347,6 +347,14 @@ $container['phpMailer'] = static function () : \PHPMailer\PHPMailer\PHPMailer
     $mail->SMTPSecure   = 'tls';
     $mail->Port         = (int) getenv('SMTP_PORT');
     return $mail;
+};
+
+/**
+ * @return \ReCaptcha\ReCaptcha
+ */
+$container['reCaptcha'] = static function() : \ReCaptcha\ReCaptcha
+{
+    return new \ReCaptcha\ReCaptcha(getenv('RECAPTCHA_SECRET'));
 };
 
 /**
