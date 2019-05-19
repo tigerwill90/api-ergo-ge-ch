@@ -11,4 +11,6 @@ namespace Ergo\Business;
 interface EntityInterface
 {
     public function getEntity() : array;
+
+    // TODO getCollectionEntity() : array;
 }

@@ -10,6 +10,7 @@ namespace Ergo\Domains;
 
 use Ergo\Business\Contact;
 use Ergo\Business\Office;
+use Ergo\Exceptions\IntegrityConstraintException;
 use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
 use PDO;
@@ -269,19 +270,28 @@ class OfficesDao
 
     /**
      * @param int $id
+     * @throws NoEntityException
+     * @throws IntegrityConstraintException
      */
     public function deleteOffice(int $id) : void
     {
-        $sql = 'DELETE FROM offices WHERE offices_id = ' . $id;
+        $sql = 'DELETE FROM offices WHERE offices_id = :id';
 
         try {
             $this->pdo->beginTransaction();
             $this->deleteContactByOfficeId($id);
-            $stmt = $this->pdo->query($sql);
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':id', $id);
             $stmt->execute();
+            if ($stmt->rowCount() === 0) {
+                throw new NoEntityException('No entity found for this office id : ' . $id);
+            }
             $this->pdo->commit();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
+            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+                throw new IntegrityConstraintException('Cannot delete an not empty office');
+            }
             throw $e;
         }
     }

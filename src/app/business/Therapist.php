@@ -217,7 +217,7 @@ class Therapist implements EntityInterface
      */
     public function getEntity(): array
     {
-        $entity = [
+        return [
             'id' => $this->id,
             'title' => ucfirst($this->title),
             'firstname' => ucfirst($this->firstname),
@@ -225,13 +225,8 @@ class Therapist implements EntityInterface
             'home' => $this->home,
             'phones' => $this->phones,
             'emails' => array_map('strtolower', $this->emails),
-            'categories' => $this->categories
+            'categories' => $this->categories,
+            'officesId' => $this->officesId
         ];
-
-        if (!empty($this->officesId)) {
-            $entity['officesId'] = $this->officesId;
-        }
-
-        return $entity;
     }
 }

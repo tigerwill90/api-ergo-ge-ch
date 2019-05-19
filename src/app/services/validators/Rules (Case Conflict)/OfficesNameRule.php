@@ -13,6 +13,6 @@ class OfficesNameRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::arrayType()->each(Validator::alpha('-')->notBlank())->notEmpty();
+        return Validator::arrayType()->each(Validator::alpha('èáéíóúüÁÉÍÓÚÜñÑ-')->notBlank())->notEmpty();
     }
 }

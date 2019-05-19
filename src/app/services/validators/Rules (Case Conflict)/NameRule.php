@@ -13,6 +13,6 @@ class NameRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::alpha('-')->notBlank()->length(3, 45);
+        return Validator::alpha('èáéíóúüÁÉÍÓÚÜñÑ-')->notBlank()->length(3, 45);
     }
 }

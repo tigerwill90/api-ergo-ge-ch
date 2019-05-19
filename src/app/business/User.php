@@ -211,23 +211,15 @@ class User implements EntityInterface
      */
     public function getEntity(): array
     {
-        $user = [
+        return [
             'id' => $this->id,
             'email' => $this->email,
             'first_name' => ucfirst($this->firstname),
             'last_name' => ucfirst($this->lastname),
             'active' => $this->active,
-            'roles' => explode(' ', $this->roles)
+            'roles' => explode(' ', $this->roles),
+            'offices_id' => $this->officesId,
+            'offices_name' => $this->officesName
         ];
-
-        if (!empty($this->officesId)) {
-            $user['offices_id'] = $this->officesId;
-        }
-
-        if (!empty($this->officesName)) {
-            $user['offices_name'] = $this->officesName;
-        }
-
-        return $user;
     }
 }

@@ -93,15 +93,10 @@ class Error implements EntityInterface
      */
     public function getEntity(): array
     {
-        $error = [
+        return [
             'error' => ucfirst($this->name),
-            'error_description' => ucfirst($this->description)
+            'error_description' => ucfirst($this->description),
+            'error_context' => $this->context
         ];
-
-        if (!empty($this->context)) {
-            $error['error_context'] = $this->context;
-        }
-
-        return $error;
     }
 }

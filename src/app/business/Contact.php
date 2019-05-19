@@ -99,7 +99,7 @@ class Contact implements EntityInterface
     /**
      * @return string
      */
-    public function getNpa(): string
+    public function getNpa(): ?string
     {
         return $this->npa;
     }
@@ -117,7 +117,7 @@ class Contact implements EntityInterface
     /**
      * @return string
      */
-    public function getCp(): string
+    public function getCp(): ?string
     {
         return $this->cp;
     }
@@ -135,7 +135,7 @@ class Contact implements EntityInterface
     /**
      * @return string
      */
-    public function getPhone(): string
+    public function getPhone(): ?string
     {
         return $this->phone;
     }
@@ -153,7 +153,7 @@ class Contact implements EntityInterface
     /**
      * @return string
      */
-    public function getFax(): string
+    public function getFax(): ?string
     {
         return $this->fax;
     }

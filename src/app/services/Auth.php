@@ -68,7 +68,8 @@ class Auth
             'exp' => $exp,
             'jti' => $this->generator->generateString(10, self::TOKEN_CHAR_GEN),
             'scope' => $user->getRoles(),
-            'user_id' => $user->getId()
+            'user_id' => $user->getId(),
+            'offices_id' => array_map('intval', $user->getOfficesId())
         ];
 
         return JWT::encode($token, getenv('API_SECRET'));

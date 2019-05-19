@@ -103,6 +103,33 @@ $container[\Ergo\Controllers\ReadOffices::class] = static function (ContainerInt
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\CreateOffice
+ */
+$container[\Ergo\Controllers\CreateOffice::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateOffice
+{
+    return new \Ergo\Controllers\CreateOffice($c->get('validationManager'), $c->get('officesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\UpdateOffice
+ */
+$container[\Ergo\Controllers\UpdateOffice::class] = static function (ContainerInterface $c) : \Ergo\Controllers\UpdateOffice
+{
+    return new \Ergo\Controllers\UpdateOffice($c->get('validationManager'), $c->get('officesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\DeleteOffice
+ */
+$container[\Ergo\Controllers\DeleteOffice::class] = static function (ContainerInterface $c) : \Ergo\Controllers\DeleteOffice
+{
+  return new \Ergo\Controllers\DeleteOffice($c->get('officesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\ReadTherapist
  */
 $container[\Ergo\Controllers\ReadTherapist::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ReadTherapist
@@ -283,7 +310,8 @@ $container['validationManager'] = static function (ContainerInterface $c) : \Erg
     return $validatorManager
         ->add('create_user', [$c->get('userCreateParameter')])
         ->add('update_user', [$c->get('userUpdateParameter')])
-        ->add('contact_email', [$c->get('contactSendMailParameter')]);
+        ->add('contact_email', [$c->get('contactSendMailParameter')])
+        ->add('office', [$c->get('officeParameter')]);
 };
 
 /**
@@ -316,6 +344,19 @@ $container['userUpdateParameter'] = static function () : \Ergo\Services\Validato
         ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(false))
         ->add('active', new \Ergo\Services\Validators\Rules\ActiveRule(false))
         ->add('offices_id', new \Ergo\Services\Validators\Rules\OfficesIdRule(false));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Services\Validators\Validator
+ */
+$container['officeParameter'] = static function () : \Ergo\Services\Validators\Validator
+{
+    $validator = new \Ergo\Services\Validators\ParameterValidator();
+    return $validator
+        ->add('name', new \Ergo\Services\Validators\Rules\NameRule(true))
+        ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(true))
+        ->add('contacts', new \Ergo\Services\Validators\Rules\ContactsRule(true));
 };
 
 /**

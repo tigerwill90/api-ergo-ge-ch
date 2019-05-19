@@ -39,8 +39,8 @@ $container['jwtAuthentication'] = static function () : Tuupola\Middleware\JwtAut
       'rules' => [
           new \Ergo\Services\JwtAuthenticationRuleHelper([
               'path' => [
-                  '/users' => ['GET', 'PATCH', 'POST', 'DELETE'], // protect all method
-                  '/offices' => 'POST' // protect only POST method
+                  '/users' => ['GET', 'PATCH', 'POST', 'DELETE'],
+                  '/offices' => ['POST', 'PUT', 'DELETE'] // protect only POST method
               ]
           ])
       ]
