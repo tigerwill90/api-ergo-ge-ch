@@ -173,6 +173,15 @@ $container[\Ergo\Controllers\ReadUser::class] = static function (ContainerInterf
     return new \Ergo\Controllers\ReadUser($c->get('usersDao'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\SendContactMail
+ */
+$container[\Ergo\Controllers\SendContactMail::class] = static function (ContainerInterface $c) : \Ergo\Controllers\SendContactMail
+{
+    return new \Ergo\Controllers\SendContactMail($c->get('validationManager'), $c->get('phpMailer'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
 /** ----------------- DOMAINS ----------------- */
 
 /**
@@ -273,7 +282,8 @@ $container['validationManager'] = static function (ContainerInterface $c) : \Erg
     $validatorManager = new \Ergo\Services\Validators\ValidatorManager();
     return $validatorManager
         ->add('create_user', [$c->get('userCreateParameter')])
-        ->add('update_user', [$c->get('userUpdateParameter')]);
+        ->add('update_user', [$c->get('userUpdateParameter')])
+        ->add('contact_email', [$c->get('contactSendMailParameter')]);
 };
 
 /**
@@ -306,6 +316,37 @@ $container['userUpdateParameter'] = static function () : \Ergo\Services\Validato
         ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(false))
         ->add('active', new \Ergo\Services\Validators\Rules\ActiveRule(false))
         ->add('offices_id', new \Ergo\Services\Validators\Rules\OfficesIdRule(false));
+};
+
+/**
+ * @return \Ergo\Services\Validators\Validator
+ */
+$container['contactSendMailParameter'] = static function () : \Ergo\Services\Validators\Validator
+{
+    $validator = new \Ergo\Services\Validators\ParameterValidator();
+    return $validator
+        ->add('first_name', new \Ergo\Services\Validators\Rules\NameRule(true))
+        ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(true))
+        ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(true))
+        ->add('subject', new \Ergo\Services\Validators\Rules\SubjectRule(true))
+        ->add('message', new \Ergo\Services\Validators\Rules\MessageRule(true));
+};
+
+/**
+ * @return \PHPMailer\PHPMailer\PHPMailer
+ */
+$container['phpMailer'] = static function () : \PHPMailer\PHPMailer\PHPMailer
+{
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+    $mail->SMTPDebug    = 2;
+    $mail->isSMTP();
+    $mail->Host         = getenv('SMTP_SERVER');
+    $mail->SMTPAuth     = true;
+    $mail->Username     = getenv('SMTP_USER');
+    $mail->Password     = getenv('SMTP_PASSWORD');
+    $mail->SMTPSecure   = 'tls';
+    $mail->Port         = (int) getenv('SMTP_PORT');
+    return $mail;
 };
 
 /**

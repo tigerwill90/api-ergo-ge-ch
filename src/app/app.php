@@ -17,6 +17,11 @@ $envLoader->required('DB_HOST')->notEmpty();
 $envLoader->required('API_SECRET')->notEmpty();
 $envLoader->required('TOKEN_EXPIRATION')->isInteger()->notEmpty();
 $envLoader->required('DOMAIN_NAME')->notEmpty();
+$envLoader->required('SMTP_SERVER')->notEmpty();
+$envLoader->required('SMTP_USER')->notEmpty();
+$envLoader->required('SMTP_PASSWORD')->notEmpty();
+$envLoader->required('SMTP_PORT')->isInteger()->notEmpty();
+$envLoader->required('ADDRESS_FROM')->notEmpty();
 date_default_timezone_set(getenv('TIMEZONE'));
 
 $app = new \Slim\App([
