@@ -10,15 +10,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
-final class DeleteUser
+class ReadUser
 {
-    /** @var UsersDao  */
     private $usersDao;
-
-    /** @var DataWrapper  */
     private $dataWrapper;
-
-    /** @var LoggerInterface  */
     private $logger;
 
     public function __construct(UsersDao $usersDao, DataWrapper $dataWrapper, LoggerInterface $logger = null)
@@ -30,27 +25,24 @@ final class DeleteUser
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
-        $token = $request->getAttribute('token');
-        $scopes = explode(' ', $token['scope']);
-        if (!in_array('admin', $scopes, true)) {
-            // 403 only for self delete without privilege
-            if ($token['user_id'] === (int) $request->getAttribute('id')) {
-                return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to delete user'))
-                    ->throwResponse($response, 403);
-            }
-            // do not disclose any information about other user, return 404
-            return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No entity found for this user id : ' . $request->getAttribute('id')))
-                ->throwResponse($response, 404);
-        }
-
         try {
-            $this->usersDao->deleteUser((int) $request->getAttribute('id'));
-            return $response;
+            $user = $this->usersDao->getUser($request->getAttribute('attribute'));
+
+            $token = $request->getAttribute('token');
+            $scopes = explode(' ', $token['scope']);
+            // check if admin or self read, do not disclose any information about other user, return 404
+            if (!in_array('admin', $scopes, true) && $token['user_id'] !== $user->getId()) {
+                return $this->dataWrapper
+                    ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this attribute : ' . $request->getAttribute('attribute')))
+                    ->throwResponse($response, 404);
+            }
+
+            return $this->dataWrapper
+                ->addEntity($user)
+                ->throwResponse($response);
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this attribute : ' . $request->getAttribute('attribute')))
                 ->throwResponse($response, 404);
         }
     }

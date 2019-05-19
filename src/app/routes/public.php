@@ -31,6 +31,8 @@ $app->group('/therapists', function(\Slim\App $app) {
 $app->get('/auth', \Ergo\Controllers\Authentication::class);
 
 $app->group('/users', function (\Slim\App $app) {
+    $app->get('', \Ergo\Controllers\ReadUsers::class);
+    $app->get('/{attribute}', \Ergo\Controllers\ReadUser::class);
     $app->post('', \Ergo\Controllers\CreateUser::class);
     $app->patch('/{id:[0-9]+}', \Ergo\Controllers\UpdateUser::class);
     $app->delete('/{id:[0-9]+}', \Ergo\Controllers\DeleteUser::class);

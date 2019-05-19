@@ -50,7 +50,7 @@ final class CreateUser
         $scopes = explode(' ', $request->getAttribute('token')['scope']);
         if (!in_array('admin', $scopes, true)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'No privilege to create this user resource'))
+                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new user'))
                 ->throwResponse($response, 403);
         }
 
@@ -59,6 +59,9 @@ final class CreateUser
             $data['email'] = $params['email'];
             $data['hashedPassword'] = $this->authentication->hashPassword($params['password']);
             $data['roles'] = implode(' ', $params['roles']);
+            $data['firstname'] = $params['first_name'];
+            $data['lastname'] = $params['last_name'];
+            $data['active'] = $params['active'];
             $officesId = array_unique((array) $params['offices_id'], SORT_REGULAR);
             $user = new User($data, $officesId);
 

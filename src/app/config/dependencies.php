@@ -155,6 +155,24 @@ $container[\Ergo\Controllers\DeleteUser::class] = static function (ContainerInte
     return new \Ergo\Controllers\DeleteUser($c->get('usersDao'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadUsers
+ */
+$container[\Ergo\Controllers\ReadUsers::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ReadUsers
+{
+    return new \Ergo\Controllers\ReadUsers($c->get('usersDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadUser
+ */
+$container[\Ergo\Controllers\ReadUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ReadUser
+{
+    return new \Ergo\Controllers\ReadUser($c->get('usersDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
 /** ----------------- DOMAINS ----------------- */
 
 /**
@@ -268,6 +286,9 @@ $container['userCreateParameter'] = static function () : \Ergo\Services\Validato
           ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(true))
           ->add('password', new \Ergo\Services\Validators\Rules\PasswordRule(true))
           ->add('roles', new \Ergo\Services\Validators\Rules\RolesRule(true))
+          ->add('first_name', new \Ergo\Services\Validators\Rules\NameRule(true))
+          ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(true))
+          ->add('active', new \Ergo\Services\Validators\Rules\ActiveRule(true))
           ->add('offices_id', new \Ergo\Services\Validators\Rules\OfficesIdRule(false));
 };
 
@@ -281,6 +302,9 @@ $container['userUpdateParameter'] = static function () : \Ergo\Services\Validato
         ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(false))
         ->add('password', new \Ergo\Services\Validators\Rules\PasswordRule(false))
         ->add('roles', new \Ergo\Services\Validators\Rules\RolesRule(false))
+        ->add('first_name', new \Ergo\Services\Validators\Rules\NameRule(false))
+        ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(false))
+        ->add('active', new \Ergo\Services\Validators\Rules\ActiveRule(false))
         ->add('offices_id', new \Ergo\Services\Validators\Rules\OfficesIdRule(false));
 };
 

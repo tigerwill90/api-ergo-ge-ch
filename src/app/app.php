@@ -16,6 +16,7 @@ $envLoader->required('DB_PASSWORD')->notEmpty();
 $envLoader->required('DB_HOST')->notEmpty();
 $envLoader->required('API_SECRET')->notEmpty();
 $envLoader->required('TOKEN_EXPIRATION')->isInteger()->notEmpty();
+$envLoader->required('DOMAIN_NAME')->notEmpty();
 date_default_timezone_set(getenv('TIMEZONE'));
 
 $app = new \Slim\App([

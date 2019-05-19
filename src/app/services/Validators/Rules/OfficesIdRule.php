@@ -13,6 +13,6 @@ class OfficesIdRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::arrayType()->each(Validator::intVal()->intType())->notEmpty();
+        return Validator::arrayType()->each(Validator::intVal()->intType());
     }
 }

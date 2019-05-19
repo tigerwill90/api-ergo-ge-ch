@@ -40,7 +40,7 @@ $container['jwtAuthentication'] = static function (\Psr\Container\ContainerInter
       'rules' => [
           new \Ergo\Services\JwtAuthenticationRuleHelper([
               'path' => [
-                  '/users', // protect all method
+                  '/users' => ['GET', 'PATCH', 'POST', 'DELETE'], // protect all method
                   '/offices' => 'POST' // protect only POST method
               ]
           ])

@@ -16,10 +16,19 @@ class User implements EntityInterface
     /** @var string */
     private $roles;
 
-    /** @var []string */
+    /** @var string */
+    private $firstname;
+
+    /** @var string */
+    private $lastname;
+
+    /** @var bool */
+    private $active;
+
+    /** @var string[] */
     private $officesName;
 
-    /** @var []int */
+    /** @var int[] */
     private $officesId;
 
     public function __construct(array $user, array $officesId = [], array $officesName = [])
@@ -28,6 +37,9 @@ class User implements EntityInterface
         $this->email = $user['email'];
         $this->hashedPassword = $user['hashedPassword'];
         $this->roles = $user['roles'];
+        $this->firstname = $user['firstname'];
+        $this->lastname = $user['lastname'];
+        $this->active = (bool) $user['active'];
         $this->officesId = $officesId;
         $this->officesName = $officesName;
     }
@@ -105,15 +117,69 @@ class User implements EntityInterface
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getOfficesName()
+    public function getFirstname(): string
+    {
+        return $this->firstname;
+    }
+
+    /**
+     * @param string $firstname
+     * @return User
+     */
+    public function setFirstname(string $firstname): self
+    {
+        $this->firstname = $firstname;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastname(): string
+    {
+        return $this->lastname;
+    }
+
+    /**
+     * @param string $lastname
+     * @return User
+     */
+    public function setLastname(string $lastname): self
+    {
+        $this->lastname = $lastname;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getActive(): bool
+    {
+        return $this->active;
+    }
+
+    /**
+     * @param bool $active
+     * @return User
+     */
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getOfficesName() : array
     {
         return $this->officesName;
     }
 
     /**
-     * @param array $officesName
+     * @param string[] $officesName
      * @return User
      */
     public function setOfficesName(array $officesName): self
@@ -123,15 +189,15 @@ class User implements EntityInterface
     }
 
     /**
-     * @return mixed
+     * @return int[]
      */
-    public function getOfficesId()
+    public function getOfficesId() : array
     {
         return $this->officesId;
     }
 
     /**
-     * @param array $officesId
+     * @param string[] $officesId
      * @return User
      */
     public function setOfficesId(array $officesId): self
@@ -145,12 +211,23 @@ class User implements EntityInterface
      */
     public function getEntity(): array
     {
-        return [
+        $user = [
             'id' => $this->id,
             'email' => $this->email,
-            'roles' => explode(' ', $this->roles),
-            'offices_name' => $this->officesName,
-            'offices_id' => $this->officesId
+            'first_name' => ucfirst($this->firstname),
+            'last_name' => ucfirst($this->lastname),
+            'active' => $this->active,
+            'roles' => explode(' ', $this->roles)
         ];
+
+        if (!empty($this->officesId)) {
+            $user['offices_id'] = $this->officesId;
+        }
+
+        if (!empty($this->officesName)) {
+            $user['offices_name'] = $this->officesName;
+        }
+
+        return $user;
     }
 }

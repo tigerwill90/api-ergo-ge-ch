@@ -10,15 +10,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
-final class DeleteUser
+final class ReadUsers
 {
-    /** @var UsersDao  */
     private $usersDao;
-
-    /** @var DataWrapper  */
     private $dataWrapper;
-
-    /** @var LoggerInterface  */
     private $logger;
 
     public function __construct(UsersDao $usersDao, DataWrapper $dataWrapper, LoggerInterface $logger = null)
@@ -32,22 +27,19 @@ final class DeleteUser
     {
         $token = $request->getAttribute('token');
         $scopes = explode(' ', $token['scope']);
+        // Only admin can list users
         if (!in_array('admin', $scopes, true)) {
-            // 403 only for self delete without privilege
-            if ($token['user_id'] === (int) $request->getAttribute('id')) {
-                return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to delete user'))
-                    ->throwResponse($response, 403);
-            }
-            // do not disclose any information about other user, return 404
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No entity found for this user id : ' . $request->getAttribute('id')))
-                ->throwResponse($response, 404);
+                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to list users'))
+                ->throwResponse($response, 403);
         }
 
+        $params = $request->getQueryParams();
         try {
-            $this->usersDao->deleteUser((int) $request->getAttribute('id'));
-            return $response;
+            $users = $this->usersDao->getUsers($params['attribute'], $params['sort']);
+            return $this->dataWrapper
+                ->addCollection($users)
+                ->throwResponse($response, 200);
         } catch (NoEntityException $e) {
             return $this->dataWrapper
                 ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))

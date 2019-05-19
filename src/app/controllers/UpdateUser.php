@@ -43,13 +43,12 @@ final class UpdateUser
     {
         $token = $request->getAttribute('token');
         $scopes = explode(' ', $token['scope']);
+        // check if admin or self update, do not disclose any information about other user, return 404
         if (!in_array('admin', $scopes, true) && $token['user_id'] !== (int) $request->getAttribute('id')) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'No privilege to update this user resource'))
-                ->throwResponse($response, 403);
+                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this id : ' . $request->getAttribute('id')))
+                ->throwResponse($response, 404);
         }
-
-        // TODO user can elevate his privilege
 
         if ($this->validatorManager->validate(['update_user'], $request)) {
             try {
@@ -60,14 +59,47 @@ final class UpdateUser
                 if (!empty($params['email'])) {
                     $user->setEmail($params['email']);
                 }
+
                 if (!empty($params['password'])) {
                     $user->setHashedPassword($this->auth->hashPassword($params['password']));
                 }
+
+                if (!empty($params['first_name'])) {
+                    $user->setFirstname($params['first_name']);
+                }
+
+                if (!empty($params['last_name'])) {
+                    $user->setLastname($params['last_name']);
+                }
+
+                if ($params['active'] !== null) {
+                    // Only admin user can change activation state
+                    if (!in_array('admin', $scopes, true)) {
+                        return $this->dataWrapper
+                            ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to update active state'))
+                            ->throwResponse($response, 403);
+                    }
+                    $user->setActive($params['active']);
+                }
+
                 if (!empty($params['roles'])) {
+                    // Only admin user can change roles
+                    if (!in_array('admin', $scopes, true)) {
+                        return $this->dataWrapper
+                            ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to update roles'))
+                            ->throwResponse($response, 403);
+                    }
                     $user->setRoles(implode(' ', $params['roles']));
                 }
-                if (!empty($params['offices_id'])) {
-                    $user->setOfficesId($params['offices_id']);
+
+                // User without privileges can only remove offices
+                if ($params['offices_id'] !== null) {
+                    if (!in_array('admin', $scopes, true) && !empty(array_diff((array) $params['offices_id'], $user->getOfficesId()))) {
+                        return $this->dataWrapper
+                            ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to add new offices'))
+                            ->throwResponse($response, 403);
+                    }
+                    $user->setOfficesId((array) $params['offices_id']);
                 }
 
                 try {
