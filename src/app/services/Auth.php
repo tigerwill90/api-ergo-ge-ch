@@ -59,7 +59,11 @@ class Auth
         return password_hash($password, PASSWORD_DEFAULT);
     }
 
-
+    /**
+     * @param User $user
+     * @param int $exp
+     * @return string
+     */
     public function createJwt(User $user, int $exp) : string
     {
         $token = [
@@ -73,6 +77,15 @@ class Auth
         ];
 
         return JWT::encode($token, getenv('API_SECRET'));
+    }
+
+    /**
+     * @param int $length
+     * @return string
+     */
+    public function generateRandomValue(int $length) : string
+    {
+        return $this->generator->generateString($length, self::TOKEN_CHAR_GEN);
     }
 
     /**

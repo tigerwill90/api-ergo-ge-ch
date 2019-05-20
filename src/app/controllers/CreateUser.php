@@ -55,6 +55,9 @@ final class CreateUser
         }
 
         if ($this->validatorManager->validate(['create_user'], $request)) {
+
+            // TODO create random and unique cookie value
+
             $params = $request->getParsedBody();
             $data['email'] = $params['email'];
             $data['hashedPassword'] = $this->authentication->hashPassword($params['password']);
@@ -62,6 +65,7 @@ final class CreateUser
             $data['firstname'] = $params['first_name'];
             $data['lastname'] = $params['last_name'];
             $data['active'] = $params['active'];
+            $data['cookieValue'] = 'asdfsdf';
             $officesId = array_unique((array) $params['offices_id'], SORT_REGULAR);
             $user = new User($data, $officesId);
 

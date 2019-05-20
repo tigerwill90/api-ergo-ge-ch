@@ -4,8 +4,8 @@
     "type": "project",
     "authors": [
         {
-            "name": "Sylvain",
-            "email": "sylvain.muller90@gmail.com"
+          "name": "Sylvain",
+          "email": "sylvain.muller90@gmail.com"
         }
     ],
     "repositories":  [
@@ -15,33 +15,34 @@
       }
     ],
     "require": {
-      "php": "^7.3",
-      "ext-gmp" : "*",
-      "slim/slim": "^3.11",
-      "vlucas/phpdotenv": "^2.5.1",
-      "monolog/monolog": "^1.24",
-      "ext-json": "*",
-      "ext-pdo": "*",
-      "google/apiclient": "^2.0",
-      "tuupola/cors-middleware": "^0.9.1",
-      "tigerwill90/server-timing": "0.x-dev",
-      "tuupola/slim-jwt-auth": "^3.3",
-      "firebase/php-jwt": "^5.0",
+        "php": "^7.3",
+        "ext-gmp" : "*",
+        "slim/slim": "^3.11",
+        "vlucas/phpdotenv": "^2.5.1",
+        "monolog/monolog": "^1.24",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "google/apiclient": "^2.0",
+        "tuupola/cors-middleware": "^0.9.1",
+        "tigerwill90/server-timing": "0.x-dev",
+        "tuupola/slim-jwt-auth": "^3.3",
+        "firebase/php-jwt": "^5.0",
         "ircmaxell/random-lib": "^1.2",
         "respect/validation": "^1.1",
         "phpmailer/phpmailer": "^6.0",
-        "google/recaptcha": "^1.2"
+        "google/recaptcha": "^1.2",
+        "dflydev/fig-cookies": "^2.0"
     },
     "require-dev" : {
-      "roave/security-advisories": "dev-master",
-      "phpunit/phpunit": "^7.4.4",
-      "phpstan/phpstan": "^0.10.5",
-      "squizlabs/php_codesniffer" : "^3.3.2"
+        "roave/security-advisories": "dev-master",
+        "phpunit/phpunit": "^7.4.4",
+        "phpstan/phpstan": "^0.10.5",
+        "squizlabs/php_codesniffer" : "^3.3.2"
     },
     "autoload": {
-      "psr-4": {
-        "Ergo\\": "app/"
-      }
+        "psr-4": {
+          "Ergo\\": "app/"
+        }
     },
     "autoload-dev": {
       "psr-4": {

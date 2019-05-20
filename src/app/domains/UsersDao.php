@@ -35,7 +35,7 @@ class UsersDao
         $sql = '
                     SELECT DISTINCT 
                         users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles,
-                        users_firstname as firstname, users_lastname as lastname, users_active as active,
+                        users_firstname as firstname, users_lastname as lastname, users_active as active, users_cookieValue as cookieValue,
                         offices_id AS officeId, offices_name AS officeName
                         FROM users
                         LEFT JOIN officesUsers ON users_id = officesUsers_users_id
@@ -80,7 +80,7 @@ class UsersDao
         $sort = $sortable[array_search(strtoupper($sortAttribute), $sortable, true) | 0];
         $sql = '
                 SELECT users_id as id, users_email as email, users_hashed_password as hashedPassword, users_roles as roles,
-                    users_firstname as firstname, users_lastname as lastname, users_active as active
+                    users_firstname as firstname, users_lastname as lastname, users_active as active, users_cookieValue as cookieValue
                     FROM users
                     ORDER BY ' . $order . ' ' . $sort;
 
@@ -113,7 +113,8 @@ class UsersDao
     {
         $sql = '
                     SELECT DISTINCT 
-                        users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles, users_firstname as firstname, users_lastname as lastname, users_active as active,
+                        users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles, users_firstname as firstname, users_lastname as lastname,
+                        users_active as active, users_cookieValue as cookieValue,
                         offices_id AS officeId, offices_name AS officeName
                         FROM users
                         LEFT JOIN officesUsers ON users_id = officesUsers_users_id
@@ -138,8 +139,6 @@ class UsersDao
                     $officesName[] = $office['officeName'];
                 }
             }
-            $this->log(print_r($data, true));
-            $this->log(print_r($officesId, true));
             return new User($data[0], $officesId, $officesName);
         } catch (\PDOException $e) {
             throw $e;
@@ -153,7 +152,7 @@ class UsersDao
      */
     public function createUser(User $user) : void
     {
-        $sql = 'INSERT INTO users (users_email, users_hashed_password, users_roles, users_firstname, users_lastname, users_active) VALUES (:email, :hashedPassword, :roles, :firstname, :lastname, :active)';
+        $sql = 'INSERT INTO users (users_email, users_hashed_password, users_roles, users_firstname, users_lastname, users_active, users_cookieValue) VALUES (:email, :hashedPassword, :roles, :firstname, :lastname, :active, :cookieValue)';
 
         try {
             $this->pdo->beginTransaction();
@@ -171,6 +170,8 @@ class UsersDao
             $stmt->bindParam(':lastname', $lastname);
             $active = (int) $user->getActive();
             $stmt->bindParam(':active', $active);
+            $cookieValue = $user->getCookieValue();
+            $stmt->bindParam(':cookieValue', $cookieValue);
             $stmt->execute();
             $user->setId((int)$this->pdo->lastInsertId());
 
@@ -240,7 +241,8 @@ class UsersDao
                     users_roles = :roles,
                     users_firstname = :firstname,
                     users_lastname = :lastname,
-                    users_active = :active
+                    users_active = :active,
+                    users_cookieValue = :cookieValue
                     WHERE users_id = :id
               ';
 
@@ -261,6 +263,8 @@ class UsersDao
            $stmt->bindParam(':id', $id);
            $active = (int) $user->getActive();
            $stmt->bindParam(':active', $active);
+           $cookieValue = $user->getCookieValue();
+           $stmt->bindParam(':cookieValue', $cookieValue);
            $stmt->execute();
            $this->deleteUserToOfficesLinkByUserId($user->getId());
 

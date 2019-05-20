@@ -2,6 +2,8 @@
 
 namespace Ergo\Controllers;
 
+use Dflydev\FigCookies\FigResponseCookies;
+use Dflydev\FigCookies\SetCookie;
 use Ergo\Business\Error;
 use Ergo\Domains\UsersDao;
 use Ergo\Exceptions\NoEntityException;
@@ -95,10 +97,17 @@ final class Authentication
           ]
         ];
 
+        $response = FigResponseCookies::set($response, SetCookie::create('ase')
+            ->withHttpOnly()
+            ->withDomain('localhost')
+            ->withExpires(time() + 100)
+            ->withValue($this->auth->generateRandomValue(45))
+            ->withSecure(!filter_var(getenv('DEBUG'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE))
+        );
 
         return $this->dataWrapper
             ->addArray($data)
-            ->throwResponse($response, 401);
+            ->throwResponse($response);
     }
 
     /**

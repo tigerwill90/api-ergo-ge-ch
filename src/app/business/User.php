@@ -25,6 +25,9 @@ class User implements EntityInterface
     /** @var bool */
     private $active;
 
+    /** @var string */
+    private $cookieValue;
+
     /** @var string[] */
     private $officesName;
 
@@ -34,6 +37,7 @@ class User implements EntityInterface
     public function __construct(array $user, array $officesId = [], array $officesName = [])
     {
         if (!empty($user['id'])) $this->id = (int) $user['id'];
+        $this->cookieValue = $user['cookieValue'];
         $this->email = $user['email'];
         $this->hashedPassword = $user['hashedPassword'];
         $this->roles = $user['roles'];
@@ -167,6 +171,24 @@ class User implements EntityInterface
     public function setActive(bool $active): self
     {
         $this->active = $active;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCookieValue(): string
+    {
+        return $this->cookieValue;
+    }
+
+    /**
+     * @param string $cookieValue
+     * @return User
+     */
+    public function setCookieValue(string $cookieValue): self
+    {
+        $this->cookieValue = $cookieValue;
         return $this;
     }
 
