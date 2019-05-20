@@ -85,6 +85,33 @@ $container[\Ergo\Controllers\ReadCategoriesOffice::class] = static function (Con
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\CreateCategory
+ */
+$container[\Ergo\Controllers\CreateCategory::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateCategory
+{
+    return new \Ergo\Controllers\CreateCategory($c->get('validationManager'), $c->get('categoriesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\UpdateCategory
+ */
+$container[\Ergo\Controllers\UpdateCategory::class] = static function (ContainerInterface $c) : \Ergo\Controllers\UpdateCategory
+{
+    return new \Ergo\Controllers\UpdateCategory($c->get('validationManager'), $c->get('categoriesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\DeleteCategory
+ */
+$container[\Ergo\Controllers\DeleteCategory::class] = static function (ContainerInterface $c) : \Ergo\Controllers\DeleteCategory
+{
+    return new \Ergo\Controllers\DeleteCategory($c->get('categoriesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\ReadOffice
  */
 $container[\Ergo\Controllers\ReadOffice::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ReadOffice
@@ -402,6 +429,14 @@ $container['therapistParameter'] = static function () : \Ergo\Services\Validator
         ->add('phones', new \Ergo\Services\Validators\Rules\PhonesRule(true))
         ->add('categories', new \Ergo\Services\Validators\Rules\NotEmptyIntArray(true))
         ->add('office_id', new \Ergo\Services\Validators\Rules\IdRule(true));
+};
+
+$container['categoryParameter'] = static function () : \Ergo\Services\Validators\Validator
+{
+    $validator = new \Ergo\Services\Validators\ParameterValidator();
+    return $validator
+        ->add('name', new \Ergo\Services\Validators\Rules\NameRule(true))
+        ->add('description', new \Ergo\Services\Validators\Rules\DescriptionRule(true));
 };
 
 /**

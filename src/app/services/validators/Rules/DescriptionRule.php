@@ -5,7 +5,7 @@ namespace Ergo\Services\Validators\Rules;
 use Ergo\Services\Validators\RuleValidator;
 use Respect\Validation\Validator;
 
-class NameRule extends RuleValidator
+class DescriptionRule extends RuleValidator
 {
     /**
      * Get a validator instance
@@ -13,6 +13,6 @@ class NameRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::alpha('èáéíóúüÁÉÍÓÚÜñÑ-')->notBlank()->length(3, 45);
+        return Validator::notBlank()->length(5, 255);
     }
 }
