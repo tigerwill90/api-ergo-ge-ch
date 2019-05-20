@@ -1,4 +1,4 @@
-FROM php:7.2.16-apache
+FROM php:7.3.5-apache
 
 ENV USER="ergo" \
     GROUP="ergo" \
@@ -25,6 +25,7 @@ RUN set -x \
     openssh-client \
     zlib1g-dev \
     libgmp-dev \
+    libzip-dev \
     libsodium-dev \
   \
   && docker-php-ext-install zip \
