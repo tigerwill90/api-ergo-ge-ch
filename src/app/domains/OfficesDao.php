@@ -69,6 +69,26 @@ class OfficesDao
     }
 
     /**
+     * @param int $id
+     * @return bool
+     */
+    public function isOfficeExist(int $id) : bool {
+        $sql = 'SELECT offices_id FROM offices WHERE offices_id = ' . $id;
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                return false;
+            }
+            return true;
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
      * @param array $officesId
      * @return array
      * @throws NoEntityException

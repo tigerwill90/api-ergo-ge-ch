@@ -25,8 +25,8 @@ class Therapist implements EntityInterface
     /** @var bool */
     private $home;
 
-    /** @var array */
-    private $officesId;
+    /** @var int */
+    private $officeId;
 
     /** @var array */
     private $phones;
@@ -37,17 +37,17 @@ class Therapist implements EntityInterface
     /** @var array */
     private $categories;
 
-    public function __construct(array $therapist, array $phones = [], array $emails = [], array $categories = [], array $officesId = [])
+    public function __construct(array $therapist, array $phones = [], array $emails = [], array $categories = [])
     {
         if (!empty($therapist['id'])) $this->id = (int) $therapist['id'];
         $this->title = $therapist['title'];
         $this->firstname = $therapist['firstname'];
         $this->lastname = $therapist['lastname'];
         $this->home = (bool) $therapist['home'];
+        $this->officeId = (int) $therapist['officeId'];
         $this->phones = $phones;
         $this->emails = $emails;
         $this->categories = $categories;
-        $this->officesId = $officesId;
     }
 
     /**
@@ -141,6 +141,24 @@ class Therapist implements EntityInterface
     }
 
     /**
+     * @return int
+     */
+    public function getOfficeId(): int
+    {
+        return $this->officeId;
+    }
+
+    /**
+     * @param int $officeId
+     * @return Therapist
+     */
+    public function setOfficeId(int $officeId): self
+    {
+        $this->officeId = $officeId;
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getPhones(): array
@@ -179,24 +197,6 @@ class Therapist implements EntityInterface
     /**
      * @return array
      */
-    public function getOfficesId(): array
-    {
-        return $this->officesId;
-    }
-
-    /**
-     * @param array $officesId
-     * @return Therapist
-     */
-    public function setOfficesId(array $officesId): self
-    {
-        $this->officesId = $officesId;
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
     public function getCategories(): array
     {
         return $this->categories;
@@ -226,7 +226,7 @@ class Therapist implements EntityInterface
             'phones' => $this->phones,
             'emails' => array_map('strtolower', $this->emails),
             'categories' => $this->categories,
-            'officesId' => $this->officesId
+            'officeId' => $this->officeId
         ];
     }
 }

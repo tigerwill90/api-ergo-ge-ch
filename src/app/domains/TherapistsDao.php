@@ -9,8 +9,8 @@
 namespace Ergo\Domains;
 
 use Ergo\Business\Therapist;
+use Ergo\Exceptions\IntegrityConstraintException;
 use Ergo\Exceptions\NoEntityException;
-use Ergo\Exceptions\UniqueException;
 use Psr\Log\LoggerInterface;
 use PDO;
 
@@ -41,13 +41,11 @@ class TherapistsDao
         $sql =
             '
                 SELECT 
-                    therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home,
-                    officesTherapists_offices_id AS officeId,
+                    therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home, therapists_offices_id as officeId,
                     phones_id AS phoneId ,phones_type AS phoneType, phones_number AS phoneNumber,
                     emails_id AS emailId, emails_address AS emailAddress,
                     categories_id AS categoryId, categories_name AS categoryName, categories_description AS categoryDescription
                         FROM therapists
-                        LEFT JOIN officesTherapists ON therapists_id = officesTherapists_therapists_id
                         LEFT JOIN phones ON therapists_id = phones_therapists_id
                         LEFT JOIN emails ON therapists_id = emails_therapists_id
                         LEFT JOIN therapistsCategories ON therapists_id = therapistsCategories_therapists_id
@@ -63,7 +61,7 @@ class TherapistsDao
                 throw new NoEntityException('No entity found for this therapist id : ' . $id);
             }
 
-            $phonesId = $emailsId = $phones = $emails = $categories = $categoriesId = $officesId = [];
+            $phonesId = $emailsId = $phones = $emails = $categories = $categoriesId = [];
             foreach ($data as $contact) {
                     if ($contact['phoneId'] !== null && !in_array($contact['phoneId'], $phonesId, true)) {
                         $phones[] = [
@@ -85,13 +83,30 @@ class TherapistsDao
                         ];
                         $categoriesId[] = $contact['categoryId'];
                     }
-
-                    if ($contact['officeId'] !== null && !in_array($contact['officeId'], $officesId, true)) {
-                        $officesId[] = $contact['officeId'];
-                    }
             }
 
-            return new Therapist($data[0], $phones, $emails, $categories, $officesId);
+            return new Therapist($data[0], $phones, $emails, $categories);
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @param int $id
+     * @return bool
+     */
+    public function isTherapistExist (int $id) : bool
+    {
+        $sql = 'SELECT therapists_id FROM therapists WHERE therapists_id = ' . $id;
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                return false;
+            }
+            return true;
         } catch (\PDOException $e) {
             throw $e;
         }
@@ -110,12 +125,11 @@ class TherapistsDao
             '
                 SELECT 
                     therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home,
-                    officesTherapists_offices_id AS officeId,
+                    therapists_offices_id AS officeId,
                     phones_id AS phoneId ,phones_type AS phoneType, phones_number AS phoneNumber,
                     emails_id AS emailId, emails_address AS emailAddress,
                     categories_id AS categoryId, categories_name AS categoryName, categories_description AS categoryDescription
                         FROM therapists
-                        LEFT JOIN officesTherapists ON therapists_id = officesTherapists_therapists_id
                         LEFT JOIN phones ON therapists_id = phones_therapists_id
                         LEFT JOIN emails ON therapists_id = emails_therapists_id
                         LEFT JOIN therapistsCategories ON therapists_id = therapistsCategories_therapists_id
@@ -123,7 +137,7 @@ class TherapistsDao
                 ';
 
         if ($officeId !== null) {
-            $sql .= ' WHERE officesTherapists_offices_id = ' . $officeId;
+            $sql .= ' WHERE therapists_offices_id = ' . $officeId;
         }
 
         // TODO order by firstname, lastname, title, home
@@ -183,13 +197,13 @@ class TherapistsDao
 
     /**
      * @param Therapist $therapist
-     * @throws UniqueException
+     * @throws IntegrityConstraintException
      */
     public function createTherapist(Therapist $therapist) : void
     {
         $sql = '
-                    INSERT INTO therapists (therapists_title, therapists_firstname, therapists_lastname, therapists_home) 
-                    VALUES (:title, :firstname, :lastname, :home)
+                    INSERT INTO therapists (therapists_title, therapists_firstname, therapists_lastname, therapists_home, therapists_offices_id) 
+                    VALUES (:title, :firstname, :lastname, :home, :officeId)
                ';
 
         try {
@@ -203,25 +217,29 @@ class TherapistsDao
             $stmt->bindParam(':lastname', $lastname);
             $home = (int) $therapist->isHome();
             $stmt->bindParam(':home', $home);
+            $officeId = $therapist->getOfficeId();
+            $stmt->bindParam(':officeId', $officeId);
             $stmt->execute();
 
             $id = (int) $this->pdo->lastInsertId();
             $therapist->setId($id);
             $this->createEmail($id, $therapist->getEmails());
             $this->createPhone($id, $therapist->getPhones());
-            $this->linkTherapistToOffices($therapist);
             $this->linkTherapistToCategories($therapist);
 
             $this->pdo->commit();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
+            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+                throw new IntegrityConstraintException('Can not insert new therapist. Office id ' . $therapist->getOfficeId() . ' not found');
+            }
             throw $e;
         }
     }
 
     /**
      * @param Therapist $therapist
-     * @throws UniqueException
+     * @throws IntegrityConstraintException
      */
     public function updateTherapist(Therapist $therapist) : void
     {
@@ -230,39 +248,44 @@ class TherapistsDao
                         therapists_title = :title,
                         therapists_firstname = :firstname,
                         therapists_lastname = :lastname,
-                        therapists_id = :home
+                        therapists_home = :home,
+                        therapists_offices_id = :officeId
                         WHERE therapists_id = :id
                ';
 
         try {
             $this->pdo->beginTransaction();
+            $id = $therapist->getId();
+            $this->deletePhoneByTherapistId($id);
+            $this->createPhone($id, $therapist->getPhones());
+            $this->deleteEmailByTherapistId($id);
+            $this->createEmail($id, $therapist->getEmails());
+            $this->deleteTherapistToCategoriesLinkByTherapistId($id);
+            $this->linkTherapistToCategories($therapist);
+
             $stmt = $this->pdo->prepare($sql);
             $title = $therapist->getTitle();
             $stmt->bindParam(':title', $title);
             $firstname = $therapist->getFirstname();
             $stmt->bindParam(':firstname', $firstname);
             $lastname = $therapist->getLastname();
-            $stmt->bindParam(':lastnamt', $lastname);
+            $stmt->bindParam(':lastname', $lastname);
             $home = (int) $therapist->isHome();
             $stmt->bindParam(':home', $home);
-            $id = $therapist->getId();
             $stmt->bindParam(':id', $id);
+            $officeId = $therapist->getOfficeId();
+            $stmt->bindParam(':officeId', $officeId);
             $stmt->execute();
-
-            $this->deleteEmailByTherapistId($id);
-            $this->deletePhoneByTherapistId($id);
-            $this->deleteTherapistToCategoriesLinkByTherapistId($id);
-            $this->deleteTherapistToOfficesLinkByTherapistId($id);
-
-            $this->createEmail($id, $therapist->getEmails());
-            $this->createPhone($id, $therapist->getPhones());
-            $this->linkTherapistToOffices($therapist);
-            $this->linkTherapistToCategories($therapist);
 
             $this->pdo->commit();
 
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
+            error_log($e->getMessage());
+            error_log($e->getTraceAsString());
+            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+                throw new IntegrityConstraintException('Can not update therapist. Office id ' . $therapist->getOfficeId() . ' not found');
+            }
             throw $e;
         }
     }
@@ -270,7 +293,6 @@ class TherapistsDao
     /**
      * @param int $therapistId
      * @param array $emails
-     * @throws UniqueException
      */
     public function createEmail(int $therapistId, array $emails) : void
     {
@@ -278,16 +300,13 @@ class TherapistsDao
 
         try {
             $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':therapistId', $therapistId);
             foreach ($emails as $email) {
                 $stmt->bindParam(':email', $email);
-                $stmt->bindParam(':therapistId', $therapistId);
                 $stmt->execute();
             }
 
         } catch (\PDOException $e) {
-            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
-                throw new UniqueException('This therapist must have unique email', $e->getCode());
-            }
             throw $e;
         }
     }
@@ -295,7 +314,6 @@ class TherapistsDao
     /**
      * @param int $therapistId
      * @param array $phones
-     * @throws UniqueException
      */
     public function createPhone(int $therapistId, array $phones) : void
     {
@@ -303,37 +321,13 @@ class TherapistsDao
 
         try {
             $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':therapistId', $therapistId);
             foreach ($phones as $phone) {
                 $stmt->bindParam(':type', $phone['type']);
                 $stmt->bindParam(':number', $phone['number']);
-                $stmt->bindParam(':therapistId', $therapistId);
                 $stmt->execute();
             }
 
-        } catch (\PDOException $e) {
-            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
-                throw new UniqueException('This therapist must have unique phone number', $e->getCode());
-            }
-            throw $e;
-        }
-    }
-
-    /**
-     * @param Therapist $therapist
-     */
-    public function linkTherapistToOffices(Therapist $therapist) : void
-    {
-        $sql = 'INSERT INTO officesTherapists (officesTherapists_offices_id, officesTherapists_therapists_id) VALUES (:officeId, :therapistId)';
-
-        try {
-            $stmt = $this->pdo->prepare($sql);
-            $therapistId = $therapist->getId();
-            $stmt->bindParam(':therapistId', $therapistId);
-            $officesId = $therapist->getOfficesId();
-            foreach ($officesId as $officeId) {
-                $stmt->bindParam('officeId', $officeId);
-                $stmt->execute();
-            }
         } catch (\PDOException $e) {
             throw $e;
         }
@@ -341,6 +335,7 @@ class TherapistsDao
 
     /**
      * @param Therapist $therapist
+     * @throws IntegrityConstraintException
      */
     public function linkTherapistToCategories(Therapist $therapist) : void
     {
@@ -356,6 +351,9 @@ class TherapistsDao
                 $stmt->execute();
             }
         } catch (\PDOException $e) {
+            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+                throw new IntegrityConstraintException('Can only link therapist to existing categories');
+            }
             throw $e;
         }
     }
@@ -373,7 +371,6 @@ class TherapistsDao
             $this->deleteEmailByTherapistId($id);
             $this->deletePhoneByTherapistId($id);
             $this->deleteTherapistToCategoriesLinkByTherapistId($id);
-            $this->deleteTherapistToOfficesLinkByTherapistId($id);
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':id', $id);
@@ -396,21 +393,6 @@ class TherapistsDao
     public function deleteTherapistToCategoriesLinkByTherapistId(int $id) : void
     {
         $sql = 'DELETE FROM therapistsCategories WHERE therapistsCategories_therapists_id = ' . $id;
-
-        try {
-            $stmt = $this->pdo->query($sql);
-            $stmt->execute();
-        } catch (\PDOException $e) {
-            throw $e;
-        }
-    }
-
-    /**
-     * @param int $id
-     */
-    public function deleteTherapistToOfficesLinkByTherapistId(int $id) : void
-    {
-        $sql = 'DELETE FROM officesTherapists WHERE officesTherapists_therapists_id = ' .$id;
 
         try {
             $stmt = $this->pdo->query($sql);

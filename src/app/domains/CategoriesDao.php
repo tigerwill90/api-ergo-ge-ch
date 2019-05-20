@@ -93,8 +93,7 @@ class CategoriesDao
                 SELECT DISTINCT categories_id AS id, categories_name AS name, categories_description AS description FROM categories
                   JOIN therapistsCategories ON categories_id = therapistsCategories_categories_id
                   JOIN therapists ON therapists_id = therapistsCategories_therapists_id
-                  JOIN officesTherapists ON officesTherapists_therapists_id = therapists_id
-                  WHERE officesTherapists_offices_id = 
+                  WHERE therapists_offices_id = 
             ' . $officeId . ' ORDER BY categories_name ASC';
 
         try {

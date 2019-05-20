@@ -6,6 +6,7 @@ use Ergo\Business\Contact;
 use Ergo\Business\Error;
 use Ergo\Business\Office;
 use Ergo\Domains\OfficesDao;
+use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
 use Ergo\Services\DataWrapper;
 use Ergo\Services\Validators\ValidatorManagerInterface;
@@ -37,19 +38,27 @@ final class UpdateOffice
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
+        $id = (int) $request->getAttribute('id');
+
+        // check for existing office
+        if (!$this->officesDao->isOfficeExist($id)) {
+            return $this->dataWrapper
+                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No office entity found for this id : ' . $request->getAttribute('id')))
+                ->throwResponse($response, 404);
+        }
+
         $token = $request->getAttribute('token');
         $scopes = explode(' ', $token['scope']);
         // check if admin or self update, do not disclose any information about other user, return 404
         if (!in_array('admin', $scopes, true) && !in_array($request->getAttribute('id'), $token['offices_id'], true)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this id : ' . $request->getAttribute('id')))
+                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No office entity found for this id : ' . $request->getAttribute('id')))
                 ->throwResponse($response, 404);
         }
 
         if ($this->validatorManager->validate(['office'], $request)) {
 
             $params = $request->getParsedBody();
-            $id = (int) $request->getAttribute('id');
             $contacts = [];
             foreach ( $params['contacts'] as $contact) {
                 $contacts[] = new Contact($contact);

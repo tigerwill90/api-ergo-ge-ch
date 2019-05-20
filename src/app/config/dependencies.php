@@ -382,7 +382,7 @@ $container['officeParameter'] = static function () : \Ergo\Services\Validators\V
 {
     $validator = new \Ergo\Services\Validators\ParameterValidator();
     return $validator
-        ->add('name', new \Ergo\Services\Validators\Rules\NameRule(true))
+        ->add('name', new \Ergo\Services\Validators\Rules\OfficeNameRule(true))
         ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(true))
         ->add('contacts', new \Ergo\Services\Validators\Rules\ContactsRule(true));
 };
@@ -401,7 +401,7 @@ $container['therapistParameter'] = static function () : \Ergo\Services\Validator
         ->add('emails', new \Ergo\Services\Validators\Rules\EmailsRule(true))
         ->add('phones', new \Ergo\Services\Validators\Rules\PhonesRule(true))
         ->add('categories', new \Ergo\Services\Validators\Rules\NotEmptyIntArray(true))
-        ->add('offices_id', new \Ergo\Services\Validators\Rules\NotEmptyIntArray(true));
+        ->add('office_id', new \Ergo\Services\Validators\Rules\IdRule(true));
 };
 
 /**

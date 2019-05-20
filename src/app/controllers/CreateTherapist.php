@@ -5,7 +5,7 @@ namespace Ergo\Controllers;
 use Ergo\Business\Error;
 use Ergo\Business\Therapist;
 use Ergo\Domains\TherapistsDao;
-use Ergo\Exceptions\UniqueException;
+use Ergo\Exceptions\IntegrityConstraintException;
 use Ergo\Services\DataWrapper;
 use Ergo\Services\Validators\ValidatorManagerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -41,11 +41,10 @@ final class CreateTherapist
             $token = $request->getAttribute('token');
             $scopes = explode(' ', $token['scope']);
             $params = $request->getParsedBody();
-            // check if admin or self create, if all some office id are not in user office id, reject request
-            $diff = array_diff($params['offices_id'], $token['offices_id']);
-            if (!empty($diff) && !in_array('admin', $scopes, true)) {
+            // check if admin or self create, reject user who try to associate a new therapist to an no owned office
+            if (!in_array('admin', $scopes, true) && !in_array($params['office_id'], $token['offices_id'], true)) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new therapist for office id : ' . implode(', ', $diff)))
+                    ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new therapist for office id : ' . $params['office_id']))
                     ->throwResponse($response, 403);
             }
 
@@ -53,16 +52,16 @@ final class CreateTherapist
             $data['firstname'] = $params['first_name'];
             $data['lastname'] = $params['last_name'];
             $data['home'] = $params['home'];
-            $officesId = array_unique((array) $params['offices_id'], SORT_REGULAR);
+            $data['officeId'] = $params['office_id'];
             $phones = array_unique((array) $params['phones'], SORT_REGULAR);
             $emails = array_unique((array) $params['emails'], SORT_REGULAR);
             $categories = array_unique((array) $params['categories'], SORT_REGULAR);
 
-            $therapist = new Therapist($data, $phones, $emails, $categories, $officesId);
+            $therapist = new Therapist($data, $phones, $emails, $categories);
 
             try {
                 $this->therapistsDao->createTherapist($therapist);
-            } catch (UniqueException $e) {
+            } catch (IntegrityConstraintException $e) {
                 return $this->dataWrapper
                     ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
                     ->throwResponse($response, 409);
