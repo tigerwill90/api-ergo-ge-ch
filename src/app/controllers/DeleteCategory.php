@@ -2,9 +2,11 @@
 
 namespace Ergo\Controllers;
 
+use Ergo\Business\Error;
 use Ergo\domains\CategoriesDao;
+use Ergo\Exceptions\IntegrityConstraintException;
+use Ergo\Exceptions\NoEntityException;
 use Ergo\Services\DataWrapper;
-use Ergo\Services\Validators\ValidatorManagerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -29,7 +31,27 @@ final class DeleteCategory
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
-        echo 'yolo';
+        $token = $request->getAttribute('token');
+        $scopes = explode(' ', $token['scope']);
+        // Only admin can delete category, no problem to disclose category here
+        if (!in_array('admin', $scopes, true)) {
+            return $this->dataWrapper
+                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to delete a category'))
+                ->throwResponse($response, 403);
+        }
+
+        try {
+            $this->categoriesDao->deleteCategory($request->getAttribute('id'));
+        } catch (NoEntityException $e) {
+            return $this->dataWrapper
+                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->throwResponse($response, 404);
+        } catch (IntegrityConstraintException $e) {
+            return $this->dataWrapper
+                ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
+                ->throwResponse($response, 409);
+        }
+
         return $response;
     }
 

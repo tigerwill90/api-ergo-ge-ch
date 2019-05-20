@@ -65,7 +65,7 @@ class Category implements EntityInterface
     /**
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -74,7 +74,7 @@ class Category implements EntityInterface
      * @param string $description
      * @return Category
      */
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
         return $this;

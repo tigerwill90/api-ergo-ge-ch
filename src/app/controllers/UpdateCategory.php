@@ -2,7 +2,11 @@
 
 namespace Ergo\Controllers;
 
+use Ergo\Business\Category;
+use Ergo\Business\Error;
 use Ergo\domains\CategoriesDao;
+use Ergo\Exceptions\NoEntityException;
+use Ergo\Exceptions\UniqueException;
 use Ergo\Services\DataWrapper;
 use Ergo\Services\Validators\ValidatorManagerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -33,8 +37,49 @@ final class UpdateCategory
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
-        echo 'yolo';
-        return $response;
+        $token = $request->getAttribute('token');
+        $scopes = explode(' ', $token['scope']);
+        // Only admin can add category
+        if (!in_array('admin', $scopes, true)) {
+            return $this->dataWrapper
+                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to update a category'))
+                ->throwResponse($response, 403);
+        }
+
+        if ($this->validatorManager->validate(['category'], $request)) {
+            $data['id'] = $request->getAttribute('id');
+            try {
+                $this->categoriesDao->getCategory($data['id']);
+            } catch (NoEntityException $e) {
+                return $this->dataWrapper
+                    ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                    ->throwResponse($response, 404);
+            }
+
+            $params = $request->getParsedBody();
+            $data['name'] =  $params['name'];
+            $data['description'] = $params['description'];
+            $category = new Category($data);
+
+            try {
+                $this->categoriesDao->updateCategory($category);
+                return $this->dataWrapper
+                    ->addEntity($category)
+                    ->throwResponse($response);
+            } catch (UniqueException $e) {
+                return $this->dataWrapper
+                    ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
+                    ->throwResponse($response, 409);
+            }
+        }
+
+        return $this->dataWrapper
+            ->addEntity(new Error(
+                Error::ERR_BAD_REQUEST,
+                'The request could not be understood by the server due to malformed syntax',
+                $this->validatorManager->getErrorsMessages()
+            ))
+            ->throwResponse($response, 400);
     }
 
     /**

@@ -41,7 +41,8 @@ $container['jwtAuthentication'] = static function () : Tuupola\Middleware\JwtAut
               'path' => [
                   '/users' => ['GET', 'PATCH', 'POST', 'DELETE'],
                   '/offices' => ['POST', 'PUT', 'DELETE'],
-                  '/therapists' => ['POST', 'PUT', 'DELETE']
+                  '/therapists' => ['POST', 'PUT', 'DELETE'],
+                  '/categories' => ['POST', 'PUT', 'DELETE']
               ]
           ])
       ]

@@ -20,7 +20,10 @@ $app->group('/images', function (\Slim\App $app) {
 
 $app->group('/categories', function(\Slim\App $app) {
     $app->get('', \Ergo\Controllers\ReadCategories::class);
+    $app->post('', \Ergo\Controllers\CreateCategory::class);
+    $app->put('/{id:[0-9]+}', \Ergo\Controllers\UpdateCategory::class);
     $app->get('/{id:[0-9]+}', \Ergo\Controllers\ReadCategory::class);
+    $app->delete('/{id:[0-9]+}', \Ergo\Controllers\DeleteCategory::class);
 });
 
 $app->group('/offices', function(\Slim\App $app) {

@@ -366,7 +366,8 @@ $container['validationManager'] = static function (ContainerInterface $c) : \Erg
         ->add('update_user', [$c->get('userUpdateParameter')])
         ->add('contact_email', [$c->get('contactSendMailParameter')])
         ->add('office', [$c->get('officeParameter')])
-        ->add('therapist', [$c->get('therapistParameter')]);
+        ->add('therapist', [$c->get('therapistParameter')])
+        ->add('category', [$c->get('categoryParameter')]);
 };
 
 /**
@@ -436,7 +437,7 @@ $container['categoryParameter'] = static function () : \Ergo\Services\Validators
     $validator = new \Ergo\Services\Validators\ParameterValidator();
     return $validator
         ->add('name', new \Ergo\Services\Validators\Rules\NameRule(true))
-        ->add('description', new \Ergo\Services\Validators\Rules\DescriptionRule(true));
+        ->add('description', new \Ergo\Services\Validators\Rules\DescriptionRule(false));
 };
 
 /**
