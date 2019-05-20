@@ -400,7 +400,8 @@ $container['therapistParameter'] = static function () : \Ergo\Services\Validator
         ->add('home', new \Ergo\Services\Validators\Rules\BoolRule(true))
         ->add('emails', new \Ergo\Services\Validators\Rules\EmailsRule(true))
         ->add('phones', new \Ergo\Services\Validators\Rules\PhonesRule(true))
-        ->add('categories', new \Ergo\Services\Validators\Rules\IntArrayRule(true));
+        ->add('categories', new \Ergo\Services\Validators\Rules\NotEmptyIntArray(true))
+        ->add('offices_id', new \Ergo\Services\Validators\Rules\NotEmptyIntArray(true));
 };
 
 /**

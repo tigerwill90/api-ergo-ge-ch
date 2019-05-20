@@ -200,7 +200,7 @@ class TherapistsDao
             $firstname = $therapist->getFirstname();
             $stmt->bindParam(':firstname', $firstname);
             $lastname = $therapist->getLastname();
-            $stmt->bindParam(':lastnamt', $lastname);
+            $stmt->bindParam(':lastname', $lastname);
             $home = (int) $therapist->isHome();
             $stmt->bindParam(':home', $home);
             $stmt->execute();
@@ -323,7 +323,7 @@ class TherapistsDao
      */
     public function linkTherapistToOffices(Therapist $therapist) : void
     {
-        $sql = 'INSERT INTO officesTherapists (officesTherapists_offices_id, officesTherapists_therapists_id) VALUES (:$therapistId, :officeId)';
+        $sql = 'INSERT INTO officesTherapists (officesTherapists_offices_id, officesTherapists_therapists_id) VALUES (:officeId, :therapistId)';
 
         try {
             $stmt = $this->pdo->prepare($sql);
