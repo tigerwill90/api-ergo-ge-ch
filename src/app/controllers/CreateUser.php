@@ -45,6 +45,12 @@ final class CreateUser
         $this->logger = $logger;
     }
 
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     * @throws \Exception
+     */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $scopes = explode(' ', $request->getAttribute('token')['scope']);
@@ -56,7 +62,15 @@ final class CreateUser
 
         if ($this->validatorManager->validate(['create_user'], $request)) {
 
-            // TODO create random and unique cookie value
+            $cookieValue = $this->authentication->generateRandomValue(45);
+            $timeout = 0;
+            while ($this->usersDao->isCookieValueExist($cookieValue)) {
+                $cookieValue = $this->authentication->generateRandomValue(45);
+                if ($timeout >= 5) {
+                    throw new \RuntimeException('Unable to generate unique cookieValue');
+                }
+                $timeout++;
+            }
 
             $params = $request->getParsedBody();
             $data['email'] = $params['email'];
@@ -65,7 +79,7 @@ final class CreateUser
             $data['firstname'] = $params['first_name'];
             $data['lastname'] = $params['last_name'];
             $data['active'] = $params['active'];
-            $data['cookieValue'] = 'asdfsdf';
+            $data['cookieValue'] = $cookieValue;
             $officesId = array_unique((array) $params['offices_id'], SORT_REGULAR);
             $user = new User($data, $officesId);
 

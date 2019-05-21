@@ -67,6 +67,65 @@ class UsersDao
     }
 
     /**
+     * @param string $cookieValue
+     * @return User
+     * @throws NoEntityException
+     */
+    public function getUserByCookieValue(string $cookieValue) : User
+    {
+        $sql = '
+                    SELECT DISTINCT 
+                        users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles,
+                        users_firstname as firstname, users_lastname as lastname, users_active as active, users_cookieValue as cookieValue,
+                        offices_id AS officeId, offices_name AS officeName
+                        FROM users
+                        LEFT JOIN officesUsers ON users_id = officesUsers_users_id
+                        LEFT JOIN offices ON offices_id = officesUsers_offices_id
+                        WHERE users_cookieValue = :cookieValue
+               ';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':cookieValue', $cookieValue);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                throw new NoEntityException('No entity found for this user cookie value');
+            }
+            $officesId = $officesName = [];
+            foreach ($data as $office) {
+                if (!empty($office['officeId'])) {
+                    $officesId[] = $office['officeId'];
+                }
+                if (!empty($office['officeName'])) {
+                    $officesName[] = $office['officeName'];
+                }
+            }
+            return new User($data[0], $officesId, $officesName);
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @param string $cookieValue
+     * @return bool
+     */
+    public function isCookieValueExist(string $cookieValue) : bool
+    {
+        $sql = 'SELECT EXISTS(SELECT * FROM users WHERE users_cookieValue = :cookieValue)';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':cookieValue', $cookieValue);
+            $stmt->execute();
+            return (bool) $stmt->fetchAll(PDO::FETCH_COLUMN)[0];
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
      * @param string|null $orderAttribute
      * @param string|null $sortAttribute
      * @return User[]
