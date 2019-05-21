@@ -211,6 +211,15 @@ $container[\Ergo\Controllers\Authentication::class] = static function (Container
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\Token
+ */
+$container[\Ergo\Controllers\Token::class] = static function (ContainerInterface $c) : \Ergo\Controllers\Token
+{
+    return new \Ergo\Controllers\Token($c->get('authenticationService'), $c->get('usersDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\CreateUser
  */
 $container[\Ergo\Controllers\CreateUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateUser

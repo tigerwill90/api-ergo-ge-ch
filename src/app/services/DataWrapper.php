@@ -22,6 +22,7 @@ class DataWrapper
 
     public function __construct(LoggerInterface $logger = null)
     {
+        $this->wrapper['status_code'] = '200';
         $this->logger = $logger;
     }
 
@@ -77,6 +78,7 @@ class DataWrapper
     public function throwResponse(ResponseInterface $response, int $status = 200, int $options = JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) : ResponseInterface
     {
         $body = $response->getBody();
+        $this->wrapper['status_code'] = $status;
         $body->write(json_encode($this->wrapper, $options));
         return $response
             ->withBody($body)

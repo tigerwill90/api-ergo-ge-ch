@@ -3,6 +3,7 @@
 namespace Ergo\Domains;
 
 use Ergo\Business\User;
+use Ergo\Exceptions\IntegrityConstraintException;
 use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
 use Psr\Log\LoggerInterface;
@@ -338,6 +339,7 @@ class UsersDao
                if (strpos($e->getMessage(), $user->getEmail()) !== false) {
                    throw new UniqueException('This user email already exist', $e->getCode());
                }
+               throw new UniqueException('This cookie value already exist', $e->getCode());
            }
            throw $e;
        }

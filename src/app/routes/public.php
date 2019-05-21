@@ -43,7 +43,10 @@ $app->group('/therapists', function(\Slim\App $app) {
     $app->delete('/{id:[0-9]+}', \Ergo\Controllers\DeleteTherapist::class);
 });
 
-$app->get('/auth', \Ergo\Controllers\Authentication::class);
+$app->group('/auth', function (\Slim\App $app) {
+    $app->get('', \Ergo\Controllers\Authentication::class);
+    $app->get('/token', \Ergo\Controllers\Token::class);
+});
 
 $app->group('/users', function (\Slim\App $app) {
     $app->get('', \Ergo\Controllers\ReadUsers::class);

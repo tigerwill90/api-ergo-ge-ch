@@ -35,6 +35,10 @@ final class CreateUser
     /** @var LoggerInterface  */
     private $logger;
 
+    private const COOKIE_LENGTH = 100;
+
+    private const TIMEOUT = 5;
+
     public function __construct(ValidatorManagerInterface $validatorManager ,UsersDao $usersDao, OfficesDao $officesDao, DataWrapper $dataWrapper, Auth $authentication, LoggerInterface $logger = null)
     {
         $this->validatorManager = $validatorManager;
@@ -62,11 +66,11 @@ final class CreateUser
 
         if ($this->validatorManager->validate(['create_user'], $request)) {
 
-            $cookieValue = $this->authentication->generateRandomValue(45);
+            $cookieValue = $this->authentication->generateRandomValue(self::COOKIE_LENGTH);
             $timeout = 0;
             while ($this->usersDao->isCookieValueExist($cookieValue)) {
-                $cookieValue = $this->authentication->generateRandomValue(45);
-                if ($timeout >= 5) {
+                $cookieValue = $this->authentication->generateRandomValue(self::COOKIE_LENGTH);
+                if ($timeout >= self::TIMEOUT) {
                     throw new \RuntimeException('Unable to generate unique cookieValue');
                 }
                 $timeout++;
