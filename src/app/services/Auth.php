@@ -67,7 +67,7 @@ class Auth
     public function createJwt(User $user, int $exp) : string
     {
         $token = [
-            'iss' => getenv('DOMAIN_NAME'),
+            'iss' => getenv('FQDN'),
             'iat' => time(),
             'exp' => $exp,
             'jti' => $this->generator->generateString(10, self::TOKEN_CHAR_GEN),

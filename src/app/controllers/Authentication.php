@@ -120,8 +120,8 @@ final class Authentication
 
         $response = FigResponseCookies::set($response, SetCookie::create('ase')
             ->withHttpOnly()
-            ->withDomain('localhost')
-            ->withExpires(time() + 100)
+            ->withDomain(getenv('DOMAIN_NAME'))
+            ->withExpires(time() + getenv('COOKIE_EXPIRATION'))
             ->withValue($cookieValue)
             ->withSecure(!filter_var(getenv('DEBUG'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE))
         );

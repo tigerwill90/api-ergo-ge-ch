@@ -21,6 +21,9 @@ $container['corsMiddleware'] = static function () : \Tuupola\Middleware\CorsMidd
     ]);
 };
 
+/**
+ * @return \Tuupola\Middleware\JwtAuthentication
+ */
 $container['jwtAuthentication'] = static function () : Tuupola\Middleware\JwtAuthentication
 {
   return new \Tuupola\Middleware\JwtAuthentication([
@@ -42,7 +45,7 @@ $container['jwtAuthentication'] = static function () : Tuupola\Middleware\JwtAut
                   '/users' => ['GET', 'PATCH', 'POST', 'DELETE'],
                   '/offices' => ['POST', 'PUT', 'DELETE'],
                   '/therapists' => ['POST', 'PUT', 'DELETE'],
-                  '/categories' => ['POST', 'PUT', 'DELETE']
+                  '/categories' => ['POST', 'PUT', 'DELETE'],
               ]
           ])
       ]

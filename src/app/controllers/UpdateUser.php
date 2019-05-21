@@ -46,7 +46,7 @@ final class UpdateUser
         // check if admin or self update, do not disclose any information about other user, return 404
         if (!in_array('admin', $scopes, true) && $token['user_id'] !== (int) $request->getAttribute('id')) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this id : ' . $request->getAttribute('id')))
+                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this user id : ' . $request->getAttribute('id')))
                 ->throwResponse($response, 404);
         }
 

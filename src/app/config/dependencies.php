@@ -220,6 +220,15 @@ $container[\Ergo\Controllers\Token::class] = static function (ContainerInterface
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\DisconnectUser
+ */
+$container[\Ergo\Controllers\DisconnectUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\DisconnectUser
+{
+    return new \Ergo\Controllers\DisconnectUser($c->get('authenticationService'), $c->get('usersDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\CreateUser
  */
 $container[\Ergo\Controllers\CreateUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateUser

@@ -347,6 +347,28 @@ class UsersDao
 
     /**
      * @param int $id
+     * @param string $cookieValue
+     * @throws UniqueException
+     */
+    public function updateCookieValue(int $id, string $cookieValue) : void
+    {
+        $sql = 'UPDATE users SET users_cookieValue = :cookieValue WHERE users_id = :id';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':cookieValue', $cookieValue);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+                throw new UniqueException('This cookie value already exist', $e->getCode());
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * @param int $id
      * @throws NoEntityException
      */
     public function deleteUser(int $id) : void
