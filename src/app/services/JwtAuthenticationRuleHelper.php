@@ -42,8 +42,6 @@ class JwtAuthenticationRuleHelper implements RuleInterface
         $uri = $request->getUri()->getPath();
         $uri = preg_replace('#/+#', '/', $uri);
 
-        error_log('uri => ' . $uri);
-
         foreach ($this->options['ignore'] as $ignore => $methods) {
             if ((bool)preg_match("@^{$ignore}$@", $uri) && (in_array($request->getMethod(), $methods, true) || empty($methods))) {
                 return false;

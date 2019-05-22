@@ -55,5 +55,5 @@ $container['jwtAuthentication'] = static function () : Tuupola\Middleware\JwtAut
   ]);
 };
 
-$app->add('corsMiddleware');
 $app->add('jwtAuthentication');
+$app->add('corsMiddleware');
