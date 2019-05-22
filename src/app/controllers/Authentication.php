@@ -10,7 +10,6 @@ use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
 use Ergo\Services\DataWrapper;
 use Ergo\Services\Auth;
-use http\Exception\RuntimeException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -121,6 +120,7 @@ final class Authentication
         $response = FigResponseCookies::set($response, SetCookie::create('ase')
             ->withHttpOnly()
             ->withDomain(getenv('DOMAIN_NAME'))
+            ->withPath('/')
             ->withExpires(time() + getenv('COOKIE_EXPIRATION'))
             ->withValue($cookieValue)
             ->withSecure(!filter_var(getenv('DEBUG'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE))

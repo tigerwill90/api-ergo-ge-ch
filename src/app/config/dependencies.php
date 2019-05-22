@@ -130,6 +130,15 @@ $container[\Ergo\Controllers\ReadOffices::class] = static function (ContainerInt
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadUsersOffices
+ */
+$container[\Ergo\Controllers\ReadUsersOffices::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ReadUsersOffices
+{
+    return new \Ergo\Controllers\ReadUsersOffices($c->get('officesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\CreateOffice
  */
 $container[\Ergo\Controllers\CreateOffice::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateOffice

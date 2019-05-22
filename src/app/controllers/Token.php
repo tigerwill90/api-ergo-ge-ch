@@ -38,8 +38,7 @@ final class Token
     {
 
         // cookie not found in header (like expired cookie use case)
-        // TODO environment variable for cookie name
-        $cookie = FigRequestCookies::get($request, 'ase');
+        $cookie = FigRequestCookies::get($request, getenv('COOKIE_NAME'));
         if ($cookie->getValue() === null) {
             return $this->dataWrapper
                 ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Unable to renew token, user need to authenticate'))

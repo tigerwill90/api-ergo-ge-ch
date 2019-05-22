@@ -172,6 +172,58 @@ class OfficesDao
     }
 
     /**
+     * @param int $id
+     * @param string|null $orderAttribute
+     * @param string|null $sortAttribute
+     * @return array
+     * @throws NoEntityException
+     */
+    public function getOfficesByUserId(int $id, ?string $orderAttribute = 'name', ?string $sortAttribute = 'ASC'): array
+    {
+        $orderable = ['name', 'email', 'id'];
+        $sortable = ['ASC', 'DESC'];
+
+        $order = $orderable[array_search(strtolower($orderAttribute), $orderable, true) | 0];
+        $sort = $sortable[array_search(strtoupper($sortAttribute), $sortable, true) | 0];
+        $sql =
+            '
+                SELECT 
+                    offices_id AS id, offices_name AS name, offices_email AS email,
+                    contacts_street AS street, contacts_city AS city, contacts_npa AS npa, contacts_cp AS cp, contacts_phone AS phone, contacts_fax AS fax
+                    FROM offices
+                    LEFT JOIN officesUsers ON offices_id = officesUsers_offices_id
+                    LEFT JOIN contacts ON offices_id = contacts_offices_id
+                    WHERE officesUsers_users_id = ' . $id .'
+                    ORDER BY 
+            ' . $order . ' ' . $sort;
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                throw new NoEntityException('No entity found for offices');
+            }
+            $offices = $officesId = [];
+            foreach ($data as $office) {
+                if (!in_array($office['id'], $officesId, true)) {
+                    $contacts = [];
+                    foreach ($data as $contact) {
+                        if ($office['id'] === $contact['id']) {
+                            $contacts[] = new Contact($contact);
+                        }
+                    }
+                    $offices[] = new Office($office, $contacts);
+                    $officesId[] = $office['id'];
+                }
+            }
+            return $offices;
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
      * @param Office $office
      * @throws UniqueException
      */

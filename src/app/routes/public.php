@@ -55,6 +55,7 @@ $app->group('/users', function (\Slim\App $app) {
     $app->patch('/{id:[0-9]+}', \Ergo\Controllers\UpdateUser::class);
     $app->delete('/{id:[0-9]+}', \Ergo\Controllers\DeleteUser::class);
     $app->patch('/{id:[0-9]+}/disconnect', \Ergo\Controllers\DisconnectUser::class);
+    $app->get('/{id:[0-9]+}/offices', \Ergo\Controllers\ReadUsersOffices::class);
 });
 
 $app->post('/emails/send', \Ergo\Controllers\SendContactMail::class);
