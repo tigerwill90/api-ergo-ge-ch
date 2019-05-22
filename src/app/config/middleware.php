@@ -14,9 +14,9 @@ $container['corsMiddleware'] = static function () : \Tuupola\Middleware\CorsMidd
     return new \Tuupola\Middleware\CorsMiddleware([
         'origin' => explode(',', getenv('ORIGIN')),
         'methods' => ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
-        'headers.allow' => ['Content-Type'],
+        'headers.allow' => ['Content-Type', 'Authorization'],
         'headers.expose' => [],
-        'credentials' => false,
+        'credentials' => true,
         'cache' => 0
     ]);
 };
@@ -46,6 +46,9 @@ $container['jwtAuthentication'] = static function () : Tuupola\Middleware\JwtAut
                   '/offices' => ['POST', 'PUT', 'DELETE'],
                   '/therapists' => ['POST', 'PUT', 'DELETE'],
                   '/categories' => ['POST', 'PUT', 'DELETE'],
+              ],
+              'ignore' => [
+                  '/users/[0-9]+/offices' => 'GET'
               ]
           ])
       ]
