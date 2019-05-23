@@ -50,7 +50,7 @@ final class UpdateOffice
         $token = $request->getAttribute('token');
         $scopes = explode(' ', $token['scope']);
         // check if admin or self update, do not disclose any information about other user, return 404
-        if (!in_array('admin', $scopes, true) && !in_array($request->getAttribute('id'), $token['offices_id'], true)) {
+        if (!in_array('admin', $scopes, true) && !in_array((int) $request->getAttribute('id'), $token['offices_id'], true)) {
             return $this->dataWrapper
                 ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No office entity found for this id : ' . $request->getAttribute('id')))
                 ->throwResponse($response, 404);

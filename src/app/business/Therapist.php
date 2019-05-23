@@ -220,13 +220,13 @@ class Therapist implements EntityInterface
         return [
             'id' => $this->id,
             'title' => ucfirst($this->title),
-            'firstname' => ucfirst($this->firstname),
-            'lastname' => ucfirst($this->lastname),
+            'first_name' => ucfirst($this->firstname),
+            'last_name' => ucfirst($this->lastname),
             'home' => $this->home,
             'phones' => $this->phones,
             'emails' => array_map('strtolower', $this->emails),
             'categories' => $this->categories,
-            'officeId' => $this->officeId
+            'office_id' => $this->officeId
         ];
     }
 }
