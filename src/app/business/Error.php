@@ -19,6 +19,9 @@ class Error implements EntityInterface
     /** @var array  */
     private $context;
 
+    /** @var string  */
+    private $userMessage;
+
     /** const */
     public const ERR_NOT_FOUND = 'Not Found';
     public const ERR_BAD_REQUEST = 'Bad Request';
@@ -27,11 +30,12 @@ class Error implements EntityInterface
     public const ERR_FORBIDDEN = 'Forbidden';
     public const ERR_TOO_MANY_REQUEST = 'Too Many Requests';
 
-    public function __construct(string $name, string $description, array $context = [])
+    public function __construct(string $name, string $description, array $context = [], string $userMessage = null)
     {
         $this->name = $name;
         $this->description = $description;
         $this->context = $context;
+        $this->userMessage = $userMessage;
     }
 
     /**
@@ -96,7 +100,8 @@ class Error implements EntityInterface
         return [
             'error' => ucfirst($this->name),
             'error_description' => ucfirst($this->description),
-            'error_context' => $this->context
+            'error_context' => $this->context,
+            'user_message' => $this->userMessage
         ];
     }
 }
