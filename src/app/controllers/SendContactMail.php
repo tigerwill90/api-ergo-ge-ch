@@ -60,7 +60,7 @@ final class SendContactMail
                     $this->mailer->isHTML();
                     $this->mailer->CharSet = 'UTF-8';
                     $this->mailer->Subject = $params['subject'];
-                    $this->mailer->Body    = sprintf($htmlTemplate, $params['subject'], $params['message'], $params['name'], $params['email']);
+                    $this->mailer->Body    = sprintf($htmlTemplate, htmlspecialchars($params['subject']), htmlspecialchars($params['message']), htmlspecialchars($params['name']), htmlspecialchars($params['email']));
                     $this->mailer->AltBody = $params['message'];
                     $this->mailer->send();
                     return $response;
