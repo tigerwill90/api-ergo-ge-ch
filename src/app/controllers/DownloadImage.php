@@ -53,7 +53,11 @@ final class DownloadImage
         }
 
         return $this->wrapper
-            ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No image entity found for this name : ' . $filename))
+            ->addEntity(new Error(
+                Error::ERR_NOT_FOUND, 'No image entity found for this name : ' . $filename,
+                [],
+                'Impossible d\'afficher cette image. La ressource n\'existe pas'
+            ))
             ->addMeta()
             ->throwResponse($response, 404);
     }

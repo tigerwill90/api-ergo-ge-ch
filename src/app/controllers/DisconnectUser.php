@@ -45,7 +45,11 @@ final class DisconnectUser
         // check if admin or self update, do not disclose any information about other user, return 404
         if ($token['user_id'] !== (int) $id && !in_array('admin', $scopes, true)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this user id : ' . $request->getAttribute('id')))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, 'No user entity found for this user id : ' . $request->getAttribute('id'),
+                    [],
+                    'Déconnexion impossible, cet utilisateur n\'existe pas'
+                ))
                 ->throwResponse($response, 404);
         }
 
@@ -54,7 +58,7 @@ final class DisconnectUser
         while ($this->usersDao->isCookieValueExist($cookieValue)) {
             $cookieValue = $this->auth->generateRandomValue(self::COOKIE_LENGTH);
             if ($timeout >= self::TIMEOUT) {
-                throw new \RuntimeException('Unable to generate unique cookieValue');
+                throw new \RuntimeException('Unable to generate unique cookie value');
             }
             $timeout++;
         }

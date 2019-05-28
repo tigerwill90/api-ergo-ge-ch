@@ -66,13 +66,21 @@ final class SendContactMail
                     return $response;
                 } catch (\Exception $e) {
                     return $this->dataWrapper
-                        ->addEntity(new Error(Error::ERR_BAD_REQUEST, $e->getMessage()))
+                        ->addEntity(new Error(
+                            Error::ERR_BAD_REQUEST, $e->getMessage(),
+                            [],
+                            'Une erreur est survenue, l\'email n\'a pas été envoyé'
+                        ))
                         ->throwResponse($response, 400);
                 }
 
             } else {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_TOO_MANY_REQUEST, 'The service is blocked due to suspicious activity'))
+                    ->addEntity(new Error(
+                        Error::ERR_TOO_MANY_REQUEST, 'The service is blocked due to suspicious activity',
+                        [],
+                        'Le service est temporairement bloqué'
+                    ))
                     ->throwResponse($response, 429);
             }
         }
@@ -80,7 +88,8 @@ final class SendContactMail
             ->addEntity(new Error(
                 Error::ERR_BAD_REQUEST,
                 'The request could not be understood by the server due to malformed syntax',
-                $this->validatorManager->getErrorsMessages()
+                $this->validatorManager->getErrorsMessages(),
+                'Une erreur de validation est survenu'
             ))
             ->throwResponse($response, 400);
     }

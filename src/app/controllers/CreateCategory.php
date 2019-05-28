@@ -41,7 +41,11 @@ final class CreateCategory
         // Only admin can add category
         if (!in_array('admin', $scopes, true)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new category'))
+                ->addEntity(new Error(
+                    Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new category',
+                    [],
+                    'Action impossible, vous n\'avez pas les privilèges requis'
+                ))
                 ->throwResponse($response, 403);
         }
 
@@ -53,7 +57,12 @@ final class CreateCategory
                 $this->categoriesDao->createCategory($category);
             } catch (UniqueException $e) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
+                    ->addEntity(new Error(
+                        Error::ERR_CONFLICT,
+                        $e->getMessage(),
+                        [],
+                        'Cette catégorie existe déjà'
+                    ))
                     ->throwResponse($response, 409);
             }
 
@@ -66,7 +75,8 @@ final class CreateCategory
             ->addEntity(new Error(
                 Error::ERR_BAD_REQUEST,
                 'The request could not be understood by the server due to malformed syntax',
-                $this->validatorManager->getErrorsMessages()
+                $this->validatorManager->getErrorsMessages(),
+                'Une erreur de validation est survenu'
             ))
             ->throwResponse($response, 400);
     }

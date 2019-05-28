@@ -41,7 +41,11 @@ final class Token
         $cookie = FigRequestCookies::get($request, getenv('COOKIE_NAME'));
         if ($cookie->getValue() === null) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Unable to renew token, user need to authenticate'))
+                ->addEntity(new Error(
+                    Error::ERR_UNAUTHORIZED, 'Unable to renew token, user need to authenticate',
+                    [],
+                    'Impossible de renouveler le jeton d\'accès, reconnexion requise'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 401);
         }
@@ -51,7 +55,11 @@ final class Token
             $user = $this->usersDao->getUserByCookieValue($cookie->getValue());
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Unable to renew token, user need to authenticate'))
+                ->addEntity(new Error(
+                    Error::ERR_UNAUTHORIZED, 'Unable to renew token, user need to authenticate',
+                    [],
+                    'Impossible de renouveler le jeton d\'accès, reconnexion requise'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 401);
         }

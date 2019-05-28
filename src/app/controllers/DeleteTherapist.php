@@ -40,7 +40,11 @@ final class DeleteTherapist
             // check if admin or self delete, reject user who try to delete a no owned therapist
             if (!in_array('admin', $scopes, true) && !in_array($therapist->getOfficeId(), $token['offices_id'], true)) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No entity found for this therapist id : ' . $id))
+                    ->addEntity(new Error(
+                        Error::ERR_NOT_FOUND, 'No entity found for this therapist id : ' . $id,
+                        [],
+                        'Suppression impossible, cet ergothérapeute n\'existe pas'
+                    ))
                     ->throwResponse($response, 404);
             }
 
@@ -49,7 +53,11 @@ final class DeleteTherapist
 
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
+                    'Suppression impossible, cet ergothérapeute n\'existe pas'
+                    ))
                 ->throwResponse($response, 404);
         }
     }

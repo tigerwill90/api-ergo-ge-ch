@@ -46,7 +46,11 @@ final class ReadCategoriesOffice
             $categories = $this->categoriesDao->getCategoriesByOffice($request->getAttribute('id'));
         } catch (NoEntityException $e) {
             return $this->wrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
+                    'Aucune catégorie trouvée pour ce cabinet'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 404);
 

@@ -36,7 +36,11 @@ final class DeleteCategory
         // Only admin can delete category, no problem to disclose category here
         if (!in_array('admin', $scopes, true)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to delete a category'))
+                ->addEntity(new Error(
+                    Error::ERR_FORBIDDEN, 'Insufficient privileges to delete a category',
+                    [],
+                    'Action impossible, vous n\'avez pas les privilèges requis'
+                    ))
                 ->throwResponse($response, 403);
         }
 
@@ -44,11 +48,19 @@ final class DeleteCategory
             $this->categoriesDao->deleteCategory($request->getAttribute('id'));
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
+                    'Suppression impossible, cette catégorie n\'existe pas'
+                ))
                 ->throwResponse($response, 404);
         } catch (IntegrityConstraintException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_CONFLICT, $e->getMessage(),
+                    [],
+                    'Suppression impossible, cette catégorie est associé à un ou plusieurs ergothérapeutes'
+                ))
                 ->throwResponse($response, 409);
         }
 

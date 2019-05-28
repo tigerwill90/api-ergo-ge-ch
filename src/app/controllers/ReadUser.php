@@ -33,7 +33,11 @@ class ReadUser
             // check if admin or self read, do not disclose any information about other user, return 404
             if (!in_array('admin', $scopes, true) && $token['user_id'] !== $user->getId()) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this attribute : ' . $request->getAttribute('attribute')))
+                    ->addEntity(new Error(
+                        Error::ERR_NOT_FOUND, 'No user entity found for this attribute : ' . $request->getAttribute('attribute'),
+                        [],
+                        'Cet utilisateur n\'existe pas'
+                    ))
                     ->throwResponse($response, 404);
             }
 
@@ -42,7 +46,11 @@ class ReadUser
                 ->throwResponse($response);
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this attribute : ' . $request->getAttribute('attribute')))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, 'No user entity found for this attribute : ' . $request->getAttribute('attribute'),
+                    [],
+                    'Cet utilisateur n\'existe pas'
+                ))
                 ->throwResponse($response, 404);
         }
     }

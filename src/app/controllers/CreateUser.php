@@ -60,7 +60,11 @@ final class CreateUser
         $scopes = explode(' ', $request->getAttribute('token')['scope']);
         if (!in_array('admin', $scopes, true)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new user'))
+                ->addEntity(new Error(
+                    Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new user',
+                    [],
+                    'Action impossible, vous n\'avez pas les privilèges requis'
+                    ))
                 ->throwResponse($response, 403);
         }
 
@@ -71,7 +75,7 @@ final class CreateUser
             while ($this->usersDao->isCookieValueExist($cookieValue)) {
                 $cookieValue = $this->authentication->generateRandomValue(self::COOKIE_LENGTH);
                 if ($timeout >= self::TIMEOUT) {
-                    throw new \RuntimeException('Unable to generate unique cookieValue');
+                    throw new \RuntimeException('Unable to generate unique cookie value');
                 }
                 $timeout++;
             }
@@ -91,10 +95,13 @@ final class CreateUser
                 try {
                     $officesName = $this->officesDao->getOfficeNameByOfficesId($officesId);
                     $user->setOfficesName($officesName);
-
                 } catch (NoEntityException $e) {
                     return $this->dataWrapper
-                        ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                        ->addEntity(new Error(
+                            Error::ERR_NOT_FOUND, $e->getMessage(),
+                             [],
+                            'Impossible de créer cet utilisateur, le/les cabinet/s n\'existe/nt pas'
+                        ))
                         ->throwResponse($response, 404);
                 }
             }
@@ -103,7 +110,12 @@ final class CreateUser
                 $this->usersDao->createUser($user);
             } catch (UniqueException $e) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_CONFLICT, 'This user already exist'))
+                    ->addEntity(new Error(
+                        Error::ERR_CONFLICT,
+                        'This user already exist',
+                        [],
+                        'Impossible de créer cet utilisateur, l\'adresse email existe déjà'
+                    ))
                     ->throwResponse($response, 409);
             }
 
@@ -116,7 +128,8 @@ final class CreateUser
             ->addEntity(new Error(
                 Error::ERR_BAD_REQUEST,
                 'The request could not be understood by the server due to malformed syntax',
-                $this->validatorManager->getErrorsMessages()
+                $this->validatorManager->getErrorsMessages(),
+                'Une erreur de validation est survenu'
             ))
             ->throwResponse($response, 400);
     }

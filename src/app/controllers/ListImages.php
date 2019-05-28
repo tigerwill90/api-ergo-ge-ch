@@ -8,6 +8,7 @@
 
 namespace Ergo\Controllers;
 
+use Ergo\Business\Error;
 use Ergo\Services\DataWrapper;
 use Ergo\Services\FileUtility;
 use Psr\Http\Message\ResponseInterface;
@@ -42,6 +43,17 @@ final class ListImages
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $imageList = $this->fileUtility->scanDirectory(['png', 'jpg'], self::SCAN_PATH);
+
+        if (empty($imageList)) {
+            return $this->wrapper
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, 'No image entity found',
+                    [],
+                    'Aucune image trouvée'
+                ))
+                ->throwResponse($response, 404);
+        }
+
         return $this->wrapper
             ->addArray($imageList)
             ->addMeta()

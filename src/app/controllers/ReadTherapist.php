@@ -46,7 +46,10 @@ final class ReadTherapist
             $therapist = $this->therapistsDao->getTherapist($request->getAttribute('id'));
         } catch (NoEntityException $e) {
             return $this->wrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    'Cet ergothérapeute n\'existe pas'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 404);
         } catch (\Exception $e) {

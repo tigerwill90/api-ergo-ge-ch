@@ -46,7 +46,11 @@ final class ReadCategory
             $category = $this->categoriesDao->getCategory($request->getAttribute('id'));
         } catch (NoEntityException $e) {
             return $this->wrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
+                    'Cette catégorie n\'existe pas'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 404);
         } catch (\Exception $e) {

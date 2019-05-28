@@ -43,7 +43,11 @@ final class UpdateOffice
         // check for existing office
         if (!$this->officesDao->isOfficeExist($id)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No office entity found for this id : ' . $request->getAttribute('id')))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, 'No office entity found for this id : ' . $request->getAttribute('id'),
+                    [],
+                    'Impossible de mettre à jour ce cabinet. La ressource n\'existe pas'
+                ))
                 ->throwResponse($response, 404);
         }
 
@@ -52,7 +56,11 @@ final class UpdateOffice
         // check if admin or self update, do not disclose any information about other user, return 404
         if (!in_array('admin', $scopes, true) && !in_array((int) $request->getAttribute('id'), $token['offices_id'], true)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No office entity found for this id : ' . $request->getAttribute('id')))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, 'No office entity found for this id : ' . $request->getAttribute('id'),
+                    [],
+                    'Impossible de mettre à jour ce cabinet. La ressource n\'existe pas'
+                ))
                 ->throwResponse($response, 404);
         }
 
@@ -73,7 +81,11 @@ final class UpdateOffice
                     ->throwResponse($response);
             } catch (UniqueException $e) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
+                    ->addEntity(new Error(
+                        Error::ERR_CONFLICT, $e->getMessage(),
+                        [],
+                        'Impossible de mettre à jour ce cabinet. L\'email et le nom doivent être unique'
+                    ))
                     ->throwResponse($response, 409);
             }
         }
@@ -82,7 +94,8 @@ final class UpdateOffice
             ->addEntity(new Error(
                 Error::ERR_BAD_REQUEST,
                 'The request could not be understood by the server due to malformed syntax',
-                $this->validatorManager->getErrorsMessages()
+                $this->validatorManager->getErrorsMessages(),
+                'Une erreur de validation est survenu'
             ))
             ->throwResponse($response, 400);
     }

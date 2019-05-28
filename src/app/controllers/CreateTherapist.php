@@ -44,7 +44,11 @@ final class CreateTherapist
             // check if admin or self create, reject user who try to associate a new therapist to an no owned office
             if (!in_array('admin', $scopes, true) && !in_array($params['office_id'], $token['offices_id'], true)) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new therapist for office id : ' . $params['office_id']))
+                    ->addEntity(new Error(
+                        Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new therapist for office id : ' . $params['office_id'],
+                        [],
+                        'Action impossible, vous n\'avez pas les privilèges requis'
+                    ))
                     ->throwResponse($response, 403);
             }
 
@@ -63,7 +67,11 @@ final class CreateTherapist
                 $this->therapistsDao->createTherapist($therapist);
             } catch (IntegrityConstraintException $e) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
+                    ->addEntity(new Error(
+                        Error::ERR_CONFLICT, $e->getMessage(),
+                        [],
+                        'Impossible de créer cet ergothérpateute, le cabinet n\'existe pas'
+                    ))
                     ->throwResponse($response, 409);
             }
 
@@ -76,7 +84,8 @@ final class CreateTherapist
             ->addEntity(new Error(
                 Error::ERR_BAD_REQUEST,
                 'The request could not be understood by the server due to malformed syntax',
-                $this->validatorManager->getErrorsMessages()
+                $this->validatorManager->getErrorsMessages(),
+                'Une erreur de validation est survenu'
             ))
             ->throwResponse($response, 400);
     }

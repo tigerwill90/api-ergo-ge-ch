@@ -47,7 +47,11 @@ final class ReadOffice
             $office = $this->officesDao->getOffice($attribute);
         } catch (NoEntityException $e) {
             return $this->wrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
+                    'Ce cabinet n\'existe pas'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 404);
         } catch (\Exception $e) {

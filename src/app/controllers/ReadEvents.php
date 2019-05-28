@@ -62,12 +62,20 @@ final class ReadEvents
 
         } catch (InvalidDateTimeRange $e) {
             return $this->wrapper
-                ->addEntity(new Error(Error::ERR_BAD_REQUEST, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_BAD_REQUEST, $e->getMessage(),
+                    [],
+                    'La plage des dates est incorrect'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 400);
         } catch (\Exception $e) {
             return $this->wrapper
-                ->addEntity(new Error(Error::ERR_BAD_REQUEST, 'invalid date format'))
+                ->addEntity(new Error(
+                    Error::ERR_BAD_REQUEST, 'invalid date format',
+                    [],
+                    'Le format de la date est incorrect'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 400);
         }
@@ -88,7 +96,11 @@ final class ReadEvents
             $results = $service->events->listEvents($calendarId, $optParams);
         } catch (\Exception $e) {
             return $this->wrapper
-                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'an error occured with google calendar api'))
+                ->addEntity(new Error(
+                    Error::ERR_UNAUTHORIZED, 'an error occured with google calendar api',
+                    [],
+                    'Un problème d\'autorisation est survenu avec le calendrier google'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 401);
         }

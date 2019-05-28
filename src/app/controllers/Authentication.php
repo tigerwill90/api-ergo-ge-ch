@@ -54,7 +54,11 @@ final class Authentication
         // empty header, 401
         if (empty($header)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Use http basic authentication to connect'))
+                ->addEntity(new Error(
+                    Error::ERR_UNAUTHORIZED,'Use http basic authentication to connect',
+                    [],
+                    'Un problème est survenu lors de la connexion'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 401);
         }
@@ -62,7 +66,11 @@ final class Authentication
         $basicAuth = explode('Basic ', $header[0]);
         if (count($basicAuth) !== 2) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Incorrect http basic authentication scheme'))
+                ->addEntity(new Error(
+                    Error::ERR_UNAUTHORIZED,'Incorrect http basic authentication scheme',
+                    [],
+                    'Un problème est survenu lors de la connexion'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 401);
         }
@@ -71,7 +79,11 @@ final class Authentication
         $emailPassword = explode(':', base64_decode($basicAuth[1]), 2);
         if (count($emailPassword) !== 2) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Incorrect http basic authentication scheme'))
+                ->addEntity(new Error(
+                    Error::ERR_UNAUTHORIZED,'Incorrect http basic authentication scheme',
+                    [],
+                    'Un problème est survenu lors de la connexion'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 401);
         }
@@ -82,13 +94,23 @@ final class Authentication
 
             if (!$this->auth->verifyPassword($emailPassword[1], $user)) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Invalid email or password'))
+                    ->addEntity(new Error(
+                        Error::ERR_UNAUTHORIZED,
+                        'Invalid email or password',
+                        [],
+                        'Email ou mot de passe incorrect'
+                    ))
                     ->addMeta()
                     ->throwResponse($response, 401);
             }
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_UNAUTHORIZED, 'Invalid email or password'))
+                ->addEntity(new Error(
+                    Error::ERR_UNAUTHORIZED,
+                    'Invalid email or password',
+                    [],
+                    'Email ou mot de passe incorrect'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 401);
         } catch (\Exception $e) {
@@ -112,7 +134,7 @@ final class Authentication
         while ($this->usersDao->isCookieValueExist($cookieValue)) {
             $cookieValue = $this->auth->generateRandomValue(self::COOKIE_LENGTH);
             if ($timeout >= self::TIMEOUT) {
-                throw new \RuntimeException('Unable to generate unique cookieValue');
+                throw new \RuntimeException('Unable to generate unique cookie value');
             }
             $timeout++;
         }

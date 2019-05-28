@@ -42,7 +42,11 @@ final class UpdateCategory
         // Only admin can add category
         if (!in_array('admin', $scopes, true)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to update a category'))
+                ->addEntity(new Error(
+                    Error::ERR_FORBIDDEN, 'Insufficient privileges to update a category',
+                    [],
+                    'Action impossible, vous n\'avez pas les privilèges requis'
+                ))
                 ->throwResponse($response, 403);
         }
 
@@ -52,7 +56,11 @@ final class UpdateCategory
                 $this->categoriesDao->getCategory($data['id']);
             } catch (NoEntityException $e) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                    ->addEntity(new Error(
+                        Error::ERR_NOT_FOUND, $e->getMessage(),
+                        [],
+                        'Impossible de mettre à jour cette catégorie. La ressource n\'existe pas'
+                    ))
                     ->throwResponse($response, 404);
             }
 
@@ -68,7 +76,11 @@ final class UpdateCategory
                     ->throwResponse($response);
             } catch (UniqueException $e) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
+                    ->addEntity(new Error(
+                        Error::ERR_CONFLICT, $e->getMessage(),
+                        [],
+                        'Impossible de mettre à jour cette catégorie. Le nom doit être unique'
+                    ))
                     ->throwResponse($response, 409);
             }
         }
@@ -77,7 +89,8 @@ final class UpdateCategory
             ->addEntity(new Error(
                 Error::ERR_BAD_REQUEST,
                 'The request could not be understood by the server due to malformed syntax',
-                $this->validatorManager->getErrorsMessages()
+                $this->validatorManager->getErrorsMessages(),
+                'Une erreur de validation est survenu'
             ))
             ->throwResponse($response, 400);
     }

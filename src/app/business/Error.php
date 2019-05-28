@@ -101,7 +101,7 @@ class Error implements EntityInterface
             'error' => ucfirst($this->name),
             'error_description' => ucfirst($this->description),
             'error_context' => $this->context,
-            'user_message' => $this->userMessage
+            'user_message' => ucfirst($this->userMessage)
         ];
     }
 }

@@ -44,7 +44,11 @@ final class UpdateTherapist
             $currentTherapist = $this->therapistsDao->getTherapist($data['id']);
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No therapist entity found for this id : ' . $data['id']))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, 'No therapist entity found for this id : ' . $data['id'],
+                    [],
+                    'Impossible de mettre à jour cet ergothérapeute. La ressource n\'existe pas'
+                ))
                 ->throwResponse($response, 404);
         }
 
@@ -65,11 +69,19 @@ final class UpdateTherapist
             ) {
                 if ($moveOwnedOffice) {
                     return $this->dataWrapper
-                        ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to move therapist id ' . $data['id'] . ' to office id ' . $params['office_id']))
+                        ->addEntity(new Error(
+                            Error::ERR_FORBIDDEN, 'Insufficient privileges to move therapist id ' . $data['id'] . ' to office id ' . $params['office_id'],
+                            [],
+                            'Action impossible, vous n\'avez pas les privilèges requis'
+                        ))
                         ->throwResponse($response, 403);
                 }
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No therapist entity found for this id : ' . $data['id']))
+                    ->addEntity(new Error(
+                        Error::ERR_NOT_FOUND, 'No therapist entity found for this id : ' . $data['id'],
+                        [],
+                        'Impossible de mettre à jour cet ergothérapeute. La ressource n\'existe pas'
+                    ))
                     ->throwResponse($response, 404);
             }
 
@@ -91,7 +103,11 @@ final class UpdateTherapist
                     ->throwResponse($response);
             } catch (IntegrityConstraintException $e) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
+                    ->addEntity(new Error(
+                        Error::ERR_CONFLICT, $e->getMessage(),
+                        [],
+                        'Impossible de mettre à jour cet ergothérpateute, le cabinet n\'existe pas'
+                    ))
                     ->throwResponse($response, 409);
             }
         }
@@ -100,7 +116,8 @@ final class UpdateTherapist
             ->addEntity(new Error(
                 Error::ERR_BAD_REQUEST,
                 'The request could not be understood by the server due to malformed syntax',
-                $this->validatorManager->getErrorsMessages()
+                $this->validatorManager->getErrorsMessages(),
+                'Une erreur de validation est survenu'
             ))
             ->throwResponse($response, 400);
     }

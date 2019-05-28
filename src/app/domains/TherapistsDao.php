@@ -231,7 +231,7 @@ class TherapistsDao
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
             if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
-                throw new IntegrityConstraintException('Can not insert new therapist. Office id ' . $therapist->getOfficeId() . ' not found');
+                throw new IntegrityConstraintException('Cannot insert new therapist. Office id ' . $therapist->getOfficeId() . ' not found');
             }
             throw $e;
         }

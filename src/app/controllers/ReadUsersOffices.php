@@ -36,7 +36,11 @@ class ReadUsersOffices
             $offices = $this->officesDao->getOfficesByUserId($id, $params['attribute'], $params['sort']);
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
+                    'Aucun cabinet trouvé pour cet utilisateur'
+                ))
                 ->addMeta()
                 ->throwResponse($response, 404);
         }

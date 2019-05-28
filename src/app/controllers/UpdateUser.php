@@ -46,7 +46,11 @@ final class UpdateUser
         // check if admin or self update, do not disclose any information about other user, return 404
         if (!in_array('admin', $scopes, true) && $token['user_id'] !== (int) $request->getAttribute('id')) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this user id : ' . $request->getAttribute('id')))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, 'No user entity found for this user id : ' . $request->getAttribute('id'),
+                    [],
+                    'Impossible de mettre à jour cet utilisateur. La resource n\'existe pas'
+                ))
                 ->throwResponse($response, 404);
         }
 
@@ -76,7 +80,11 @@ final class UpdateUser
                     // Only admin user can change activation state
                     if (!in_array('admin', $scopes, true)) {
                         return $this->dataWrapper
-                            ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to update active state'))
+                            ->addEntity(new Error(
+                                Error::ERR_FORBIDDEN, 'Insufficient privileges to update active state',
+                                [],
+                                'Action impossible, vous n\'avez pas les privilèges requis pour mettre à jour l\'état de l\'utilisateur'
+                            ))
                             ->throwResponse($response, 403);
                     }
                     $user->setActive($params['active']);
@@ -86,17 +94,25 @@ final class UpdateUser
                     // Only admin user can change roles
                     if (!in_array('admin', $scopes, true)) {
                         return $this->dataWrapper
-                            ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to update roles'))
+                            ->addEntity(new Error(
+                                Error::ERR_FORBIDDEN, 'Insufficient privileges to update roles',
+                                [],
+                                'Action impossible, vous n\'avez pas les privilèges requis pour mettre à jour les roles de l\'utilisateur'
+                            ))
                             ->throwResponse($response, 403);
                     }
                     $user->setRoles(implode(' ', $params['roles']));
                 }
 
-                // User without privileges can only remove offices
+                // User without admin privilege can only remove offices
                 if ($params['offices_id'] !== null) {
                     if (!in_array('admin', $scopes, true) && !empty(array_diff((array) $params['offices_id'], $user->getOfficesId()))) {
                         return $this->dataWrapper
-                            ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to add new offices'))
+                            ->addEntity(new Error(
+                                Error::ERR_FORBIDDEN, 'Insufficient privileges to add new offices',
+                                [],
+                                'Action impossible, vous n\'avez pas les privilèges requis pour ajouter des nouveaux cabinets'
+                            ))
                             ->throwResponse($response, 403);
                     }
                     $user->setOfficesId((array) $params['offices_id']);
@@ -110,12 +126,20 @@ final class UpdateUser
                         ->throwResponse($response);
                 } catch (UniqueException $e) {
                     return $this->dataWrapper
-                        ->addEntity(new Error(Error::ERR_CONFLICT, 'This user email already exist'))
+                        ->addEntity(new Error(
+                            Error::ERR_CONFLICT, 'This user email already exist',
+                            [],
+                            'Impossible de mettre à jour cet utilisateur, l\'email doit être unique'
+                            ))
                         ->throwResponse($response, 409);
                 }
             } catch (NoEntityException $e) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No user entity found for this id : ' . $request->getAttribute('id')))
+                    ->addEntity(new Error(
+                        Error::ERR_NOT_FOUND, 'No user entity found for this id : ' . $request->getAttribute('id'),
+                        [],
+                        'Impossible de mettre à jour cet utilisateur. La ressource n\'existe pas'
+                    ))
                     ->throwResponse($response, 404);
             }
         }
@@ -124,7 +148,8 @@ final class UpdateUser
             ->addEntity(new Error(
                 Error::ERR_BAD_REQUEST,
                 'The request could not be understood by the server due to malformed syntax',
-                $this->validatorManager->getErrorsMessages()
+                $this->validatorManager->getErrorsMessages(),
+                'Une erreur de validation est survenu'
             ))
             ->throwResponse($response, 400);
     }

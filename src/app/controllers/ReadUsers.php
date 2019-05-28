@@ -30,7 +30,11 @@ final class ReadUsers
         // Only admin can list users
         if (!in_array('admin', $scopes, true)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to list users'))
+                ->addEntity(new Error(
+                    Error::ERR_FORBIDDEN, 'Insufficient privileges to list users',
+                    [],
+                    'Action impossible, vous n\'avez pas les privilèges requis'
+                ))
                 ->throwResponse($response, 403);
         }
 
@@ -42,7 +46,11 @@ final class ReadUsers
                 ->throwResponse($response, 200);
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
+                    'Aucun utilisateur trouvé'
+                ))
                 ->throwResponse($response, 404);
         }
     }

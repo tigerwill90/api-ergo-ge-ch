@@ -36,12 +36,20 @@ final class DeleteUser
             // 403 only for self delete without privilege
             if ($token['user_id'] === (int) $request->getAttribute('id')) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to delete user'))
+                    ->addEntity(new Error(
+                        Error::ERR_FORBIDDEN, 'Insufficient privileges to delete user',
+                        [],
+                        'Action impossible, vous n\'avez pas les privilèges requis'
+                    ))
                     ->throwResponse($response, 403);
             }
             // do not disclose any information about other user, return 404
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No entity found for this user id : ' . $request->getAttribute('id')))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, 'No entity found for this user id : ' . $request->getAttribute('id'),
+                    [],
+                    'Suppression impossible, cet utilisateur n\'existe pas'
+                ))
                 ->throwResponse($response, 404);
         }
 
@@ -50,7 +58,11 @@ final class DeleteUser
             return $response;
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
+                    'Suppression impossible, cet utilisateur n\'existe pas'
+                    ))
                 ->throwResponse($response, 404);
         }
     }

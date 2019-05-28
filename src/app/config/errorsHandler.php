@@ -18,7 +18,11 @@ $container['errorHandler'] = static function (ContainerInterface $c) : Closure {
         error_log($e->getMessage()); // TODO suppress
         error_log($e->getTraceAsString());
         $body = $response->getBody();
-        $error = new \Ergo\Business\Error('Internal server error', 'Oups something goes wrong');
+        $error = new \Ergo\Business\Error(
+            'Internal server error', 'Oups something goes wrong',
+            [],
+            'Une erreur inattendu est survenu'
+        );
         $body->write(json_encode(['data' => $error->getEntity()]));
         return $response
                 ->withBody($body)
@@ -53,7 +57,11 @@ $container['notFoundHandler'] = static function (ContainerInterface $c) : Closur
     return static function (ServerRequestInterface $request, ResponseInterface $response) use ($c) : ResponseInterface {
         $body = $response->getBody();
         $resource = explode('/', $request->getUri()->getPath());
-        $error = new \Ergo\Business\Error('Not found', end($resource) . ' is not a resource');
+        $error = new \Ergo\Business\Error(
+            'Not found', end($resource) . ' is not a resource',
+            [],
+            'Impossible de trouver cette ressource'
+        );
         $body->write(json_encode(['data' => $error->getEntity()]));
         return $response
             ->withBody($body)

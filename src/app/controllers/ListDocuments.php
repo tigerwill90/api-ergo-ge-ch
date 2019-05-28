@@ -8,6 +8,7 @@
 
 namespace Ergo\Controllers;
 
+use Ergo\Business\Error;
 use Ergo\Services\DataWrapper;
 use Ergo\Services\FileUtility;
 use Psr\Http\Message\ResponseInterface;
@@ -43,6 +44,17 @@ final class ListDocuments
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $pdfList = $this->fileUtility->scanDirectory(['pdf'], self::SCAN_PATH);
+
+        if (empty($pdfList)) {
+            return $this->wrapper
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, 'No pdf entity found',
+                    [],
+                    'Aucun document pdf trouvé'
+                ))
+                ->throwResponse($response, 404);
+        }
+
         return $this->wrapper
             ->addArray($pdfList)
             ->addMeta()

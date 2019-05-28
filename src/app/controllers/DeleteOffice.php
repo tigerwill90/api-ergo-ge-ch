@@ -33,10 +33,14 @@ final class DeleteOffice
     {
         $scopes = explode(' ', $request->getAttribute('token')['scope']);
         if (!in_array('admin', $scopes, true)) {
-            // do not disclose any information about other user, return 404
+            // Only admin can delete an office
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, 'No entity found for this user id : ' . $request->getAttribute('id')))
-                ->throwResponse($response, 404);
+                ->addEntity(new Error(
+                    Error::ERR_UNAUTHORIZED, 'Insufficient privileges to delete a category',
+                    [],
+                    'Action impossible, vous n\'avez pas les privilèges requis'
+                ))
+                ->throwResponse($response, 403);
         }
 
         try {
@@ -44,11 +48,19 @@ final class DeleteOffice
             return $response;
         } catch (NoEntityException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_NOT_FOUND, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
+                    'Suppression impossible, ce cabinet n\'existe pas'
+                ))
                 ->throwResponse($response, 404);
         } catch (IntegrityConstraintException $e) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
+                ->addEntity(new Error(
+                    Error::ERR_CONFLICT, $e->getMessage(),
+                    [],
+                    'Suppression impossible, ce cabinet est associé à un ou plusieurs ergothérapeutes'
+                ))
                 ->throwResponse($response, 409);
         }
     }

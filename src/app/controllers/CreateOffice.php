@@ -40,7 +40,11 @@ final class CreateOffice
         $scopes = explode(' ', $request->getAttribute('token')['scope']);
         if (!in_array('admin', $scopes, true)) {
             return $this->dataWrapper
-                ->addEntity(new Error(Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new office'))
+                ->addEntity(new Error(
+                    Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new office',
+                    [],
+                    'Action impossible, vous n\'avez pas les privilèges requis'
+                ))
                 ->throwResponse($response, 403);
         }
 
@@ -56,7 +60,12 @@ final class CreateOffice
                 $this->officesDao->createOffice($office);
             } catch (UniqueException $e) {
                 return $this->dataWrapper
-                    ->addEntity(new Error(Error::ERR_CONFLICT, $e->getMessage()))
+                    ->addEntity(new Error(
+                        Error::ERR_CONFLICT,
+                        $e->getMessage(),
+                        [],
+                        'Impossible de créer ce cabinet, l\'adresse email ou le nom existe déjà'
+                    ))
                     ->throwResponse($response, 409);
             }
 
@@ -69,7 +78,8 @@ final class CreateOffice
             ->addEntity(new Error(
                 Error::ERR_BAD_REQUEST,
                 'The request could not be understood by the server due to malformed syntax',
-                $this->validatorManager->getErrorsMessages()
+                $this->validatorManager->getErrorsMessages(),
+                'Une erreur de validation est survenu'
             ))
             ->throwResponse($response, 400);
     }
