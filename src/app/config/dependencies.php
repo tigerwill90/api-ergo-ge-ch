@@ -487,7 +487,7 @@ $container['contactSendMailParameter'] = static function () : \Ergo\Services\Val
 $container['phpMailer'] = static function () : \PHPMailer\PHPMailer\PHPMailer
 {
     $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-    $mail->SMTPDebug    = filter_var(getenv('DEBUG'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ? 2 : 0;
+    $mail->SMTPDebug    = 0;
     $mail->isSMTP();
     $mail->Host         = getenv('SMTP_SERVER');
     $mail->SMTPAuth     = true;
