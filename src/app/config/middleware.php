@@ -32,7 +32,11 @@ $container['jwtAuthentication'] = static function () : Tuupola\Middleware\JwtAut
       'secure' => true,
       'relaxed' => ['localhost'],
       'error' => function (\Psr\Http\Message\ResponseInterface $response, array $arguments) {
-           $error = new \Ergo\Business\Error('Unauthorized', $arguments['message']);
+           $error = new \Ergo\Business\Error(
+               \Ergo\Business\Error::ERR_UNAUTHORIZED, $arguments['message'],
+                [],
+               'Le jeton d\'accès est invalide ou n\'a pas été trouvé'
+               );
            $body = $response->getBody();
            $body->write(json_encode(['data' => $error->getEntity()]));
            return $response
