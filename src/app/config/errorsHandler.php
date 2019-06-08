@@ -39,7 +39,11 @@ $container['notAllowedHandler'] = static function (ContainerInterface $c) : Clos
     return static function (ServerRequestInterface $request, ResponseInterface $response, array $methods) use ($c) : ResponseInterface {
         $body = $response->getBody();
         $resource = explode('/', $request->getUri()->getPath());
-        $error = new \Ergo\Business\Error('Method not allowed', $request->getMethod() . ' method is not allowed for ' . end($resource) . ' resource');
+        $error = new \Ergo\Business\Error(
+            'Method not allowed', $request->getMethod() . ' method is not allowed for ' . end($resource) . ' resource',
+            [],
+            'Cette action n\'est pas reconnue'
+        );
         $body->write(json_encode(['data' => $error->getEntity()]));
         return $response
             ->withBody($body)
