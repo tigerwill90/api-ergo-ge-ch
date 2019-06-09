@@ -4,6 +4,7 @@ namespace Ergo\Controllers;
 
 use Ergo\Business\Error;
 use Ergo\Business\Therapist;
+use Ergo\domains\CategoriesDao;
 use Ergo\Domains\TherapistsDao;
 use Ergo\Exceptions\IntegrityConstraintException;
 use Ergo\Exceptions\NoEntityException;
@@ -21,16 +22,20 @@ final class UpdateTherapist
     /** @var TherapistsDao  */
     private $therapistsDao;
 
+    /** @var CategoriesDao  */
+    private $categoriesDao;
+
     /** @var DataWrapper  */
     private $dataWrapper;
 
     /** @var LoggerInterface  */
     private $logger;
 
-    public function __construct(ValidatorManagerInterface $validatorManager, TherapistsDao $therapistsDao, DataWrapper $dataWrapper, LoggerInterface $logger = null)
+    public function __construct(ValidatorManagerInterface $validatorManager, TherapistsDao $therapistsDao, CategoriesDao $categoriesDao, DataWrapper $dataWrapper, LoggerInterface $logger = null)
     {
         $this->validatorManager = $validatorManager;
         $this->therapistsDao = $therapistsDao;
+        $this->categoriesDao = $categoriesDao;
         $this->dataWrapper = $dataWrapper;
         $this->logger = $logger;
     }
@@ -92,7 +97,23 @@ final class UpdateTherapist
             $data['officeId'] = $params['office_id'];
             $phones = array_unique((array) $params['phones'], SORT_REGULAR);
             $emails = array_unique((array) $params['emails'], SORT_REGULAR);
-            $categories = array_unique((array) $params['categories'], SORT_REGULAR);
+            $categoriesId = array_unique((array) $params['categories'], SORT_REGULAR);
+            $categories = [];
+
+            foreach ($categoriesId as $id) {
+                try {
+                    $category = $this->categoriesDao->getCategory($id);
+                    $categories[] = $category->getEntity();
+                } catch (NoEntityException $e) {
+                    return $this->dataWrapper
+                        ->addEntity(new Error(
+                            Error::ERR_NOT_FOUND, $e->getMessage(),
+                            [],
+                            'Impossible de mettre à jour cet ergothérapeute, certaines catégories n\'existe pas'
+                        ))
+                        ->throwResponse($response, 404);
+                }
+            }
 
             $therapist = new Therapist($data, $phones, $emails, $categories);
 
@@ -106,7 +127,7 @@ final class UpdateTherapist
                     ->addEntity(new Error(
                         Error::ERR_CONFLICT, $e->getMessage(),
                         [],
-                        'Impossible de mettre à jour cet ergothérpateute, le cabinet n\'existe pas'
+                        'Impossible de mettre à jour cet ergothérapeute, le cabinet ou certaines catégories n\'existe pas'
                     ))
                     ->throwResponse($response, 409);
             }

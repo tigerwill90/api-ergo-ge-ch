@@ -179,7 +179,7 @@ $container[\Ergo\Controllers\ReadTherapist::class] = static function (ContainerI
  */
 $container[\Ergo\Controllers\CreateTherapist::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateTherapist
 {
-    return new \Ergo\Controllers\CreateTherapist($c->get('validationManager'), $c->get('therapistsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+    return new \Ergo\Controllers\CreateTherapist($c->get('validationManager'), $c->get('therapistsDao'), $c->get('categoriesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
 /**
@@ -188,7 +188,7 @@ $container[\Ergo\Controllers\CreateTherapist::class] = static function (Containe
  */
 $container[\Ergo\Controllers\UpdateTherapist::class] = static function (ContainerInterface $c) : \Ergo\Controllers\UpdateTherapist
 {
-    return new \Ergo\Controllers\UpdateTherapist($c->get('validationManager'), $c->get('therapistsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+    return new \Ergo\Controllers\UpdateTherapist($c->get('validationManager'), $c->get('therapistsDao'), $c->get('categoriesDao'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
 /**

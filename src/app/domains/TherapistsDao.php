@@ -347,9 +347,9 @@ class TherapistsDao
             $stmt = $this->pdo->prepare($sql);
             $therapistId = $therapist->getId();
             $stmt->bindParam(':therapistId', $therapistId);
-            $categoriesId = $therapist->getCategories();
-            foreach ($categoriesId as $categoryId) {
-                $stmt->bindParam('categoryId', $categoryId);
+            $categories = $therapist->getCategories();
+            foreach ($categories as $category) {
+                $stmt->bindParam('categoryId', $category['id']);
                 $stmt->execute();
             }
         } catch (\PDOException $e) {
