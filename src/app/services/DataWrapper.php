@@ -64,7 +64,8 @@ class DataWrapper
     public function addMeta() : self
     {
         $this->wrapper['meta'] = [
-            'api_versions' => getenv('API_VERSION')
+            'api_versions' => getenv('API_VERSION'),
+            'datetime' => date(DATE_RFC2822)
         ];
         return $this;
     }
