@@ -174,6 +174,7 @@ class Contact implements EntityInterface
     public function getEntity(): array
     {
         return [
+            'id' => $this->id,
             'street' => ucfirst($this->street),
             'city' => ucfirst($this->city),
             'npa' => $this->npa,

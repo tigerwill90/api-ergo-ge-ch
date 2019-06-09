@@ -14,7 +14,7 @@ class PhonesRule extends RuleValidator
     public function getValidator(): V
     {
         return V::arrayType()->notEmpty()->each(
-            V::key('type', V::in(['tel', 'fax', 'pro'])->notBlank())
+            V::key('type', V::in(['Tel.', 'Fax.', 'Pro.'])->notBlank())
             ->key('number', V::phone()->notBlank())
         );
     }

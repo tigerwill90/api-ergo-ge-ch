@@ -78,6 +78,7 @@ class TherapistsDao
 
                     if ($contact['categoryId'] !== null && !in_array($contact['categoryId'], $categoriesId, true)) {
                         $categories[] = [
+                            'id' => (int) $contact['categoryId'],
                             'name' => $contact['categoryName'],
                             'description' => $contact['categoryDescription']
                         ];
@@ -174,6 +175,7 @@ class TherapistsDao
 
                             if ($contact['categoryId'] !== null && !in_array($contact['categoryId'], $categoriesId, true)) {
                                 $categories[] = [
+                                    'id' => (int) $contact['categoryId'],
                                     'name' => $contact['categoryName'],
                                     'description' => $contact['categoryDescription']
                                 ];
