@@ -348,11 +348,12 @@ $container['calendarClient'] = static function (ContainerInterface $c) : \Ergo\S
 };
 
 /**
+ * @param ContainerInterface $c
  * @return \Ergo\Services\DataWrapper
  */
-$container['dataWrapper'] = static function () : \Ergo\Services\DataWrapper
+$container['dataWrapper'] = static function (ContainerInterface $c) : \Ergo\Services\DataWrapper
 {
-    return new \Ergo\Services\DataWrapper();
+    return new \Ergo\Services\DataWrapper($c->get('appDebug'));
 };
 
 /**

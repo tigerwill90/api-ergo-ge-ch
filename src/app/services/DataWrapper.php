@@ -75,7 +75,7 @@ class DataWrapper
      * @param int $options
      * @return ResponseInterface
      */
-    public function throwResponse(ResponseInterface $response, int $status = 200, int $options = JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) : ResponseInterface
+    public function throwResponse(ResponseInterface $response, int $status = 200, int $options = JSON_UNESCAPED_UNICODE) : ResponseInterface
     {
         $body = $response->getBody();
         $this->wrapper['status_code'] = $status;
