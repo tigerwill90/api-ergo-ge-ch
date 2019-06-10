@@ -27,11 +27,11 @@
         "tigerwill90/server-timing": "0.x-dev",
         "tuupola/slim-jwt-auth": "^3.3",
         "firebase/php-jwt": "^5.0",
-        "ircmaxell/random-lib": "^1.2",
         "respect/validation": "^1.1",
         "phpmailer/phpmailer": "^6.0",
         "google/recaptcha": "^1.2",
-        "dflydev/fig-cookies": "^2.0"
+        "dflydev/fig-cookies": "^2.0",
+        "paragonie/random-lib": "^2.0"
     },
     "require-dev" : {
         "roave/security-advisories": "dev-master",
