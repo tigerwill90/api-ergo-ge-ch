@@ -46,12 +46,21 @@ final class SendContactMail
             $score = filter_var(getenv('DEBUG'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ? 0 : 0.5;
             if ($resp->isSuccess() && $resp->getAction() === 'social' && $resp->getScore() > $score) {
                 $htmlTemplate = '
-                                    <h3>Sujet : %s</h3>
-                                    <h4>Message : </h4>
-                                    <p>%s</p>
-                                    <span>Envoyé par : %s</span>
+                                    <span>Bonjour, cet email provient de la plateforme ASE !</span>
                                     <br>
-                                    <span>Adresse email : %s</span>
+                                    <h3>Sujet : %s</h3>
+                                    <h3><u>Message</u> : </h3>
+                                    <p style="word-wrap: break-word">%s</p>
+                                    <span><b>Envoyé par :</b> %s</span>
+                                    <br>
+                                    <span><b>Adresse email :</b> %s</span>
+                                    <br>
+                                    <br>
+                                    <span><b>Informations complémentaires :</b> </span>
+                                    <br>
+                                    <span><b>Adresse IP :</b> %s</span>
+                                    <br>
+                                    <span><b>Score de la requête :</b> %s</span>
                                 ';
 
                 try {
@@ -60,7 +69,15 @@ final class SendContactMail
                     $this->mailer->isHTML();
                     $this->mailer->CharSet = 'UTF-8';
                     $this->mailer->Subject = $params['subject'];
-                    $this->mailer->Body    = sprintf($htmlTemplate, htmlspecialchars($params['subject']), htmlspecialchars($params['message']), htmlspecialchars($params['name']), htmlspecialchars($params['email']));
+                    $this->mailer->Body = sprintf(
+                        $htmlTemplate,
+                        htmlspecialchars($params['subject']),
+                        htmlspecialchars($params['message']),
+                        htmlspecialchars($params['name']),
+                        htmlspecialchars($params['email']),
+                        $this->getUserIP(),
+                        $resp->getScore()
+                    );
                     $this->mailer->AltBody = $params['message'];
                     $this->mailer->send();
                     return $response;
@@ -92,6 +109,34 @@ final class SendContactMail
                 'Une erreur de validation est survenu'
             ))
             ->throwResponse($response, 400);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserIP() : string
+    {
+        // Get real visitor IP behind CloudFlare network
+        if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])) {
+            $_SERVER['REMOTE_ADDR'] = $_SERVER["HTTP_CF_CONNECTING_IP"];
+            $_SERVER['HTTP_CLIENT_IP'] = $_SERVER["HTTP_CF_CONNECTING_IP"];
+        }
+
+        $client  = @$_SERVER['HTTP_CLIENT_IP'];
+        $forward = @$_SERVER['HTTP_X_FORWARDED_FOR'];
+        $remote  = $_SERVER['REMOTE_ADDR'];
+
+        if (filter_var($client, FILTER_VALIDATE_IP)) {
+            $ip = $client;
+        }
+        elseif (filter_var($forward, FILTER_VALIDATE_IP)) {
+            $ip = $forward;
+        }
+        else {
+            $ip = $remote;
+        }
+
+        return $ip;
     }
 
     /**
