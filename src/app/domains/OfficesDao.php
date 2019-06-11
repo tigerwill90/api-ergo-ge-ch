@@ -33,6 +33,12 @@ class OfficesDao
     }
 
     /**
+     *
+     * TODO office name can have only number so it's basically possible to get wrong office information by comparing id or name
+     * Possible fix :
+     * - office name should have at least one char
+     * - query params /offices/{attribute}?attribute=name
+     *
      * @param string $attribute
      * @return Office
      * @throws NoEntityException

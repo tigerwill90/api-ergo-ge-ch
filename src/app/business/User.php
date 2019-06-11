@@ -31,6 +31,12 @@ class User implements EntityInterface
     /** @var string[] */
     private $officesName;
 
+    /** @var string */
+    private $created;
+
+    /** @var string */
+    private $updated;
+
     /** @var int[] */
     private $officesId;
 
@@ -44,6 +50,8 @@ class User implements EntityInterface
         $this->firstname = $user['firstname'];
         $this->lastname = $user['lastname'];
         $this->active = (bool) $user['active'];
+        $this->created = $user['created'];
+        $this->updated = $user['updated'];
         $this->officesId = $officesId;
         $this->officesName = $officesName;
     }
@@ -193,6 +201,42 @@ class User implements EntityInterface
     }
 
     /**
+     * @return string
+     */
+    public function getCreated(): string
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param string $created
+     * @return User
+     */
+    public function setCreated(string $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUpdated(): string
+    {
+        return $this->updated;
+    }
+
+    /**
+     * @param string $updated
+     * @return User
+     */
+    public function setUpdated(string $updated): self
+    {
+        $this->updated = $updated;
+        return $this;
+    }
+
+    /**
      * @return string[]
      */
     public function getOfficesName() : array
@@ -241,7 +285,9 @@ class User implements EntityInterface
             'active' => $this->active,
             'roles' => explode(' ', $this->roles),
             'offices_id' => $this->officesId,
-            'offices_name' => $this->officesName
+            'offices_name' => $this->officesName,
+            'created_date' => $this->created,
+            'updated_date' => $this->updated
         ];
     }
 }

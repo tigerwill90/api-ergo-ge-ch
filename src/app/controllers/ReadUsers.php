@@ -41,8 +41,23 @@ final class ReadUsers
         $params = $request->getQueryParams();
         try {
             $users = $this->usersDao->getUsers($params['attribute'], $params['sort']);
+
+            $usersArrayEntity = [];
+            foreach ($users as $user) {
+                $usersArrayEntity[] = [
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                    'first_name' => $user->getFirstname(),
+                    'last_name' => $user->getLastname(),
+                    'active' => $user->getActive(),
+                    'roles' => explode(' ', $user->getRoles()),
+                    'created_date' => $user->getCreated(),
+                    'updated_date' => $user->getUpdated()
+                ];
+            }
+
             return $this->dataWrapper
-                ->addCollection($users)
+                ->addArray($usersArrayEntity)
                 ->throwResponse($response, 200);
         } catch (NoEntityException $e) {
             return $this->dataWrapper

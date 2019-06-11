@@ -36,7 +36,8 @@ class UsersDao
         $sql = '
                     SELECT DISTINCT 
                         users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles,
-                        users_firstname as firstname, users_lastname as lastname, users_active as active, users_cookieValue as cookieValue,
+                        users_firstname AS firstname, users_lastname AS lastname, users_active AS active, users_cookieValue AS cookieValue,
+                        users_created AS created, users_updated AS updated,
                         offices_id AS officeId, offices_name AS officeName
                         FROM users
                         LEFT JOIN officesUsers ON users_id = officesUsers_users_id
@@ -77,7 +78,8 @@ class UsersDao
         $sql = '
                     SELECT DISTINCT 
                         users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles,
-                        users_firstname as firstname, users_lastname as lastname, users_active as active, users_cookieValue as cookieValue,
+                        users_firstname AS firstname, users_lastname AS lastname, users_active AS active, users_cookieValue AS cookieValue,
+                        users_created AS created, users_updated AS updated,
                         offices_id AS officeId, offices_name AS officeName
                         FROM users
                         LEFT JOIN officesUsers ON users_id = officesUsers_users_id
@@ -139,8 +141,9 @@ class UsersDao
         $order = $orderable[array_search(strtolower(str_replace('_', '', $orderAttribute)), $orderable, true) | 0];
         $sort = $sortable[array_search(strtoupper($sortAttribute), $sortable, true) | 0];
         $sql = '
-                SELECT users_id as id, users_email as email, users_hashed_password as hashedPassword, users_roles as roles,
-                    users_firstname as firstname, users_lastname as lastname, users_active as active, users_cookieValue as cookieValue
+                SELECT users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles,
+                    users_created AS created, users_updated AS updated,
+                    users_firstname AS firstname, users_lastname AS lastname, users_active AS active, users_cookieValue AS cookieValue
                     FROM users
                     ORDER BY ' . $order . ' ' . $sort;
 
@@ -173,8 +176,9 @@ class UsersDao
     {
         $sql = '
                     SELECT DISTINCT 
-                        users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles, users_firstname as firstname, users_lastname as lastname,
-                        users_active as active, users_cookieValue as cookieValue,
+                        users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles, users_firstname AS firstname, users_lastname AS lastname,
+                        users_active AS active, users_cookieValue AS cookieValue,
+                        users_created AS created, users_updated AS updated,
                         offices_id AS officeId, offices_name AS officeName
                         FROM users
                         LEFT JOIN officesUsers ON users_id = officesUsers_users_id
