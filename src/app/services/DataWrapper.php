@@ -43,7 +43,7 @@ class DataWrapper
     public function addCollection(array $collection) : self
     {
         foreach ($collection as $entity) {
-            $this->wrapper['data'][] = $entity->getEntity();
+            $this->wrapper['data'][] = $entity->getCollection();
         }
         return $this;
     }

@@ -102,6 +102,15 @@ class Office implements EntityInterface
         return $this;
     }
 
+
+    /**
+     * @return array
+     */
+    public function getCollection() : array
+    {
+        return $this->getEntity();
+    }
+
     /**
      * @return array
      */

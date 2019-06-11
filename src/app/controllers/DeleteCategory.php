@@ -41,6 +41,7 @@ final class DeleteCategory
                     [],
                     'Action impossible, vous n\'avez pas les privilèges requis'
                     ))
+                ->addMeta()
                 ->throwResponse($response, 403);
         }
 
@@ -53,6 +54,7 @@ final class DeleteCategory
                     [],
                     'Suppression impossible, cette catégorie n\'existe pas'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         } catch (IntegrityConstraintException $e) {
             return $this->dataWrapper
@@ -61,6 +63,7 @@ final class DeleteCategory
                     [],
                     'Suppression impossible, cette catégorie est associé à un ou plusieurs ergothérapeutes'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 409);
         }
 

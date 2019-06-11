@@ -50,6 +50,7 @@ final class DisconnectUser
                     [],
                     'Déconnexion impossible, cet utilisateur n\'existe pas'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
 

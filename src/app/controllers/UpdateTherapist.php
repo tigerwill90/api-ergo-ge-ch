@@ -54,6 +54,7 @@ final class UpdateTherapist
                     [],
                     'Impossible de mettre à jour cet ergothérapeute. La ressource n\'existe pas'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
 
@@ -79,6 +80,7 @@ final class UpdateTherapist
                             [],
                             'Action impossible, vous n\'avez pas les privilèges requis'
                         ))
+                        ->addMeta()
                         ->throwResponse($response, 403);
                 }
                 return $this->dataWrapper
@@ -87,6 +89,7 @@ final class UpdateTherapist
                         [],
                         'Impossible de mettre à jour cet ergothérapeute. La ressource n\'existe pas'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 404);
             }
 
@@ -111,6 +114,7 @@ final class UpdateTherapist
                             [],
                             'Impossible de mettre à jour cet ergothérapeute, certaines catégories n\'existe pas'
                         ))
+                        ->addMeta()
                         ->throwResponse($response, 404);
                 }
             }
@@ -121,6 +125,7 @@ final class UpdateTherapist
                 $this->therapistsDao->updateTherapist($therapist);
                 return $this->dataWrapper
                     ->addEntity($therapist)
+                    ->addMeta()
                     ->throwResponse($response);
             } catch (IntegrityConstraintException $e) {
                 return $this->dataWrapper
@@ -129,6 +134,7 @@ final class UpdateTherapist
                         [],
                         'Impossible de mettre à jour cet ergothérapeute, le cabinet ou certaines catégories n\'existe pas'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 409);
             }
         }
@@ -140,6 +146,7 @@ final class UpdateTherapist
                 $this->validatorManager->getErrorsMessages(),
                 'Une erreur de validation est survenu'
             ))
+            ->addMeta()
             ->throwResponse($response, 400);
     }
 

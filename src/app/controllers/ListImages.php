@@ -51,6 +51,7 @@ final class ListImages
                     [],
                     'Aucune image trouvée'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
 

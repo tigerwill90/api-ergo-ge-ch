@@ -35,30 +35,17 @@ final class ReadUsers
                     [],
                     'Action impossible, vous n\'avez pas les privilèges requis'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 403);
         }
 
         $params = $request->getQueryParams();
         try {
             $users = $this->usersDao->getUsers($params['attribute'], $params['sort']);
-
-            $usersArrayEntity = [];
-            foreach ($users as $user) {
-                $usersArrayEntity[] = [
-                    'id' => $user->getId(),
-                    'email' => $user->getEmail(),
-                    'first_name' => $user->getFirstname(),
-                    'last_name' => $user->getLastname(),
-                    'active' => $user->getActive(),
-                    'roles' => explode(' ', $user->getRoles()),
-                    'created_date' => $user->getCreated(),
-                    'updated_date' => $user->getUpdated()
-                ];
-            }
-
             return $this->dataWrapper
-                ->addArray($usersArrayEntity)
-                ->throwResponse($response, 200);
+                ->addCollection($users)
+                ->addMeta()
+                ->throwResponse($response);
         } catch (NoEntityException $e) {
             return $this->dataWrapper
                 ->addEntity(new Error(
@@ -66,6 +53,7 @@ final class ReadUsers
                     [],
                     'Aucun utilisateur trouvé'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
     }

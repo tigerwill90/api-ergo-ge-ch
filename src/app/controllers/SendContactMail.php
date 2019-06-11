@@ -88,6 +88,7 @@ final class SendContactMail
                             [],
                             'Une erreur est survenue, l\'email n\'a pas été envoyé'
                         ))
+                        ->addMeta()
                         ->throwResponse($response, 400);
                 }
 
@@ -98,6 +99,7 @@ final class SendContactMail
                         [],
                         'Le service est temporairement bloqué'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 429);
             }
         }
@@ -108,6 +110,7 @@ final class SendContactMail
                 $this->validatorManager->getErrorsMessages(),
                 'Une erreur de validation est survenu'
             ))
+            ->addMeta()
             ->throwResponse($response, 400);
     }
 

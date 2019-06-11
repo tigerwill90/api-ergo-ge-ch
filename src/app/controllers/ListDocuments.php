@@ -52,6 +52,7 @@ final class ListDocuments
                     [],
                     'Aucun document pdf trouvé'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
 

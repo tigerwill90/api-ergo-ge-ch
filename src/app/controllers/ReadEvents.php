@@ -45,7 +45,6 @@ final class ReadEvents
         $fetchEventTimer = $this->stm->create('fetch', 'Fetch event from google calendar');
         $createResponse = $this->stm->create('response', 'Create a response');
         $validateRequestTimer = $this->stm->create('validation', 'Processing request validation', true);
-        $body = $response->getBody();
         $start = !empty($request->getQueryParams()['start']) ? $request->getQueryParams()['start'] : null;
         $end = !empty($request->getQueryParams()['end']) ? $request->getQueryParams()['end'] : null;
 

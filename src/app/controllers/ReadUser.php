@@ -38,11 +38,13 @@ class ReadUser
                         [],
                         'Cet utilisateur n\'existe pas'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 404);
             }
 
             return $this->dataWrapper
                 ->addEntity($user)
+                ->addMeta()
                 ->throwResponse($response);
         } catch (NoEntityException $e) {
             return $this->dataWrapper
@@ -51,6 +53,7 @@ class ReadUser
                     [],
                     'Cet utilisateur n\'existe pas'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
     }

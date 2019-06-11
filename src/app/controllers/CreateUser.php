@@ -65,6 +65,7 @@ final class CreateUser
                     [],
                     'Action impossible, vous n\'avez pas les privilèges requis'
                     ))
+                ->addMeta()
                 ->throwResponse($response, 403);
         }
 
@@ -102,6 +103,7 @@ final class CreateUser
                              [],
                             'Impossible de créer cet utilisateur, le/les cabinet/s n\'existe/nt pas'
                         ))
+                        ->addMeta()
                         ->throwResponse($response, 404);
                 }
             }
@@ -116,11 +118,13 @@ final class CreateUser
                         [],
                         'Impossible de créer cet utilisateur, l\'adresse email existe déjà'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 409);
             }
 
             return $this->dataWrapper
                 ->addEntity($user)
+                ->addMeta()
                 ->throwResponse($response, 201);
         }
 
@@ -131,6 +135,7 @@ final class CreateUser
                 $this->validatorManager->getErrorsMessages(),
                 'Une erreur de validation est survenu'
             ))
+            ->addMeta()
             ->throwResponse($response, 400);
     }
 

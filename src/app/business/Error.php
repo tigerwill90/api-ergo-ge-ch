@@ -95,6 +95,14 @@ class Error implements EntityInterface
     /**
      * @return array
      */
+    public function getCollection() : array
+    {
+        return $this->getEntity();
+    }
+
+    /**
+     * @return array
+     */
     public function getEntity(): array
     {
         return [

@@ -46,6 +46,7 @@ final class CreateCategory
                     [],
                     'Action impossible, vous n\'avez pas les privilèges requis'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 403);
         }
 
@@ -63,11 +64,13 @@ final class CreateCategory
                         [],
                         'Cette catégorie existe déjà'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 409);
             }
 
             return $this->dataWrapper
                 ->addEntity($category)
+                ->addMeta()
                 ->throwResponse($response, 201);
         }
 
@@ -78,6 +81,7 @@ final class CreateCategory
                 $this->validatorManager->getErrorsMessages(),
                 'Une erreur de validation est survenu'
             ))
+            ->addMeta()
             ->throwResponse($response, 400);
     }
 

@@ -12,5 +12,5 @@ interface EntityInterface
 {
     public function getEntity() : array;
 
-    // TODO getCollectionEntity() : array;
+    public function getCollection() : array;
 }

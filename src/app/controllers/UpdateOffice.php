@@ -48,6 +48,7 @@ final class UpdateOffice
                     [],
                     'Impossible de mettre à jour ce cabinet. La ressource n\'existe pas'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
 
@@ -61,6 +62,7 @@ final class UpdateOffice
                     [],
                     'Impossible de mettre à jour ce cabinet. La ressource n\'existe pas'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
 
@@ -78,6 +80,7 @@ final class UpdateOffice
                 $this->officesDao->updateOffice($office);
                 return $this->dataWrapper
                     ->addEntity($office)
+                    ->addMeta()
                     ->throwResponse($response);
             } catch (UniqueException $e) {
                 return $this->dataWrapper
@@ -86,6 +89,7 @@ final class UpdateOffice
                         [],
                         'Impossible de mettre à jour ce cabinet. L\'email et le nom doivent être unique'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 409);
             }
         }
@@ -97,6 +101,7 @@ final class UpdateOffice
                 $this->validatorManager->getErrorsMessages(),
                 'Une erreur de validation est survenu'
             ))
+            ->addMeta()
             ->throwResponse($response, 400);
     }
 

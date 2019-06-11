@@ -40,6 +40,7 @@ final class DeleteOffice
                     [],
                     'Action impossible, vous n\'avez pas les privilèges requis'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 403);
         }
 
@@ -53,6 +54,7 @@ final class DeleteOffice
                     [],
                     'Suppression impossible, ce cabinet n\'existe pas'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         } catch (IntegrityConstraintException $e) {
             return $this->dataWrapper
@@ -61,6 +63,7 @@ final class DeleteOffice
                     [],
                     'Suppression impossible, ce cabinet est associé à un ou plusieurs ergothérapeutes'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 409);
         }
     }

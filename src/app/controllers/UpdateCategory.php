@@ -47,6 +47,7 @@ final class UpdateCategory
                     [],
                     'Action impossible, vous n\'avez pas les privilèges requis'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 403);
         }
 
@@ -61,6 +62,7 @@ final class UpdateCategory
                         [],
                         'Impossible de mettre à jour cette catégorie. La ressource n\'existe pas'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 404);
             }
 
@@ -73,6 +75,7 @@ final class UpdateCategory
                 $this->categoriesDao->updateCategory($category);
                 return $this->dataWrapper
                     ->addEntity($category)
+                    ->addMeta()
                     ->throwResponse($response);
             } catch (UniqueException $e) {
                 return $this->dataWrapper
@@ -81,6 +84,7 @@ final class UpdateCategory
                         [],
                         'Impossible de mettre à jour cette catégorie. Le nom doit être unique'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 409);
             }
         }
@@ -92,6 +96,7 @@ final class UpdateCategory
                 $this->validatorManager->getErrorsMessages(),
                 'Une erreur de validation est survenu'
             ))
+            ->addMeta()
             ->throwResponse($response, 400);
     }
 

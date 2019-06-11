@@ -51,6 +51,7 @@ final class UpdateUser
                     [],
                     'Impossible de mettre à jour cet utilisateur. La resource n\'existe pas'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
 
@@ -85,6 +86,7 @@ final class UpdateUser
                                 [],
                                 'Action impossible, vous n\'avez pas les privilèges requis pour mettre à jour l\'état de l\'utilisateur'
                             ))
+                            ->addMeta()
                             ->throwResponse($response, 403);
                     }
                     $user->setActive($params['active']);
@@ -99,6 +101,7 @@ final class UpdateUser
                                 [],
                                 'Action impossible, vous n\'avez pas les privilèges requis pour mettre à jour les roles de l\'utilisateur'
                             ))
+                            ->addMeta()
                             ->throwResponse($response, 403);
                     }
                     $user->setRoles(implode(' ', $params['roles']));
@@ -113,6 +116,7 @@ final class UpdateUser
                                 [],
                                 'Action impossible, vous n\'avez pas les privilèges requis pour ajouter des nouveaux cabinets'
                             ))
+                            ->addMeta()
                             ->throwResponse($response, 403);
                     }
                     $user->setOfficesId((array) $params['offices_id']);
@@ -123,6 +127,7 @@ final class UpdateUser
 
                     return $this->dataWrapper
                         ->addEntity($user)
+                        ->addMeta()
                         ->throwResponse($response);
                 } catch (UniqueException $e) {
                     return $this->dataWrapper
@@ -131,6 +136,7 @@ final class UpdateUser
                             [],
                             'Impossible de mettre à jour cet utilisateur, l\'email doit être unique'
                             ))
+                        ->addMeta()
                         ->throwResponse($response, 409);
                 }
             } catch (NoEntityException $e) {
@@ -140,6 +146,7 @@ final class UpdateUser
                         [],
                         'Impossible de mettre à jour cet utilisateur. La ressource n\'existe pas'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 404);
             }
         }
@@ -151,6 +158,7 @@ final class UpdateUser
                 $this->validatorManager->getErrorsMessages(),
                 'Une erreur de validation est survenu'
             ))
+            ->addMeta()
             ->throwResponse($response, 400);
     }
 

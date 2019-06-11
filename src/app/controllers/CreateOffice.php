@@ -45,6 +45,7 @@ final class CreateOffice
                     [],
                     'Action impossible, vous n\'avez pas les privilèges requis'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 403);
         }
 
@@ -66,11 +67,13 @@ final class CreateOffice
                         [],
                         'Impossible de créer ce cabinet, l\'adresse email ou le nom existe déjà'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 409);
             }
 
             return $this->dataWrapper
                 ->addEntity($office)
+                ->addMeta()
                 ->throwResponse($response, 201);
         }
 
@@ -81,6 +84,7 @@ final class CreateOffice
                 $this->validatorManager->getErrorsMessages(),
                 'Une erreur de validation est survenu'
             ))
+            ->addMeta()
             ->throwResponse($response, 400);
     }
 

@@ -45,6 +45,7 @@ final class DeleteTherapist
                         [],
                         'Suppression impossible, cet ergothérapeute n\'existe pas'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 404);
             }
 
@@ -58,6 +59,7 @@ final class DeleteTherapist
                     [],
                     'Suppression impossible, cet ergothérapeute n\'existe pas'
                     ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
     }

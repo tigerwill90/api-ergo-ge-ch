@@ -41,6 +41,7 @@ final class DeleteUser
                         [],
                         'Action impossible, vous n\'avez pas les privilèges requis'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 403);
             }
             // do not disclose any information about other user, return 404
@@ -50,6 +51,7 @@ final class DeleteUser
                     [],
                     'Suppression impossible, cet utilisateur n\'existe pas'
                 ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
 
@@ -63,6 +65,7 @@ final class DeleteUser
                     [],
                     'Suppression impossible, cet utilisateur n\'existe pas'
                     ))
+                ->addMeta()
                 ->throwResponse($response, 404);
         }
     }

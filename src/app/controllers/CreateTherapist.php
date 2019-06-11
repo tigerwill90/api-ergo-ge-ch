@@ -55,6 +55,7 @@ final class CreateTherapist
                         [],
                         'Action impossible, vous n\'avez pas les privilèges requis'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 403);
             }
 
@@ -79,6 +80,7 @@ final class CreateTherapist
                             [],
                             'Impossible de de créer cet ergothérapeute, certaines catégories n\'existe pas'
                         ))
+                        ->addMeta()
                         ->throwResponse($response, 404);
                 }
             }
@@ -94,11 +96,13 @@ final class CreateTherapist
                         [],
                         'Impossible de créer cet ergothérpateute, le cabinet n\'existe pas'
                     ))
+                    ->addMeta()
                     ->throwResponse($response, 409);
             }
 
             return $this->dataWrapper
                 ->addEntity($therapist)
+                ->addMeta()
                 ->throwResponse($response, 201);
         }
 
@@ -109,6 +113,7 @@ final class CreateTherapist
                 $this->validatorManager->getErrorsMessages(),
                 'Une erreur de validation est survenu'
             ))
+            ->addMeta()
             ->throwResponse($response, 400);
     }
 

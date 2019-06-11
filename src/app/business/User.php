@@ -275,6 +275,23 @@ class User implements EntityInterface
     /**
      * @return array
      */
+    public function getCollection(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'email' => $this->getEmail(),
+            'first_name' => $this->getFirstname(),
+            'last_name' => $this->getLastname(),
+            'active' => $this->getActive(),
+            'roles' => explode(' ', $this->getRoles()),
+            'created_date' => $this->getCreated(),
+            'updated_date' => $this->getUpdated()
+        ];
+    }
+
+    /**
+     * @return array
+     */
     public function getEntity(): array
     {
         return [
