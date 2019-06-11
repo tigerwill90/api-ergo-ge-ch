@@ -431,7 +431,6 @@ $container['userUpdateParameter'] = static function () : \Ergo\Services\Validato
 };
 
 /**
- * @param ContainerInterface $c
  * @return \Ergo\Services\Validators\Validator
  */
 $container['officeParameter'] = static function () : \Ergo\Services\Validators\Validator
