@@ -43,8 +43,14 @@ final class ReadOffice
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $attribute = $request->getAttribute('attribute');
+        $param = $request->getQueryParams()['attribute'];
+
+        if (empty($param)) {
+            $param = 'id';
+        }
+
         try {
-            $office = $this->officesDao->getOffice($attribute);
+            $office = $this->officesDao->getOffice($attribute, $param);
         } catch (NoEntityException $e) {
             return $this->wrapper
                 ->addEntity(new Error(

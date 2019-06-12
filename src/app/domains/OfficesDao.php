@@ -33,18 +33,12 @@ class OfficesDao
     }
 
     /**
-     *
-     * TODO office name can have only number so it's basically possible to get wrong office information by comparing id or name
-     * Possible fix :
-     * - office name should have at least one char
-     * - query params /offices/{attribute}?attribute=name
-     *
      * @param string $attribute
+     * @param string $param
      * @return Office
      * @throws NoEntityException
-     * @throws \PDOException
      */
-    public function getOffice(string $attribute) : Office
+    public function getOffice(string $attribute, string $param = 'id') : Office
     {
         $sql =
             '
@@ -53,7 +47,7 @@ class OfficesDao
                     contacts_street AS street, contacts_city AS city, contacts_npa AS npa, contacts_cp AS cp, contacts_phone AS phone, contacts_fax AS fax
                     FROM offices
                     LEFT JOIN contacts ON offices_id = contacts_offices_id
-                    WHERE offices_id = :attribute OR offices_name = :attribute
+                    WHERE ' . ($param === 'name' ? 'offices_name = :attribute' : 'offices_id = :attribute') . '
             ';
 
         try {
