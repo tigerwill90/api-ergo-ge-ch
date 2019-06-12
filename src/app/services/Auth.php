@@ -80,6 +80,22 @@ class Auth
     }
 
     /**
+     * @param int $exp
+     * @return string
+     */
+    public function createResetJwt(int $exp) : string
+    {
+        $token = [
+            'iss' => getenv('FQDN'),
+            'iat' => time(),
+            'exp' => $exp,
+            'jti' => $this->generator->generateString(10, self::TOKEN_CHAR_GEN)
+        ];
+
+        return JWT::encode($token, getenv('API_SECRET'));
+    }
+
+    /**
      * @param int $length
      * @return string
      */

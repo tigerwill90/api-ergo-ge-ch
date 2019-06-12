@@ -11,6 +11,8 @@ use Ergo\Exceptions\UniqueException;
 use Ergo\Services\Auth;
 use Ergo\Services\DataWrapper;
 use Ergo\Services\Validators\ValidatorManagerInterface;
+use http\Exception\RuntimeException;
+use PHPMailer\PHPMailer\PHPMailer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -32,20 +34,26 @@ final class CreateUser
     /** @var Auth  */
     private $authentication;
 
+    /** @var PHPMailer  */
+    private $mailer;
+
     /** @var LoggerInterface  */
     private $logger;
 
     private const COOKIE_LENGTH = 100;
 
+    private const RANDOM_PASSWORD_LENGTH = 25;
+
     private const TIMEOUT = 5;
 
-    public function __construct(ValidatorManagerInterface $validatorManager ,UsersDao $usersDao, OfficesDao $officesDao, DataWrapper $dataWrapper, Auth $authentication, LoggerInterface $logger = null)
+    public function __construct(ValidatorManagerInterface $validatorManager ,UsersDao $usersDao, OfficesDao $officesDao, DataWrapper $dataWrapper, Auth $authentication, PHPMailer $mailer, LoggerInterface $logger = null)
     {
         $this->validatorManager = $validatorManager;
         $this->usersDao = $usersDao;
         $this->officesDao = $officesDao;
         $this->dataWrapper = $dataWrapper;
         $this->authentication = $authentication;
+        $this->mailer = $mailer;
         $this->logger = $logger;
     }
 
@@ -81,14 +89,27 @@ final class CreateUser
                 $timeout++;
             }
 
+            // 3 days JWT
+            $exp = time() + 259200;
+            $resetJwt = $this->authentication->createResetJwt($exp);
+            $timeout = 0;
+            while ($this->usersDao->isResetJwtExist($resetJwt)) {
+                $resetJwt = $this->authentication->createResetJwt($exp);
+                if ($timeout >= self::TIMEOUT) {
+                    throw new \RuntimeException('Unable to generate unique jwt');
+                }
+                $timeout++;
+            }
+
             $params = $request->getParsedBody();
             $data['email'] = $params['email'];
-            $data['hashedPassword'] = $this->authentication->hashPassword($params['password']);
+            $data['hashedPassword'] = $this->authentication->hashPassword($this->authentication->generateRandomValue(self::RANDOM_PASSWORD_LENGTH));
             $data['roles'] = implode(' ', $params['roles']);
             $data['firstname'] = $params['first_name'];
             $data['lastname'] = $params['last_name'];
-            $data['active'] = $params['active'];
+            $data['active'] = false;
             $data['cookieValue'] = $cookieValue;
+            $data['resetJwt'] = $resetJwt;
             $officesId = array_unique((array) $params['offices_id'], SORT_REGULAR);
             $user = new User($data, $officesId);
 
@@ -122,6 +143,19 @@ final class CreateUser
                     ->throwResponse($response, 409);
             }
 
+            try {
+                $this->sendEmail($user, $exp);
+            } catch (\Exception $e) {
+                return $this->dataWrapper
+                    ->addEntity(new Error(
+                        Error::ERR_BAD_REQUEST, $e->getMessage(),
+                        [],
+                        'Une erreur est survenue, l\'email n\'a pas été envoyé'
+                    ))
+                    ->addMeta()
+                    ->throwResponse($response, 400);
+            }
+
             return $this->dataWrapper
                 ->addEntity($user)
                 ->addMeta()
@@ -137,6 +171,60 @@ final class CreateUser
             ))
             ->addMeta()
             ->throwResponse($response, 400);
+    }
+
+    /**
+     * @param User $user
+     * @param int $expiration
+     * @throws \Exception
+     */
+    public function sendEmail(User $user, int $expiration) : void
+    {
+        $htmlTemplate = '
+                            <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed&display=swap" rel="stylesheet">
+                            <div style="padding: 20px 10px 20px 10px; font-family: \'Roboto Condensed\', sans-serif;">
+                                <img src="https://picsum.photos/50/50" alt="ase">
+                                <h3>Création de votre compte ASE</h3>
+                                <h4>
+                                    %s %s, bienvenue sur la nouvelle plateforme de l\'association Suisse des ergothérapeutes - Section Genevoise !
+                                </h4>
+                                <p>
+                                    Un administrateur viens de créer votre compte. <b>Pour finaliser votre inscription</b>, vous devez vous rendre sur la plateforme ASE
+                                    et créer un nouveau mot de passe.
+                                </p>
+                                <a href="%s" style="text-decoration: none;">Finaliser votre inscription</a>
+                                <p>
+                                    Pour des raisons de sécurité, le lien ci-dessus est actif jusqu\'à la date suivante : <b>%s</b>. Passez ce délais, vous ne
+                                    pourrez plus activer votre compte. 
+                                    Pas de panique, vous pourrez toujours <a href="%s" style="text-decoration: none;">faire une demande de réactivation</a> via notre formulaire de contact.
+                                </p>
+                                <p>Avec nos meilleurs salutation.</p>
+                                <p>Le conseil d\'administration de l\'ASE.</p>
+                            </div>
+                        ';
+
+        try {
+            $this->mailer->setFrom(getenv('ADDRESS_FROM'));
+            $this->mailer->addAddress('sylvain.muller90@gmail.com');
+            $this->mailer->isHTML();
+            $this->mailer->CharSet = 'UTF-8';
+            $this->mailer->Subject = 'Bienvenue sur la plateforme ASE';
+            $date = new \DateTime();
+            $date->setTimestamp($expiration);
+            $this->mailer->Body = sprintf(
+                $htmlTemplate,
+                htmlspecialchars(ucfirst($user->getFirstname())),
+                htmlspecialchars(ucfirst($user->getLastname())),
+                'http://localhost:9000/register?token=' . $user->getResetJwt(),
+                $date->format('d.m.Y H:i:s'),
+                'http://localhost:9000/contact?subject=activate'
+            );
+
+            $this->mailer->send();
+
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     /**

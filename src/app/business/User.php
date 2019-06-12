@@ -28,6 +28,9 @@ class User implements EntityInterface
     /** @var string */
     private $cookieValue;
 
+    /** @var string */
+    private $resetJwt;
+
     /** @var string[] */
     private $officesName;
 
@@ -44,6 +47,7 @@ class User implements EntityInterface
     {
         if (!empty($user['id'])) $this->id = (int) $user['id'];
         $this->cookieValue = $user['cookieValue'];
+        $this->resetJwt = $user['resetJwt'];
         $this->email = $user['email'];
         $this->hashedPassword = $user['hashedPassword'];
         $this->roles = $user['roles'];
@@ -197,6 +201,24 @@ class User implements EntityInterface
     public function setCookieValue(string $cookieValue): self
     {
         $this->cookieValue = $cookieValue;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getResetJwt(): string
+    {
+        return $this->resetJwt;
+    }
+
+    /**
+     * @param string $resetJwt
+     * @return User
+     */
+    public function setResetJwt(string $resetJwt): self
+    {
+        $this->resetJwt = $resetJwt;
         return $this;
     }
 

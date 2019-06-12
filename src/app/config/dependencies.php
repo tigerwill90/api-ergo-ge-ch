@@ -242,7 +242,7 @@ $container[\Ergo\Controllers\DisconnectUser::class] = static function (Container
  */
 $container[\Ergo\Controllers\CreateUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateUser
 {
-    return new \Ergo\Controllers\CreateUser($c->get('validationManager') ,$c->get('usersDao'), $c->get('officesDao'), $c->get('dataWrapper'), $c->get('authenticationService'), $c->get('appDebug'));
+    return new \Ergo\Controllers\CreateUser($c->get('validationManager') ,$c->get('usersDao'), $c->get('officesDao'), $c->get('dataWrapper'), $c->get('authenticationService'), $c->get('phpMailer'), $c->get('appDebug'));
 };
 
 /**
@@ -406,7 +406,6 @@ $container['userCreateParameter'] = static function () : \Ergo\Services\Validato
       $validator = new \Ergo\Services\Validators\ParameterValidator();
       return $validator
           ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(true))
-          ->add('password', new \Ergo\Services\Validators\Rules\PasswordRule(true))
           ->add('roles', new \Ergo\Services\Validators\Rules\RolesRule(true))
           ->add('first_name', new \Ergo\Services\Validators\Rules\NameRule(true))
           ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(true))
@@ -487,7 +486,7 @@ $container['contactSendMailParameter'] = static function () : \Ergo\Services\Val
 $container['phpMailer'] = static function () : \PHPMailer\PHPMailer\PHPMailer
 {
     $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-    $mail->SMTPDebug    = 0;
+    $mail->SMTPDebug    = 2;
     $mail->isSMTP();
     $mail->Host         = getenv('SMTP_SERVER');
     $mail->SMTPAuth     = true;

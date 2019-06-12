@@ -13,6 +13,6 @@ class RolesRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::arrayType()->each(Validator::alpha(':')->noWhitespace()->notEmpty()->length(3, 75))->notEmpty();
+        return Validator::arrayType()->each(Validator::alpha(':')->noWhitespace()->notEmpty()->length(3, 75)->in(['user','admin']))->notEmpty();
     }
 }

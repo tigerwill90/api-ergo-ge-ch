@@ -37,7 +37,7 @@ class UsersDao
                     SELECT DISTINCT 
                         users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles,
                         users_firstname AS firstname, users_lastname AS lastname, users_active AS active, users_cookieValue AS cookieValue,
-                        users_created AS created, users_updated AS updated,
+                        users_created AS created, users_updated AS updated, users_reset_jwt AS resetJwt,
                         offices_id AS officeId, offices_name AS officeName
                         FROM users
                         LEFT JOIN officesUsers ON users_id = officesUsers_users_id
@@ -79,7 +79,7 @@ class UsersDao
                     SELECT DISTINCT 
                         users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles,
                         users_firstname AS firstname, users_lastname AS lastname, users_active AS active, users_cookieValue AS cookieValue,
-                        users_created AS created, users_updated AS updated,
+                        users_created AS created, users_updated AS updated, users_reset_jwt AS resetJwt,
                         offices_id AS officeId, offices_name AS officeName
                         FROM users
                         LEFT JOIN officesUsers ON users_id = officesUsers_users_id
@@ -129,6 +129,24 @@ class UsersDao
     }
 
     /**
+     * @param string $resetJwt
+     * @return bool
+     */
+    public function isResetJwtExist(string $resetJwt) : bool
+    {
+        $sql = 'SELECT EXISTS(SELECT * FROM users WHERE users_reset_jwt = :resetJwt)';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':resetJwt', $resetJwt);
+            $stmt->execute();
+            return (bool) $stmt->fetchAll(PDO::FETCH_COLUMN)[0];
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
      * @param string|null $orderAttribute
      * @param string|null $sortAttribute
      * @return User[]
@@ -142,7 +160,7 @@ class UsersDao
         $sort = $sortable[array_search(strtoupper($sortAttribute), $sortable, true) | 0];
         $sql = '
                 SELECT users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles,
-                    users_created AS created, users_updated AS updated,
+                    users_created AS created, users_updated AS updated, users_reset_jwt AS resetJwt,
                     users_firstname AS firstname, users_lastname AS lastname, users_active AS active, users_cookieValue AS cookieValue
                     FROM users
                     ORDER BY ' . $order . ' ' . $sort;
@@ -167,6 +185,29 @@ class UsersDao
     }
 
     /**
+     * @param User $user
+     * @throws \PDOException
+     * @throws NoEntityException
+     */
+    private function setUserDateTime(User $user) : void
+    {
+        $sql = 'SELECT users_created AS created, users_updated AS updated FROM users WHERE users_id = ' . $user->getId();
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                throw new NoEntityException('No entity found for this user id : ' . $user->getId());
+            }
+            $user->setCreated($data[0]['created']);
+            $user->setUpdated($data[0]['updated']);
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
      * @param string $email
      * @return User
      * @throws \PDOException
@@ -177,7 +218,7 @@ class UsersDao
         $sql = '
                     SELECT DISTINCT 
                         users_id AS id, users_email AS email, users_hashed_password AS hashedPassword, users_roles AS roles, users_firstname AS firstname, users_lastname AS lastname,
-                        users_active AS active, users_cookieValue AS cookieValue,
+                        users_active AS active, users_cookieValue AS cookieValue, users_reset_jwt AS resetJwt,
                         users_created AS created, users_updated AS updated,
                         offices_id AS officeId, offices_name AS officeName
                         FROM users
@@ -213,10 +254,11 @@ class UsersDao
      * @param User $user
      * @throws \PDOException
      * @throws UniqueException
+     * @throws NoEntityException
      */
     public function createUser(User $user) : void
     {
-        $sql = 'INSERT INTO users (users_email, users_hashed_password, users_roles, users_firstname, users_lastname, users_active, users_cookieValue) VALUES (:email, :hashedPassword, :roles, :firstname, :lastname, :active, :cookieValue)';
+        $sql = 'INSERT INTO users (users_email, users_hashed_password, users_roles, users_firstname, users_lastname, users_active, users_cookieValue, users_reset_jwt) VALUES (:email, :hashedPassword, :roles, :firstname, :lastname, :active, :cookieValue, :resetJwt)';
 
         try {
             $this->pdo->beginTransaction();
@@ -236,8 +278,11 @@ class UsersDao
             $stmt->bindParam(':active', $active);
             $cookieValue = $user->getCookieValue();
             $stmt->bindParam(':cookieValue', $cookieValue);
+            $jwtReset = $user->getResetJwt();
+            $stmt->bindParam(':resetJwt',$jwtReset);
             $stmt->execute();
             $user->setId((int)$this->pdo->lastInsertId());
+            $this->setUserDateTime($user);
 
             if (!empty($user->getOfficesId())) {
                 $this->linkUserToOffices($user);
@@ -295,6 +340,7 @@ class UsersDao
     /**
      * @param User $user
      * @throws UniqueException
+     * @throws NoEntityException
      */
     public function updateUser(User $user) : void
     {
@@ -306,7 +352,8 @@ class UsersDao
                     users_firstname = :firstname,
                     users_lastname = :lastname,
                     users_active = :active,
-                    users_cookieValue = :cookieValue
+                    users_cookieValue = :cookieValue,
+                    users_reset_jwt = :resetJwt
                     WHERE users_id = :id
               ';
 
@@ -329,8 +376,11 @@ class UsersDao
            $stmt->bindParam(':active', $active);
            $cookieValue = $user->getCookieValue();
            $stmt->bindParam(':cookieValue', $cookieValue);
+           $resetJwt = $user->getResetJwt();
+           $stmt->bindParam(':resetJwt', $resetJwt);
            $stmt->execute();
            $this->deleteUserToOfficesLinkByUserId($user->getId());
+           $this->setUserDateTime($user);
 
            if (!empty($user->getOfficesId())) {
                $this->linkUserToOffices($user);
@@ -366,6 +416,28 @@ class UsersDao
         } catch (\PDOException $e) {
             if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
                 throw new UniqueException('This cookie value already exist', $e->getCode());
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * @param int $id
+     * @param string $resetJwt
+     * @throws UniqueException
+     */
+    public function updateResetJwt(int $id, string $resetJwt) : void
+    {
+        $sql = 'UPDATE users SET users_reset_jwt = :resetJwt WHERE users_id = :id';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':resetJwt', $resetJwt);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+                throw new UniqueException('This reset jwt already exist', $e->getCode());
             }
             throw $e;
         }
