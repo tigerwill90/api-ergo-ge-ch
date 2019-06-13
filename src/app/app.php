@@ -27,6 +27,7 @@ $envLoader->required('DOMAIN_NAME')->notEmpty();
 $envLoader->required('FQDN')->notEmpty();
 $envLoader->required('COOKIE_EXPIRATION')->notEmpty()->isInteger();
 $envLoader->required('COOKIE_NAME')->notEmpty();
+$envLoader->required('FRONTEND_FQDN')->notEmpty();
 date_default_timezone_set(getenv('TIMEZONE'));
 
 $app = new \Slim\App([
