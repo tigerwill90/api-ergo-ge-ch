@@ -69,11 +69,12 @@ class UsersDao
     }
 
     /**
-     * @param string $cookieValue
+     * @param string $token
+     * @param string $type
      * @return User
      * @throws NoEntityException
      */
-    public function getUserByCookieValue(string $cookieValue) : User
+    public function getUserByToken(string $token, string $type = 'cookie') : User
     {
         $sql = '
                     SELECT DISTINCT 
@@ -84,16 +85,16 @@ class UsersDao
                         FROM users
                         LEFT JOIN officesUsers ON users_id = officesUsers_users_id
                         LEFT JOIN offices ON offices_id = officesUsers_offices_id
-                        WHERE users_cookieValue = :cookieValue
+                        WHERE ' . ($type === 'cookie' ? 'users_cookieValue = :token' : 'users_reset_jwt = :token') . '
                ';
 
         try {
             $stmt = $this->pdo->prepare($sql);
-            $stmt->bindParam(':cookieValue', $cookieValue);
+            $stmt->bindParam(':token', $token);
             $stmt->execute();
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (empty($data)) {
-                throw new NoEntityException('No entity found for this user cookie value');
+                throw new NoEntityException('No entity found for this user ' . $type . ' value');
             }
             $officesId = $officesName = [];
             foreach ($data as $office) {
@@ -393,7 +394,7 @@ class UsersDao
                if (strpos($e->getMessage(), $user->getEmail()) !== false) {
                    throw new UniqueException('This user email already exist', $e->getCode());
                }
-               throw new UniqueException('This cookie value already exist', $e->getCode());
+               throw new UniqueException('This cookie or token value already exist', $e->getCode());
            }
            throw $e;
        }

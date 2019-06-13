@@ -52,7 +52,7 @@ final class Token
 
         // cookie value don't match any value in database
         try {
-            $user = $this->usersDao->getUserByCookieValue($cookie->getValue());
+            $user = $this->usersDao->getUserByToken($cookie->getValue());
         } catch (NoEntityException $e) {
             return $this->dataWrapper
                 ->addEntity(new Error(

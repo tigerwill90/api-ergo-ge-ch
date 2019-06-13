@@ -179,7 +179,7 @@ final class CreateUser
         $htmlTemplate = '
                             <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed&display=swap" rel="stylesheet">
                             <div style="padding: 20px 10px 20px 10px; font-family: \'Roboto Condensed\', sans-serif;">
-                                <img src="https://picsum.photos/50/50" alt="ase">
+                                <img src="%s" alt="ase" style="width: 50px">
                                 <h3>Création de votre compte ASE</h3>
                                 <h4>
                                     %s %s, bienvenue sur la nouvelle plateforme de l\'association Suisse des ergothérapeutes - Section Genevoise !
@@ -206,11 +206,12 @@ final class CreateUser
             $date->setTimestamp($expiration);
             $sanitizedTemplate = sprintf(
                 $htmlTemplate,
+                getenv('FQDN') . '/images/ase',
                 htmlspecialchars(ucfirst($user->getFirstname())),
                 htmlspecialchars(ucfirst($user->getLastname())),
-                getenv('FRONTEND_FQDN') . '/register?token=' . $user->getResetJwt(),
+                getenv('FRONTEND_FQDN') . '/#/register?token=' . $user->getResetJwt(),
                 $date->format('d.m.Y H:i:s'),
-                getenv('FRONTEND_FQDN') . '/contact?subject_id=1'
+                getenv('FRONTEND_FQDN') . '/#/contact?subject_id=1'
             );
             $this->mailer->sendEmail($sanitizedTemplate, 'Bienvenue sur la plateforme ASE', ['sylvain.muller90@gmail.com']);
         } catch (\Exception $e) {

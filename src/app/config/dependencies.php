@@ -256,6 +256,15 @@ $container[\Ergo\Controllers\UpdateUser::class] = static function (ContainerInte
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\UpdatePasswordToken
+ */
+$container[\Ergo\Controllers\UpdatePasswordToken::class] = static function (ContainerInterface $c) : \Ergo\Controllers\UpdatePasswordToken
+{
+    return new \Ergo\Controllers\UpdatePasswordToken($c->get('validationManager') ,$c->get('usersDao'), $c->get('authenticationService'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\DeleteUser
  */
 $container[\Ergo\Controllers\DeleteUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\DeleteUser
@@ -395,7 +404,8 @@ $container['validationManager'] = static function (ContainerInterface $c) : \Erg
         ->add('contact_email', [$c->get('contactSendMailParameter')])
         ->add('office', [$c->get('officeParameter')])
         ->add('therapist', [$c->get('therapistParameter')])
-        ->add('category', [$c->get('categoryParameter')]);
+        ->add('category', [$c->get('categoryParameter')])
+        ->add('update_password_token', [$c->get('updatePasswordTokenParameter')]);
 };
 
 /**
@@ -409,7 +419,6 @@ $container['userCreateParameter'] = static function () : \Ergo\Services\Validato
           ->add('roles', new \Ergo\Services\Validators\Rules\RolesRule(true))
           ->add('first_name', new \Ergo\Services\Validators\Rules\NameRule(true))
           ->add('last_name', new \Ergo\Services\Validators\Rules\NameRule(true))
-          ->add('active', new \Ergo\Services\Validators\Rules\BoolRule(true))
           ->add('offices_id', new \Ergo\Services\Validators\Rules\IntArrayRule(false));
 };
 
@@ -478,6 +487,16 @@ $container['contactSendMailParameter'] = static function () : \Ergo\Services\Val
         ->add('subject', new \Ergo\Services\Validators\Rules\SubjectRule(true))
         ->add('message', new \Ergo\Services\Validators\Rules\MessageRule(true))
         ->add('token', new \Ergo\Services\Validators\Rules\TokenRule(true));
+};
+
+/**
+ * @return \Ergo\Services\Validators\Validator
+ */
+$container['updatePasswordTokenParameter'] = static function() : \Ergo\Services\Validators\Validator
+{
+    $validator = new \Ergo\Services\Validators\ParameterValidator();
+    return $validator
+        ->add('password', new \Ergo\Services\Validators\Rules\PasswordRule(true));
 };
 
 /**
