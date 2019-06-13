@@ -496,6 +496,7 @@ $container['updatePasswordTokenParameter'] = static function() : \Ergo\Services\
 {
     $validator = new \Ergo\Services\Validators\ParameterValidator();
     return $validator
+        ->add('token', new \Ergo\Services\Validators\Rules\TokenRule(true))
         ->add('password', new \Ergo\Services\Validators\Rules\PasswordRule(true));
 };
 

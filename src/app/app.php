@@ -15,6 +15,7 @@ $envLoader->required('DB_USER')->notEmpty();
 $envLoader->required('DB_PASSWORD')->notEmpty();
 $envLoader->required('DB_HOST')->notEmpty();
 $envLoader->required('API_SECRET')->notEmpty();
+$envLoader->required('API_RESET_SECRET')->notEmpty();
 $envLoader->required('TOKEN_EXPIRATION')->isInteger()->notEmpty();
 $envLoader->required('SMTP_SERVER')->notEmpty();
 $envLoader->required('SMTP_USER')->notEmpty();

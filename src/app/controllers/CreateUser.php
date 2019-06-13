@@ -209,11 +209,11 @@ final class CreateUser
                 getenv('FQDN') . '/images/ase',
                 htmlspecialchars(ucfirst($user->getFirstname())),
                 htmlspecialchars(ucfirst($user->getLastname())),
-                getenv('FRONTEND_FQDN') . '/#/register?token=' . $user->getResetJwt(),
+                getenv('FRONTEND_FQDN') . '/activate?token=' . $user->getResetJwt(),
                 $date->format('d.m.Y H:i:s'),
-                getenv('FRONTEND_FQDN') . '/#/contact?subject_id=1'
+                getenv('FRONTEND_FQDN') . '/contact?subject_id=1'
             );
-            $this->mailer->sendEmail($sanitizedTemplate, 'Bienvenue sur la plateforme ASE', ['sylvain.muller90@gmail.com']);
+            $this->mailer->sendEmail($sanitizedTemplate, 'Bienvenue sur la plateforme ASE', array($user->getEmail()));
         } catch (\Exception $e) {
             throw $e;
         }

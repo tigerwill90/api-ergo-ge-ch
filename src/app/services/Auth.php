@@ -92,7 +92,21 @@ class Auth
             'jti' => $this->generator->generateString(10, self::TOKEN_CHAR_GEN)
         ];
 
-        return JWT::encode($token, getenv('API_SECRET'));
+        return JWT::encode($token, getenv('API_RESET_SECRET'));
+    }
+
+    /**
+     * @param string $jwt
+     * @return array
+     * @throws \Exception
+     */
+    public function decodeJwt(string $jwt) : array
+    {
+        try {
+            return (array) JWT::decode($jwt, getenv('API_RESET_SECRET'), array('HS256'));
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     /**

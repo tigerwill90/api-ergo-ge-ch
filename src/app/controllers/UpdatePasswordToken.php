@@ -13,18 +13,22 @@ use Ergo\Services\Validators\ValidatorManager;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Slim\Exception\NotFoundException;
 
-class UpdatePasswordToken
+final class UpdatePasswordToken
 {
+    /** @var ValidatorManager  */
     private $validatorManager;
 
+    /** @var UsersDao  */
     private $usersDao;
 
+    /** @var Auth  */
     private $auth;
 
+    /** @var DataWrapper  */
     private $dataWrapper;
 
+    /** @var LoggerInterface  */
     private $logger;
 
     private const TIMEOUT = 5;
@@ -42,14 +46,28 @@ class UpdatePasswordToken
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         if ($this->validatorManager->validate(['update_password_token'], $request)) {
-            $header = $request->getHeader('Authorization');
-            $bearer = explode('Bearer ', $header[0], 2)[1] ?? '';
             $params = $request->getParsedBody();
+
             try {
-                $user = $this->usersDao->getUserByToken($bearer, 'token');
+                $this->auth->decodeJwt($params['token']);
+            } catch (\Exception $e) {
+                return $this->dataWrapper
+                    ->addEntity(new Error(
+                        Error::ERR_UNAUTHORIZED,
+                        'The reset token is invalid or expired',
+                        [],
+                        'Désolé, nous n\'avons pas réussi à activer votre compte. Si le problème persiste, merci de prendre contacte avec nous'
+                    ))
+                    ->addMeta()
+                    ->throwResponse($response, 401);
+            }
+
+            try {
+                $user = $this->usersDao->getUserByToken($params['token'], 'token');
                 try {
                     $this->resetToken($user);
                     $user->setHashedPassword($this->auth->hashPassword(base64_decode($params['password'])));
+                    $user->setActive(true);
                     $this->usersDao->updateUser($user);
                 } catch (NoEntityException $e) {
                     return $this->dataWrapper
@@ -65,7 +83,7 @@ class UpdatePasswordToken
                     return $this->dataWrapper
                         ->addEntity(new Error(
                             Error::ERR_CONFLICT,
-                            'A unexpected conflict appear when updating database',
+                            'An unexpected conflict occurred while updating the database',
                             [],
                             'Désolé, nous n\'avons pas réussi à activer votre compte. Si le problème persiste, merci de prendre contacte avec nous'
                         ))
@@ -76,7 +94,7 @@ class UpdatePasswordToken
                 return $this->dataWrapper
                     ->addEntity(new Error(
                         Error::ERR_UNAUTHORIZED,
-                        'the reset token is invalid or expired',
+                        'The reset token is invalid or expired',
                         [],
                         'Désolé, nous n\'avons pas réussi à activer votre compte. Si le problème persiste, merci de prendre contacte avec nous'
                     ))
@@ -84,7 +102,10 @@ class UpdatePasswordToken
                     ->throwResponse($response, 401);
             }
 
-            return $this->dataWrapper->addEntity($user)->throwResponse($response);
+            return $this->dataWrapper
+                ->addEntity($user)
+                ->addMeta()
+                ->throwResponse($response);
         }
 
         return $this->dataWrapper
