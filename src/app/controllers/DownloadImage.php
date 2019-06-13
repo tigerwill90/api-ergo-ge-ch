@@ -44,12 +44,12 @@ final class DownloadImage
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $filename = $request->getAttribute('name');
-        if (null !== $file = $this->utils->searchFile($filename, ['png', 'jpg', 'jpeg'], self::PATH)) {
+        if (null !== $file = $this->utils->searchFile($filename, ['png', 'jpg', 'jpeg', 'svg'], self::PATH)) {
             $fh = fopen(self::PATH . $file['filename'] . '.' . $file['extension'], 'rb');
             $stream = new Stream($fh);
             return $response
                 ->withBody($stream)
-                ->withHeader('Content-Type', 'image/' . $file['extension']);
+                ->withHeader('Content-Type', 'image/' . ($file['extension'] === 'svg' ? $file['extension'] . '+xml' : $file['extension']));
         }
 
         return $this->wrapper
