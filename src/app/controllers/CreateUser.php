@@ -10,9 +10,8 @@ use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
 use Ergo\Services\Auth;
 use Ergo\Services\DataWrapper;
+use Ergo\Services\Mailer;
 use Ergo\Services\Validators\ValidatorManagerInterface;
-use http\Exception\RuntimeException;
-use PHPMailer\PHPMailer\PHPMailer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -34,7 +33,7 @@ final class CreateUser
     /** @var Auth  */
     private $authentication;
 
-    /** @var PHPMailer  */
+    /** @var Mailer  */
     private $mailer;
 
     /** @var LoggerInterface  */
@@ -46,7 +45,7 @@ final class CreateUser
 
     private const TIMEOUT = 5;
 
-    public function __construct(ValidatorManagerInterface $validatorManager ,UsersDao $usersDao, OfficesDao $officesDao, DataWrapper $dataWrapper, Auth $authentication, PHPMailer $mailer, LoggerInterface $logger = null)
+    public function __construct(ValidatorManagerInterface $validatorManager ,UsersDao $usersDao, OfficesDao $officesDao, DataWrapper $dataWrapper, Auth $authentication, Mailer $mailer, LoggerInterface $logger = null)
     {
         $this->validatorManager = $validatorManager;
         $this->usersDao = $usersDao;
@@ -143,21 +142,18 @@ final class CreateUser
                     ->throwResponse($response, 409);
             }
 
+            $send = true;
             try {
                 $this->sendEmail($user, $exp);
             } catch (\Exception $e) {
-                return $this->dataWrapper
-                    ->addEntity(new Error(
-                        Error::ERR_BAD_REQUEST, $e->getMessage(),
-                        [],
-                        'Une erreur est survenue, l\'email n\'a pas été envoyé'
-                    ))
-                    ->addMeta()
-                    ->throwResponse($response, 400);
+                $send = false;
             }
 
+            $userArray = $user->getEntity();
+            $userArray['email_status'] = $send;
+
             return $this->dataWrapper
-                ->addEntity($user)
+                ->addArray($userArray)
                 ->addMeta()
                 ->throwResponse($response, 201);
         }
@@ -192,36 +188,31 @@ final class CreateUser
                                     Un administrateur viens de créer votre compte. <b>Pour finaliser votre inscription</b>, vous devez vous rendre sur la plateforme ASE
                                     et créer un nouveau mot de passe.
                                 </p>
-                                <a href="%s" style="text-decoration: none;">Finaliser votre inscription</a>
+                                <a href="%s" style="text-decoration: none;">Suivez ce lien pour finaliser votre inscription</a>
                                 <p>
                                     Pour des raisons de sécurité, le lien ci-dessus est actif jusqu\'à la date suivante : <b>%s</b>. Passez ce délais, vous ne
                                     pourrez plus activer votre compte. 
-                                    Pas de panique, vous pourrez toujours <a href="%s" style="text-decoration: none;">faire une demande de réactivation</a> via notre formulaire de contact.
+                                    Si vous avez dépassé la délais de validité, vous pouvez toujours <a href="%s" style="text-decoration: none;">faire une demande de réactivation</a> via notre formulaire de contact.
                                 </p>
-                                <p>Avec nos meilleurs salutation.</p>
-                                <p>Le conseil d\'administration de l\'ASE.</p>
+                                <span>Avec nos meilleurs salutation.</span>
+                                <br>
+                                <span>Le conseil d\'administration de l\'ASE.</span>
                             </div>
                         ';
 
+
         try {
-            $this->mailer->setFrom(getenv('ADDRESS_FROM'));
-            $this->mailer->addAddress('sylvain.muller90@gmail.com');
-            $this->mailer->isHTML();
-            $this->mailer->CharSet = 'UTF-8';
-            $this->mailer->Subject = 'Bienvenue sur la plateforme ASE';
             $date = new \DateTime();
             $date->setTimestamp($expiration);
-            $this->mailer->Body = sprintf(
+            $sanitizedTemplate = sprintf(
                 $htmlTemplate,
                 htmlspecialchars(ucfirst($user->getFirstname())),
                 htmlspecialchars(ucfirst($user->getLastname())),
-                'http://localhost:9000/register?token=' . $user->getResetJwt(),
+                getenv('FRONTEND_FQDN') . '/register?token=' . $user->getResetJwt(),
                 $date->format('d.m.Y H:i:s'),
-                'http://localhost:9000/contact?subject=activate'
+                getenv('FRONTEND_FQDN') . '/contact?subject_id=1'
             );
-
-            $this->mailer->send();
-
+            $this->mailer->sendEmail($sanitizedTemplate, 'Bienvenue sur la plateforme ASE', ['sylvain.muller90@gmail.com']);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -237,5 +228,4 @@ final class CreateUser
             $this->logger->debug($message, $context);
         }
     }
-
 }

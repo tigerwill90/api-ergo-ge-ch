@@ -242,7 +242,7 @@ $container[\Ergo\Controllers\DisconnectUser::class] = static function (Container
  */
 $container[\Ergo\Controllers\CreateUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateUser
 {
-    return new \Ergo\Controllers\CreateUser($c->get('validationManager') ,$c->get('usersDao'), $c->get('officesDao'), $c->get('dataWrapper'), $c->get('authenticationService'), $c->get('phpMailer'), $c->get('appDebug'));
+    return new \Ergo\Controllers\CreateUser($c->get('validationManager') ,$c->get('usersDao'), $c->get('officesDao'), $c->get('dataWrapper'), $c->get('authenticationService'), $c->get('mailer'), $c->get('appDebug'));
 };
 
 /**
@@ -478,6 +478,15 @@ $container['contactSendMailParameter'] = static function () : \Ergo\Services\Val
         ->add('subject', new \Ergo\Services\Validators\Rules\SubjectRule(true))
         ->add('message', new \Ergo\Services\Validators\Rules\MessageRule(true))
         ->add('token', new \Ergo\Services\Validators\Rules\TokenRule(true));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Services\Mailer
+ */
+$container['mailer'] = static function(ContainerInterface $c) : \Ergo\Services\Mailer
+{
+    return new \Ergo\Services\Mailer($c->get('phpMailer'), $c->get('appDebug'));
 };
 
 /**
