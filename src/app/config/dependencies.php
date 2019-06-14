@@ -35,7 +35,7 @@ $container[\Ergo\Controllers\DownloadImage::class] = static function (ContainerI
  */
 $container[\Ergo\Controllers\ReadEvents::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ReadEvents
 {
-    return new \Ergo\Controllers\ReadEvents($c->get('calendarClient'), $c->get('dataWrapper'), $c->get('serverTimingManager'), $c->get('appDebug'));
+    return new \Ergo\Controllers\ReadEvents($c->get('calendarClient'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
 /**
@@ -338,14 +338,6 @@ $container['usersDao'] = static function (ContainerInterface $c) : \Ergo\Domains
 };
 
 /** ----------------- SERVICES ----------------- */
-
-/**
- * @return \Tigerwill90\ServerTiming\ServerTimingManager
- */
-$container['serverTimingManager'] = static function () : \Tigerwill90\ServerTiming\ServerTimingManager
-{
-    return new \Tigerwill90\ServerTiming\ServerTimingManager();
-};
 
 /**
  * @param ContainerInterface $c

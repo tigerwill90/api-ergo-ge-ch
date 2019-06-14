@@ -15,7 +15,6 @@ use Ergo\Services\DataWrapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Tigerwill90\ServerTiming\ServerTimingManager;
 
 final class ReadEvents
 {
@@ -28,23 +27,15 @@ final class ReadEvents
     /** @var DataWrapper  */
     private $wrapper;
 
-    /** @var ServerTimingManager */
-    private $stm;
-
-    public function __construct(CalendarClient $calendarClient, DataWrapper $wrapper, ServerTimingManager $stm, LoggerInterface $logger = null)
+    public function __construct(CalendarClient $calendarClient, DataWrapper $wrapper, LoggerInterface $logger = null)
     {
         $this->logger = $logger;
         $this->wrapper = $wrapper;
         $this->calendarClient = $calendarClient;
-        $this->stm = $stm;
     }
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
-        $all = $this->stm->create('all', 'All', true);
-        $fetchEventTimer = $this->stm->create('fetch', 'Fetch event from google calendar');
-        $createResponse = $this->stm->create('response', 'Create a response');
-        $validateRequestTimer = $this->stm->create('validation', 'Processing request validation', true);
         $start = !empty($request->getQueryParams()['start']) ? $request->getQueryParams()['start'] : null;
         $end = !empty($request->getQueryParams()['end']) ? $request->getQueryParams()['end'] : null;
 
@@ -79,9 +70,6 @@ final class ReadEvents
                 ->throwResponse($response, 400);
         }
 
-        $validateRequestTimer->stop();
-        $fetchEventTimer->start();
-
         $service =  $this->calendarClient->getCalendarService();
         $calendarId = getenv('CALENDAR_ID');
         $optParams = array(
@@ -103,8 +91,7 @@ final class ReadEvents
                 ->addMeta()
                 ->throwResponse($response, 401);
         }
-        $fetchEventTimer->stop();
-        $createResponse->start();
+
         $items = $results->getItems();
         $events = [];
         foreach ($items as $item) {
@@ -138,13 +125,11 @@ final class ReadEvents
                 'timezone' => $item->getStart()->getTimeZone()
             ];
         }
-        $createResponse->stop();
-        $all->stop();
+
         return $this->wrapper
             ->addArray($events)
             ->addMeta()
-            ->throwResponse($response)
-            ->withHeader('Server-Timing', $this->stm->createHeader());
+            ->throwResponse($response);
     }
 
     /**
