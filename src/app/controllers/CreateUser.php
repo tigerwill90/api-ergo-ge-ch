@@ -144,7 +144,7 @@ final class CreateUser
 
             $send = true;
             try {
-                $this->sendEmail($user, $exp);
+                $this->mailer->sendEmail($this->generateTemplate($user, $exp), 'Bienvenue sur la plateforme ASE', array($user->getEmail()));
             } catch (\Exception $e) {
                 $send = false;
             }
@@ -172,9 +172,10 @@ final class CreateUser
     /**
      * @param User $user
      * @param int $expiration
+     * @return string
      * @throws \Exception
      */
-    public function sendEmail(User $user, int $expiration) : void
+    public function generateTemplate(User $user, int $expiration) : string
     {
         $htmlTemplate = '
                             <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed&display=swap" rel="stylesheet">
@@ -200,23 +201,19 @@ final class CreateUser
                             </div>
                         ';
 
+        $date = new \DateTime();
+        $date->setTimestamp($expiration);
+        $sanitizedTemplate = sprintf(
+            $htmlTemplate,
+            getenv('FQDN') . '/images/ase',
+            htmlspecialchars(ucfirst($user->getFirstname())),
+            htmlspecialchars(ucfirst($user->getLastname())),
+            getenv('FRONTEND_FQDN') . '/activate?token=' . $user->getResetJwt(),
+            $date->format('d.m.Y H:i:s'),
+            getenv('FRONTEND_FQDN') . '/contact?subject_id=1'
+        );
 
-        try {
-            $date = new \DateTime();
-            $date->setTimestamp($expiration);
-            $sanitizedTemplate = sprintf(
-                $htmlTemplate,
-                getenv('FQDN') . '/images/ase',
-                htmlspecialchars(ucfirst($user->getFirstname())),
-                htmlspecialchars(ucfirst($user->getLastname())),
-                getenv('FRONTEND_FQDN') . '/activate?token=' . $user->getResetJwt(),
-                $date->format('d.m.Y H:i:s'),
-                getenv('FRONTEND_FQDN') . '/contact?subject_id=1'
-            );
-            $this->mailer->sendEmail($sanitizedTemplate, 'Bienvenue sur la plateforme ASE', array($user->getEmail()));
-        } catch (\Exception $e) {
-            throw $e;
-        }
+        return $sanitizedTemplate;
     }
 
     /**
