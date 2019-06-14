@@ -1,6 +1,7 @@
 .idea/
 logs/apache2
 src/vendor
+db/mysql
 *.lock
 .env
 .env.production
@@ -10,5 +11,9 @@ src/vendor
 *.pdf
 *.png
 *.jpg
+*.svg
+*.jpeg
 ergo-dev.json
+ase-prod.json
 id_rsa
+pfak_ergo_empty.sql
