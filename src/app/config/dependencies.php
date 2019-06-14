@@ -507,7 +507,7 @@ $container['mailer'] = static function(ContainerInterface $c) : \Ergo\Services\M
 $container['phpMailer'] = static function () : \PHPMailer\PHPMailer\PHPMailer
 {
     $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-    $mail->SMTPDebug    = 2;
+    $mail->SMTPDebug    = 0;
     $mail->isSMTP();
     $mail->Host         = getenv('SMTP_SERVER');
     $mail->SMTPAuth     = true;

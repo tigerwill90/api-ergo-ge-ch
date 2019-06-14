@@ -22,6 +22,7 @@ $envLoader->required('SMTP_USER')->notEmpty();
 $envLoader->required('SMTP_PASSWORD')->notEmpty();
 $envLoader->required('SMTP_PORT')->isInteger()->notEmpty();
 $envLoader->required('ADDRESS_FROM')->notEmpty();
+$envLoader->required('ADDRESS_TO')->notEmpty();
 $envLoader->required('RECAPTCHA_SECRET')->notEmpty();
 $envLoader->required('SCHEME')->notEmpty()->allowedValues(['http', 'https']);
 $envLoader->required('DOMAIN_NAME')->notEmpty();

@@ -5,6 +5,7 @@ db/mysql
 *.lock
 .env
 .env.production
+.env.staging
 .env.dev
 *.log
 *.mwb.bak

@@ -64,8 +64,8 @@ final class SendContactMail
                                 ';
 
                 try {
-                    $this->mailer->setFrom(getenv('ADDRESS_FROM'));
-                    $this->mailer->addAddress(getenv('ADDRESS_FROM'));
+                    $this->mailer->setFrom($params['email']);
+                    $this->mailer->addAddress(getenv('ADDRESS_TO'));
                     $this->mailer->isHTML();
                     $this->mailer->CharSet = 'UTF-8';
                     $this->mailer->Subject = htmlspecialchars($params['subject']);
