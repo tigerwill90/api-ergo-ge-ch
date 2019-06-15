@@ -3,9 +3,12 @@
 namespace Ergo\Controllers;
 
 use Dflydev\FigCookies\FigRequestCookies;
+use Dflydev\FigCookies\FigResponseCookies;
+use Dflydev\FigCookies\SetCookie;
 use Ergo\Business\Error;
 use Ergo\Domains\UsersDao;
 use Ergo\Exceptions\NoEntityException;
+use Ergo\Exceptions\UniqueException;
 use Ergo\Services\Auth;
 use Ergo\Services\DataWrapper;
 use Psr\Http\Message\ResponseInterface;
@@ -25,6 +28,10 @@ final class Token
 
     /** @var LoggerInterface  */
     private $logger;
+
+    private const COOKIE_LENGTH = 100;
+
+    private const TIMEOUT = 5;
 
     public function __construct(Auth $auth, UsersDao $usersDao, DataWrapper $dataWrapper, LoggerInterface $logger = null)
     {
@@ -75,6 +82,27 @@ final class Token
                 'scope' => $user->getRoles()
             ]
         ];
+
+        $cookieValue = $this->auth->generateUniqueCookieValue(self::TIMEOUT, self::COOKIE_LENGTH);
+
+        $response = FigResponseCookies::set($response, SetCookie::create('ase')
+            ->withHttpOnly()
+            ->withDomain(getenv('DOMAIN_NAME'))
+            ->withPath('/')
+            ->withExpires(time() + getenv('COOKIE_EXPIRATION'))
+            ->withValue($cookieValue)
+            ->withSecure(!filter_var(getenv('DEBUG'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE))
+        );
+
+        // store unique cookie value in database
+        $user->setCookieValue($cookieValue);
+        try {
+            $this->usersDao->updateUser($user);
+        } catch (UniqueException $e) {
+            throw new \RuntimeException($e->getMessage());
+        } catch (NoEntityException $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
 
         return $this->dataWrapper
             ->addArray($data)

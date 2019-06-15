@@ -44,7 +44,6 @@ final class Authentication
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface
-     * @throws \Exception
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
@@ -113,8 +112,8 @@ final class Authentication
                 ))
                 ->addMeta()
                 ->throwResponse($response, 401);
-        } catch (\Exception $e) {
-            throw $e;
+        } catch (UniqueException $e) {
+            throw new \RuntimeException($e->getMessage());
         }
 
         $exp = time() + getenv('TOKEN_EXPIRATION');
@@ -129,15 +128,7 @@ final class Authentication
           ]
         ];
 
-        $cookieValue = $this->auth->generateRandomValue(self::COOKIE_LENGTH);
-        $timeout = 0;
-        while ($this->usersDao->isCookieValueExist($cookieValue)) {
-            $cookieValue = $this->auth->generateRandomValue(self::COOKIE_LENGTH);
-            if ($timeout >= self::TIMEOUT) {
-                throw new \RuntimeException('Unable to generate unique cookie value');
-            }
-            $timeout++;
-        }
+        $cookieValue = $this->auth->generateUniqueCookieValue(self::TIMEOUT, self::COOKIE_LENGTH);
 
         $response = FigResponseCookies::set($response, SetCookie::create('ase')
             ->withHttpOnly()
@@ -153,6 +144,8 @@ final class Authentication
         try {
             $this->usersDao->updateUser($user);
         } catch (UniqueException $e) {
+            throw new \RuntimeException($e->getMessage());
+        } catch (NoEntityException $e) {
             throw new \RuntimeException($e->getMessage());
         }
 

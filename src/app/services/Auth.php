@@ -4,6 +4,8 @@ namespace Ergo\Services;
 
 use Ergo\Business\User;
 use Ergo\Domains\UsersDao;
+use Ergo\Exceptions\NoEntityException;
+use Ergo\Exceptions\UniqueException;
 use Firebase\JWT\JWT;
 use Psr\Log\LoggerInterface;
 use RandomLib\Generator;
@@ -11,7 +13,7 @@ use RandomLib\Generator;
 class Auth
 {
     /** @var UsersDao  */
-    private $userDao;
+    private $usersDao;
 
     /** @var Generator  */
     private $generator;
@@ -23,7 +25,7 @@ class Auth
 
     public function __construct(UsersDao $usersDao, Generator $generator, LoggerInterface $logger = null)
     {
-        $this->userDao = $usersDao;
+        $this->usersDao = $usersDao;
         $this->generator = $generator;
         $this->logger = $logger;
     }
@@ -32,7 +34,8 @@ class Auth
      * @param string $password
      * @param User $user
      * @return bool
-     * @throws \Exception
+     * @throws NoEntityException
+     * @throws UniqueException
      */
     public function verifyPassword(string $password, User $user) : bool
     {
@@ -40,8 +43,10 @@ class Auth
             if (password_needs_rehash($user->getHashedPassword(), PASSWORD_DEFAULT)) {
                 $user->setHashedPassword($this->hashPassword($password));
                 try {
-                    $this->userDao->updateUser($user);
-                } catch (\Exception $e) {
+                    $this->usersDao->updateUser($user);
+                } catch (UniqueException $e) {
+                    throw $e;
+                } catch (NoEntityException $e) {
                     throw $e;
                 }
             }
@@ -129,4 +134,41 @@ class Auth
         }
     }
 
+    /**
+     * @param int $maxAttempt
+     * @param int $cookieLength
+     * @return string
+     */
+    public function generateUniqueCookieValue(int $maxAttempt, int $cookieLength) : string
+    {
+        $cookieValue = $this->generateRandomValue($cookieLength);
+        $timeout = 0;
+        while ($this->usersDao->isCookieValueExist($cookieValue)) {
+            $cookieValue = $this->generateRandomValue($cookieLength);
+            if ($timeout >= $maxAttempt) {
+                throw new \RuntimeException('Unable to generate unique cookie value');
+            }
+            $timeout++;
+        }
+        return $cookieValue;
+    }
+
+    /**
+     * @param int $maxAttempt
+     * @param int $exp
+     * @return string
+     */
+    public function generateUniqueResetJwt(int $maxAttempt, int $exp) : string
+    {
+        $resetJwt = $this->createResetJwt($exp);
+        $timeout = 0;
+        while ($this->usersDao->isResetJwtExist($resetJwt)) {
+            $resetJwt = $this->createResetJwt($exp);
+            if ($timeout >= $maxAttempt) {
+                throw new \RuntimeException('Unable to generate unique jwt');
+            }
+            $timeout++;
+        }
+        return $resetJwt;
+    }
 }

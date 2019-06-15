@@ -54,15 +54,7 @@ final class DisconnectUser
                 ->throwResponse($response, 404);
         }
 
-        $cookieValue = $this->auth->generateRandomValue(self::COOKIE_LENGTH);
-        $timeout = 0;
-        while ($this->usersDao->isCookieValueExist($cookieValue)) {
-            $cookieValue = $this->auth->generateRandomValue(self::COOKIE_LENGTH);
-            if ($timeout >= self::TIMEOUT) {
-                throw new \RuntimeException('Unable to generate unique cookie value');
-            }
-            $timeout++;
-        }
+        $cookieValue = $this->auth->generateUniqueCookieValue(self::TIMEOUT, self::COOKIE_LENGTH);
 
         try {
             $this->usersDao->updateCookieValue($id, $cookieValue);

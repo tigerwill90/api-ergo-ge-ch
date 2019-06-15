@@ -31,7 +31,7 @@ final class CreateUser
     private $dataWrapper;
 
     /** @var Auth  */
-    private $authentication;
+    private $auth;
 
     /** @var Mailer  */
     private $mailer;
@@ -45,13 +45,13 @@ final class CreateUser
 
     private const TIMEOUT = 5;
 
-    public function __construct(ValidatorManagerInterface $validatorManager ,UsersDao $usersDao, OfficesDao $officesDao, DataWrapper $dataWrapper, Auth $authentication, Mailer $mailer, LoggerInterface $logger = null)
+    public function __construct(ValidatorManagerInterface $validatorManager , UsersDao $usersDao, OfficesDao $officesDao, DataWrapper $dataWrapper, Auth $auth, Mailer $mailer, LoggerInterface $logger = null)
     {
         $this->validatorManager = $validatorManager;
         $this->usersDao = $usersDao;
         $this->officesDao = $officesDao;
         $this->dataWrapper = $dataWrapper;
-        $this->authentication = $authentication;
+        $this->auth = $auth;
         $this->mailer = $mailer;
         $this->logger = $logger;
     }
@@ -78,31 +78,15 @@ final class CreateUser
 
         if ($this->validatorManager->validate(['create_user'], $request)) {
 
-            $cookieValue = $this->authentication->generateRandomValue(self::COOKIE_LENGTH);
-            $timeout = 0;
-            while ($this->usersDao->isCookieValueExist($cookieValue)) {
-                $cookieValue = $this->authentication->generateRandomValue(self::COOKIE_LENGTH);
-                if ($timeout >= self::TIMEOUT) {
-                    throw new \RuntimeException('Unable to generate unique cookie value');
-                }
-                $timeout++;
-            }
+            $cookieValue = $this->auth->generateUniqueCookieValue(self::TIMEOUT, self::COOKIE_LENGTH);
 
             // 3 days JWT
             $exp = time() + 259200;
-            $resetJwt = $this->authentication->createResetJwt($exp);
-            $timeout = 0;
-            while ($this->usersDao->isResetJwtExist($resetJwt)) {
-                $resetJwt = $this->authentication->createResetJwt($exp);
-                if ($timeout >= self::TIMEOUT) {
-                    throw new \RuntimeException('Unable to generate unique jwt');
-                }
-                $timeout++;
-            }
+            $resetJwt = $this->auth->generateUniqueResetJwt(self::TIMEOUT, $exp);
 
             $params = $request->getParsedBody();
             $data['email'] = $params['email'];
-            $data['hashedPassword'] = $this->authentication->hashPassword($this->authentication->generateRandomValue(self::RANDOM_PASSWORD_LENGTH));
+            $data['hashedPassword'] = $this->auth->hashPassword($this->auth->generateRandomValue(self::RANDOM_PASSWORD_LENGTH));
             $data['roles'] = implode(' ', $params['roles']);
             $data['firstname'] = $params['first_name'];
             $data['lastname'] = $params['last_name'];
@@ -121,7 +105,7 @@ final class CreateUser
                         ->addEntity(new Error(
                             Error::ERR_NOT_FOUND, $e->getMessage(),
                              [],
-                            'Impossible de créer cet utilisateur, le/les cabinet/s n\'existe/nt pas'
+                            'Impossible de créer cet utilisateur, le/les cabinet/s n\'existent pas'
                         ))
                         ->addMeta()
                         ->throwResponse($response, 404);
