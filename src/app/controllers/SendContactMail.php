@@ -93,6 +93,7 @@ final class SendContactMail
                 }
 
             } else {
+                $this->log(print_r($resp, true));
                 return $this->dataWrapper
                     ->addEntity(new Error(
                         Error::ERR_TOO_MANY_REQUEST, 'The service is blocked due to suspicious activity',

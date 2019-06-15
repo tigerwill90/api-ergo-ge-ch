@@ -20,8 +20,8 @@ class ContactsRule extends RuleValidator
                 ->key('city', V::alpha('àèáéíóúüÁÉÍÓÚÜñÑ-/')->notBlank()->length(2, 45))
                 ->key('npa', V::alnum()->notBlank()->length(2, 10))
                 ->key('cp', V::alnum('-')->notBlank()->length(2, 10), false)
-                ->key('phone', V::phone()->notBlank()->length(5, 45), false)
-                ->key('fax', V::phone()->notBlank()->length(5, 45), false)
+                ->key('phone', V::phone()->notBlank(), false)
+                ->key('fax', V::phone()->notBlank(), false)
             );
     }
 }

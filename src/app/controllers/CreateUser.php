@@ -146,6 +146,7 @@ final class CreateUser
             try {
                 $this->mailer->sendEmail($this->generateTemplate($user, $exp), 'Bienvenue sur la plateforme ASE', array($user->getEmail()));
             } catch (\Exception $e) {
+                $this->log($e->getMessage());
                 $send = false;
             }
 
