@@ -18,3 +18,4 @@ ergo-dev.json
 ase-prod.json
 id_rsa
 pfak_ergo_empty.sql
+phinx.yml
