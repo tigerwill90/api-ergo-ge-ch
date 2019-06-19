@@ -91,7 +91,7 @@ final class Authentication
             $user = $this->usersDao
                 ->authenticateUser($emailPassword[0]);
 
-            if (!$this->auth->verifyPassword($emailPassword[1], $user)) {
+            if (!$user->getActive() || !$this->auth->verifyPassword($emailPassword[1], $user)) {
                 return $this->dataWrapper
                     ->addEntity(new Error(
                         Error::ERR_UNAUTHORIZED,

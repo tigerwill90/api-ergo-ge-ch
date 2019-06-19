@@ -56,7 +56,8 @@ $app->group('/users', function (\Slim\App $app) {
     $app->delete('/{id:[0-9]+}', \Ergo\Controllers\DeleteUser::class);
     $app->patch('/{id:[0-9]+}/disconnect', \Ergo\Controllers\DisconnectUser::class);
     $app->get('/{id:[0-9]+}/offices', \Ergo\Controllers\ReadUsersOffices::class);
-    $app->patch('/activate', \Ergo\Controllers\UpdatePasswordToken::class);
+    $app->patch('/activate', \Ergo\Controllers\ActivateUser::class);
+    $app->get('/{attribute}/revoke', \Ergo\Controllers\RevokeUser::class);
 });
 
 $app->post('/emails/send', \Ergo\Controllers\SendContactMail::class);

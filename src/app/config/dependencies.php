@@ -229,6 +229,15 @@ $container[\Ergo\Controllers\Token::class] = static function (ContainerInterface
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\RevokeUser
+ */
+$container[\Ergo\Controllers\RevokeUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\RevokeUser
+{
+    return new \Ergo\Controllers\RevokeUser( $c->get('usersDao'), $c->get('dataWrapper'), $c->get('authenticationService'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\DisconnectUser
  */
 $container[\Ergo\Controllers\DisconnectUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\DisconnectUser
@@ -256,11 +265,11 @@ $container[\Ergo\Controllers\UpdateUser::class] = static function (ContainerInte
 
 /**
  * @param ContainerInterface $c
- * @return \Ergo\Controllers\UpdatePasswordToken
+ * @return \Ergo\Controllers\ActivateUser
  */
-$container[\Ergo\Controllers\UpdatePasswordToken::class] = static function (ContainerInterface $c) : \Ergo\Controllers\UpdatePasswordToken
+$container[\Ergo\Controllers\ActivateUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ActivateUser
 {
-    return new \Ergo\Controllers\UpdatePasswordToken($c->get('validationManager') ,$c->get('usersDao'), $c->get('authenticationService'), $c->get('dataWrapper'), $c->get('appDebug'));
+    return new \Ergo\Controllers\ActivateUser($c->get('validationManager') ,$c->get('usersDao'), $c->get('authenticationService'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
 /**

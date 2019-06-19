@@ -14,7 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
-final class UpdatePasswordToken
+final class ActivateUser
 {
     /** @var ValidatorManager  */
     private $validatorManager;
@@ -32,7 +32,6 @@ final class UpdatePasswordToken
     private $logger;
 
     private const TIMEOUT = 5;
-    private const RANDOM_VALUE_LENGTH = 100;
 
     public function __construct(ValidatorManager $validatorManager, UsersDao $usersDao, Auth $auth, DataWrapper $dataWrapper, LoggerInterface $logger = null)
     {
@@ -75,7 +74,7 @@ final class UpdatePasswordToken
                             Error::ERR_NOT_FOUND,
                             'No entity found for this user',
                             [],
-                            'Désolé, ce compte ne semble pas exister'
+                            'Désolé, ce compte ne semble plus exister'
                         ))
                         ->addMeta()
                         ->throwResponse($response, 404);
@@ -88,7 +87,7 @@ final class UpdatePasswordToken
                             'Désolé, nous n\'avons pas réussi à activer votre compte. Si le problème persiste, merci de prendre contacte avec nous'
                         ))
                         ->addMeta()
-                        ->throwResponse($response, 401);
+                        ->throwResponse($response, 409);
                 }
             } catch (NoEntityException $e) {
                 return $this->dataWrapper
@@ -126,16 +125,7 @@ final class UpdatePasswordToken
      */
     public function resetToken(User $user): void
     {
-        $randomValue = $this->auth->generateRandomValue(self::RANDOM_VALUE_LENGTH);
-        $timeout = 0;
-        while ($this->usersDao->isResetJwtExist($randomValue)) {
-            $randomValue = $this->auth->generateRandomValue(self::RANDOM_VALUE_LENGTH);
-            if ($timeout >= self::TIMEOUT) {
-                throw new \RuntimeException('Unable to generate unique random value');
-            }
-            $timeout++;
-        }
-
+        $randomValue = $this->auth->generateUniqueResetJwt(self::TIMEOUT, 0);
         $user->setResetJwt($randomValue);
         $this->usersDao->updateUser($user);
     }
