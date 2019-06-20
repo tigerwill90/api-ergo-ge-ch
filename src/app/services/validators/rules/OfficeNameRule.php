@@ -14,6 +14,6 @@ class OfficeNameRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::alnum('àèáéíóúüÁÉÍÓÚÜñÑ-')->notBlank()->length(3, 45);
+        return Validator::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-'()")->notBlank()->length(3, 45);
     }
 }

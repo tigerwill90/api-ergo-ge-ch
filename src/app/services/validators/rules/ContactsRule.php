@@ -16,8 +16,8 @@ class ContactsRule extends RuleValidator
         return V::arrayType()
             ->notEmpty()
             ->each(
-                V::key('street', V::alnum('àèáéíóúüÁÉÍÓÚÜñÑ-.,')->notBlank()->length(5, 80))
-                ->key('city', V::alpha('àèáéíóúüÁÉÍÓÚÜñÑ-/')->notBlank()->length(2, 45))
+                V::key('street', V::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-.,'")->notBlank()->length(5, 80))
+                ->key('city', V::alpha("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-/'")->notBlank()->length(2, 45))
                 ->key('npa', V::alnum()->notBlank()->length(2, 10))
                 ->key('cp', V::alnum('-')->notBlank()->length(2, 10), false)
                 ->key('phone', V::phone()->notBlank(), false)
