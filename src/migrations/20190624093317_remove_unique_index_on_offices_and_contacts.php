@@ -6,7 +6,7 @@ class RemoveUniqueIndexOnOfficesAndContacts extends AbstractMigration
 {
     public function up(): void {
         $table = $this->table('offices');
-        $table->removeIndexByName('offices_email_UNIQUE');
+        $table->changeColumn('offices_email', 'string', ['limit' => 250, 'null' => true]);
         $table->save();
 
         $table = $this->table('contacts');
@@ -15,6 +15,12 @@ class RemoveUniqueIndexOnOfficesAndContacts extends AbstractMigration
     }
 
     public function down(): void {
+        $table = $this->table('offices');
+        $table->changeColumn('offices_email', 'string', ['limit' => 250, 'null' => false]);
+        $table->save();
 
+        $table = $this->table('contacts');
+        $table->addIndex(['contacts_street'], ['unique' => true, 'name' => 'contacts_street_UNIQUE']);
+        $table->save();
     }
 }

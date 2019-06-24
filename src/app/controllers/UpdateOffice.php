@@ -6,7 +6,6 @@ use Ergo\Business\Contact;
 use Ergo\Business\Error;
 use Ergo\Business\Office;
 use Ergo\Domains\OfficesDao;
-use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
 use Ergo\Services\DataWrapper;
 use Ergo\Services\Validators\ValidatorManagerInterface;

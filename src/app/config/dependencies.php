@@ -447,7 +447,7 @@ $container['officeParameter'] = static function () : \Ergo\Services\Validators\V
     $validator = new \Ergo\Services\Validators\ParameterValidator();
     return $validator
         ->add('name', new \Ergo\Services\Validators\Rules\OfficeNameRule(true))
-        ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(true))
+        ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(false))
         ->add('contacts', new \Ergo\Services\Validators\Rules\ContactsRule(true));
 };
 

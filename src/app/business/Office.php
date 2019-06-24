@@ -26,7 +26,7 @@ class Office implements EntityInterface
     {
         if (!empty($office['id'])) $this->id = (int) $office['id'];
         $this->name = $office['name'];
-        $this->email = $office['email'];
+        if (!empty($office['email'])) $this->email = $office['email'];
         $this->contacts = $contacts;
     }
 
@@ -69,7 +69,7 @@ class Office implements EntityInterface
     /**
      * @return string
      */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }

@@ -308,7 +308,6 @@ class OfficesDao
     /**
      * @param int $officeId
      * @param Contact[] $contacts
-     * @throws UniqueException
      */
     public function createContact(int $officeId, array $contacts) : void
     {
@@ -335,11 +334,7 @@ class OfficesDao
                 $stmt->bindParam(':officeId', $officeId);
                 $stmt->execute();
             }
-
         } catch (\PDOException $e) {
-            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
-                throw new UniqueException('This contact street already exist', $e->getCode());
-            }
             throw $e;
         }
     }
@@ -366,7 +361,7 @@ class OfficesDao
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
             if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
-                throw new IntegrityConstraintException('Cannot delete an not empty office');
+                throw new IntegrityConstraintException('Cannot delete an office with therapists');
             }
             throw $e;
         }
