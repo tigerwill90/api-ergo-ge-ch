@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
 
-$envLoader = new \Dotenv\Dotenv(__DIR__ . '/../');
+$envLoader = Dotenv\Dotenv::create(__DIR__ . '/../');
 $envLoader->load();
 $envLoader->required('TIMEZONE')->notEmpty();
 $envLoader->required('API_KEY_DIR')->notEmpty();
