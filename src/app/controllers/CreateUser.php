@@ -45,6 +45,8 @@ final class CreateUser
 
     private const TIMEOUT = 5;
 
+    private const DAYS_IN_SECONDS = 259200;
+
     public function __construct(ValidatorManagerInterface $validatorManager , UsersDao $usersDao, OfficesDao $officesDao, DataWrapper $dataWrapper, Auth $auth, Mailer $mailer, LoggerInterface $logger = null)
     {
         $this->validatorManager = $validatorManager;
@@ -81,7 +83,7 @@ final class CreateUser
             $cookieValue = $this->auth->generateUniqueCookieValue(self::TIMEOUT, self::COOKIE_LENGTH);
 
             // 3 days JWT
-            $exp = time() + 259200;
+            $exp = time() + self::DAYS_IN_SECONDS;
             $resetJwt = $this->auth->generateUniqueResetJwt(self::TIMEOUT, $exp);
 
             $params = $request->getParsedBody();
@@ -195,7 +197,7 @@ final class CreateUser
             htmlspecialchars(ucfirst($user->getLastname())),
             getenv('FRONTEND_FQDN') . '/activate?token=' . $user->getResetJwt(),
             $date->format('d.m.Y H:i:s'),
-            getenv('FRONTEND_FQDN') . '/contact?subject_id=1'
+            getenv('FRONTEND_FQDN') . '/contact?subject=Délais d\'activation du compte dépassé'
         );
 
         return $sanitizedTemplate;

@@ -53,7 +53,8 @@ $container['jwtAuthentication'] = static function () : Tuupola\Middleware\JwtAut
                 ],
                 'ignore' => [
                     '/users/[0-9]+/offices' => 'GET',
-                    '/users/activate' => 'PATCH'
+                    '/users/activate' => 'PATCH',
+                    '/users/resetpassword' => 'PATCH'
                 ]
             ])
         ]

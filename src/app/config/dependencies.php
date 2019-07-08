@@ -274,6 +274,15 @@ $container[\Ergo\Controllers\ActivateUser::class] = static function (ContainerIn
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ResetPassword
+ */
+$container[\Ergo\Controllers\ResetPassword::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ResetPassword
+{
+    return new \Ergo\Controllers\ResetPassword($c->get('validationManager') ,$c->get('usersDao'), $c->get('dataWrapper'), $c->get('authenticationService'), $c->get('mailer'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\DeleteUser
  */
 $container[\Ergo\Controllers\DeleteUser::class] = static function (ContainerInterface $c) : \Ergo\Controllers\DeleteUser
@@ -406,7 +415,8 @@ $container['validationManager'] = static function (ContainerInterface $c) : \Erg
         ->add('office', [$c->get('officeParameter')])
         ->add('therapist', [$c->get('therapistParameter')])
         ->add('category', [$c->get('categoryParameter')])
-        ->add('update_password_token', [$c->get('updatePasswordTokenParameter')]);
+        ->add('update_password_token', [$c->get('updatePasswordTokenParameter')])
+        ->add('reset_password', [$c->get('resetPassword')]);
 };
 
 /**
@@ -500,6 +510,16 @@ $container['updatePasswordTokenParameter'] = static function() : \Ergo\Services\
     return $validator
         ->add('token', new \Ergo\Services\Validators\Rules\TokenRule(true))
         ->add('password', new \Ergo\Services\Validators\Rules\PasswordRule(true));
+};
+
+/**
+ * @return \Ergo\Services\Validators\Validator
+ */
+$container['resetPassword'] = static function () : \Ergo\Services\Validators\Validator
+{
+    $validator = new \Ergo\Services\Validators\ParameterValidator();
+    return $validator
+        ->add('email', new \Ergo\Services\Validators\Rules\EmailRule(true));
 };
 
 /**

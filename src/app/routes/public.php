@@ -57,6 +57,7 @@ $app->group('/users', function (\Slim\App $app) {
     $app->patch('/{id:[0-9]+}/disconnect', \Ergo\Controllers\DisconnectUser::class);
     $app->get('/{id:[0-9]+}/offices', \Ergo\Controllers\ReadUsersOffices::class);
     $app->patch('/activate', \Ergo\Controllers\ActivateUser::class);
+    $app->patch('/resetpassword', \Ergo\Controllers\ResetPassword::class);
     $app->get('/{attribute}/revoke', \Ergo\Controllers\RevokeUser::class);
 });
 
