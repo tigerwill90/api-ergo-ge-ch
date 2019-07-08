@@ -43,7 +43,7 @@ class OfficesDao
         $sql =
             '
                 SELECT DISTINCT 
-                    offices_id AS id, offices_email AS email, offices_name AS name,
+                    offices_id AS id, offices_email AS email, offices_name AS name, offices_web_url AS web,
                     contacts_street AS street, contacts_city AS city, contacts_npa AS npa, contacts_cp AS cp, contacts_phone AS phone, contacts_fax AS fax
                     FROM offices
                     LEFT JOIN contacts ON offices_id = contacts_offices_id
@@ -69,6 +69,7 @@ class OfficesDao
     }
 
     /**
+     * TODO refactor with more efficient method, aka EXIST function
      * @param int $id
      * @return bool
      */
@@ -138,7 +139,7 @@ class OfficesDao
         $sql =
             '
                 SELECT 
-                    offices_id AS id, offices_name AS name, offices_email AS email,
+                    offices_id AS id, offices_name AS name, offices_email AS email, offices_web_url AS web,
                     contacts_street AS street, contacts_city AS city, contacts_npa AS npa, contacts_cp AS cp, contacts_phone AS phone, contacts_fax AS fax
                     FROM offices
                     LEFT JOIN contacts ON offices_id = contacts_offices_id
@@ -188,7 +189,7 @@ class OfficesDao
         $sql =
             '
                 SELECT 
-                    offices_id AS id, offices_name AS name, offices_email AS email,
+                    offices_id AS id, offices_name AS name, offices_email AS email, offices_web_url AS web,
                     contacts_street AS street, contacts_city AS city, contacts_npa AS npa, contacts_cp AS cp, contacts_phone AS phone, contacts_fax AS fax
                     FROM offices
                     LEFT JOIN officesUsers ON offices_id = officesUsers_offices_id
@@ -232,7 +233,8 @@ class OfficesDao
         $sql = '
                     UPDATE offices SET
                         offices_name = :name,
-                        offices_email = :email
+                        offices_email = :email,
+                        offices_web_url = :web
                         WHERE offices_id = :id
                ';
 
@@ -248,6 +250,8 @@ class OfficesDao
             $stmt->bindParam(':name', $name);
             $email = $office->getEmail();
             $stmt->bindParam(':email', $email);
+            $webUrl = $office->getWebUrl();
+            $stmt->bindParam(':web', $webUrl);
             $id = $office->getId();
             $stmt->bindParam(':id',$id);
             $stmt->execute();
@@ -274,7 +278,7 @@ class OfficesDao
      */
     public function createOffice(Office $office) : void
     {
-        $sql = 'INSERT INTO offices (offices_name, offices_email) values (:name, :email)';
+        $sql = 'INSERT INTO offices (offices_name, offices_email, offices_web_url) values (:name, :email, :web)';
 
         try {
             $this->pdo->beginTransaction();
@@ -283,6 +287,8 @@ class OfficesDao
             $stmt->bindParam(':name', $name);
             $email = $office->getEmail();
             $stmt->bindParam(':email', $email);
+            $webUrl = $office->getWebUrl();
+            $stmt->bindParam(':web', $webUrl);
             $stmt->execute();
 
             $office->setId((int) $this->pdo->lastInsertId());

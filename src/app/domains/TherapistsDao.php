@@ -93,6 +93,7 @@ class TherapistsDao
     }
 
     /**
+     * TODO refactor with more efficient method, aka EXIST function
      * @param int $id
      * @return bool
      */

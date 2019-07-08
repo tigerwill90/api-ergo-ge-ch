@@ -19,6 +19,9 @@ class Office implements EntityInterface
     /** @var string */
     private $email;
 
+    /** @var string */
+    private $webUrl;
+
     /** @var Contact[] */
     private $contacts;
 
@@ -27,6 +30,7 @@ class Office implements EntityInterface
         if (!empty($office['id'])) $this->id = (int) $office['id'];
         $this->name = $office['name'];
         if (!empty($office['email'])) $this->email = $office['email'];
+        if (!empty($office['web'])) $this->webUrl = $office['web'];
         $this->contacts = $contacts;
     }
 
@@ -85,6 +89,24 @@ class Office implements EntityInterface
     }
 
     /**
+     * @return string
+     */
+    public function getWebUrl(): ?string
+    {
+        return $this->webUrl;
+    }
+
+    /**
+     * @param string $webUrl
+     * @return Office
+     */
+    public function setWebUrl(string $webUrl): self
+    {
+        $this->webUrl = $webUrl;
+        return $this;
+    }
+
+    /**
      * @return Contact[]
      */
     public function getContacts(): array
@@ -120,6 +142,7 @@ class Office implements EntityInterface
             'id' => $this->id,
             'name' => $this->name,
             'email' => strtolower($this->email),
+            'web' => strtolower($this->webUrl),
             'contacts' => []
         ];
 
