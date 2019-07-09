@@ -260,12 +260,16 @@ class OfficesDao
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
             if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
-                if (strpos($e->getMessage(), $office->getEmail()) !== false) {
+                if (!empty($office->getEmail()) && strpos($e->getMessage(), (string) $office->getEmail()) !== false) {
                     throw new UniqueException('This office email already exist', $e->getCode());
                 }
 
                 if (strpos($e->getMessage(), $office->getName()) !== false) {
                     throw new UniqueException('This office name already exist', $e->getCode());
+                }
+
+                if (!empty($office->getWebUrl()) && strpos($e->getMessage(), (string) $office->getWebUrl()) !== false) {
+                    throw new UniqueException('This office web url already exist', $e->getCode());
                 }
             }
             throw $e;
@@ -299,12 +303,16 @@ class OfficesDao
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
             if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
-                if (strpos($e->getMessage(), $office->getEmail()) !== false) {
+                if (!empty($office->getEmail()) && strpos($e->getMessage(), $office->getEmail()) !== false) {
                     throw new UniqueException('This office email already exist', $e->getCode());
                 }
 
                 if (strpos($e->getMessage(), $office->getName()) !== false) {
                     throw new UniqueException('This office name already exist', $e->getCode());
+                }
+
+                if (!empty($office->getWebUrl()) && strpos($e->getMessage(), $office->getWebUrl()) !== false) {
+                    throw new UniqueException('This office web url already exist', $e->getCode());
                 }
             }
             throw $e;

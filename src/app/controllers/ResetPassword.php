@@ -112,18 +112,19 @@ final class ResetPassword
                             <div style="padding: 20px 10px 20px 10px; font-family: \'Roboto Condensed\', sans-serif;">
                                 <img src="%s" alt="ase" style="width: 50px">
                                 <h3>Instruction pour réinitialiser votre mot de passe</h3>
+                                <span>Bonjour %s %s</span>
                                 <p>
                                    <b>
                                         Si vous n\'êtes pas à l\'origine de cette action, NE SUIVEZ PAS LE LIEN CI-DESSOUS
-                                        et <a href="%s">contactez</a> le comité dans les plus brefs délais.
+                                        et <a href="%s" style="text-decoration: none;">contactez</a> le comité dans les plus brefs délais.
                                    </b>
                                 </p>
-                                <span>Bonjour %s %s</span>
                                 <p>
-                                    Suivez le lien ci-dessous pour réinitialiser votre mot de passe. Pour des raisons de sécurité, le lien ci-dessous n\'est valide que
+                                    Suivez le lien ci-dessous pour réinitialiser votre mot de passe. Pour des raisons de sécurité, le lien n\'est valide que
                                     pour une durée très limité. N\'attendez pas !
                                 </p>
                                 <a href="%s" style="text-decoration: none;">Réinitialiser mon mot de passe</a>
+                                <br>
                                 <br>
                                 <span>Avec nos meilleurs salutation.</span>
                                 <br>
@@ -134,9 +135,9 @@ final class ResetPassword
         $sanitizedTemplate = sprintf(
             $htmlTemplate,
             getenv('FQDN') . '/images/ase',
-            getenv('FRONTEND_FQDN') . '/contact?subject=Alerte concernant la réinitialisation du mot de passe de mon compte',
             ucfirst($user->getFirstname()),
             ucfirst($user->getLastname()),
+            getenv('FRONTEND_FQDN') . '/contact?subject=Alerte concernant la réinitialisation du mot de passe de mon compte',
             getenv('FRONTEND_FQDN') . '/reset?token=' . $user->getResetJwt(),
         );
 

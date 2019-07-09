@@ -86,7 +86,7 @@ final class UpdateOffice
                     ->addEntity(new Error(
                         Error::ERR_CONFLICT, $e->getMessage(),
                         [],
-                        'Impossible de mettre à jour ce cabinet. L\'email et le nom doivent être unique'
+                        'Impossible de mettre à jour ce cabinet. L\'email, le nom et l\'url du site web doivent être unique'
                     ))
                     ->addMeta()
                     ->throwResponse($response, 409);

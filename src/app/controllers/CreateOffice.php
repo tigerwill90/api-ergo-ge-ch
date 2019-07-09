@@ -65,7 +65,7 @@ final class CreateOffice
                         Error::ERR_CONFLICT,
                         $e->getMessage(),
                         [],
-                        'Impossible de créer ce cabinet, l\'adresse email ou le nom existe déjà'
+                        'Impossible de créer ce cabinet, l\'adresse email, le nom ou le l\'url du site web existe déjà'
                     ))
                     ->addMeta()
                     ->throwResponse($response, 409);
