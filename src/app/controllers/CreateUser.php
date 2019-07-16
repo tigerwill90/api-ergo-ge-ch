@@ -168,23 +168,25 @@ final class CreateUser
                             <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed&display=swap" rel="stylesheet">
                             <div style="padding: 20px 10px 20px 10px; font-family: \'Roboto Condensed\', sans-serif;">
                                 <img src="%s" alt="ase" style="width: 50px">
-                                <h3>Création de votre compte ASE</h3>
+                                <h3>Création de votre compte ASE (section genevoise)</h3>
                                 <h4>
-                                    %s %s, bienvenue sur la nouvelle plateforme de l\'association Suisse des ergothérapeutes - Section Genevoise !
+                                    %s %s, bienvenue sur la nouvelle plateforme de la section genevoise de l\'Association Suisse des Ergothérapeutes !
                                 </h4>
                                 <p>
-                                    Un administrateur viens de créer votre compte. <b>Pour finaliser votre inscription</b>, vous devez vous rendre sur la plateforme ASE
-                                    et créer un nouveau mot de passe.
+                                    Un administrateur vient de créer votre compte. <b>Pour finaliser votre inscription</b>, 
+                                    vous devez vous rendre sur la plateforme ASE – section genevoise et créer un nouveau mot de passe.
                                 </p>
                                 <a href="%s" style="text-decoration: none;">Suivez ce lien pour finaliser votre inscription</a>
                                 <p>
-                                    Pour des raisons de sécurité, le lien ci-dessus est actif jusqu\'à la date suivante : <b>%s</b>. Passez ce délais, vous ne
-                                    pourrez plus activer votre compte. 
-                                    Si vous avez dépassé la délais de validité, vous pouvez toujours <a href="%s" style="text-decoration: none;">faire une demande de réactivation</a> via notre formulaire de contact.
+                                    Pour des raisons de sécurité, le lien ci-dessus est actif jusqu\'à la date suivante : <b>%s</b>.
                                 </p>
-                                <span>Avec nos meilleurs salutation.</span>
+                                <p>
+                                    Passé ce délai, vous ne pourrez plus activer votre compte. Si vous avez dépassé la délai de validité, vous pouvez toujours <a href="%s" style="text-decoration: none;">faire une demande de réactivation</a>
+                                    via notre formulaire de contact.
+                                </p>
+                                <span>Avec nos meilleures salutations. </span>
                                 <br>
-                                <span>Le conseil d\'administration de l\'ASE.</span>
+                                <span>Le comité de la section genevoise de l’Association Suisse des Ergothérapeutes.</span>
                             </div>
                         ';
 

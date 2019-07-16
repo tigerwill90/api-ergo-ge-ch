@@ -114,21 +114,17 @@ final class ResetPassword
                                 <h3>Instruction pour réinitialiser votre mot de passe</h3>
                                 <span>Bonjour %s %s</span>
                                 <p>
-                                   <b>
-                                        Si vous n\'êtes pas à l\'origine de cette action, NE SUIVEZ PAS LE LIEN CI-DESSOUS
-                                        et <a href="%s" style="text-decoration: none;">contactez</a> le comité dans les plus brefs délais.
-                                   </b>
-                                </p>
-                                <p>
-                                    Suivez le lien ci-dessous pour réinitialiser votre mot de passe. Pour des raisons de sécurité, le lien n\'est valide que
-                                    pour une durée très limité. N\'attendez pas !
+                                    Suivez le lien ci-dessous pour réinitialiser votre mot de passe. Pour des raisons de sécurité, <b>le lien n\'est valide que pour une durée très limitée</b>. 
+                                    N\'attendez pas !
                                 </p>
                                 <a href="%s" style="text-decoration: none;">Réinitialiser mon mot de passe</a>
+                                <p>
+                                    Evidemment, <b>si vous n\'êtes pas à l\'origine de cette demande</b>, nous vous prions de <a href="%s" style="text-decoration: none;">contacter</a> le comité de la 
+                                    section genevoise de l’ASE dans les meilleurs délais <b>et de ne pas réinitialiser le mot de passe</b>. Merci d’avance.
+                                </p>
+                                <span>Avec nos meilleures salutations.</span>
                                 <br>
-                                <br>
-                                <span>Avec nos meilleurs salutation.</span>
-                                <br>
-                                <span>Le conseil d\'administration de l\'ASE.</span>
+                                <span>Le comité de la section genevoise de l’Association Suisse des Ergothérapeutes.</span>
                             </div>
                         ';
 
@@ -137,8 +133,8 @@ final class ResetPassword
             getenv('FQDN') . '/images/ase',
             ucfirst($user->getFirstname()),
             ucfirst($user->getLastname()),
-            getenv('FRONTEND_FQDN') . '/contact?subject=Alerte concernant la réinitialisation du mot de passe de mon compte',
             getenv('FRONTEND_FQDN') . '/reset?token=' . $user->getResetJwt(),
+            getenv('FRONTEND_FQDN') . '/contact?subject=Alerte concernant la réinitialisation du mot de passe de mon compte',
         );
 
         return $sanitizedTemplate;
