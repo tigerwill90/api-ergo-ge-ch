@@ -179,20 +179,27 @@ class OfficesDao
      */
     public function searchOffices(string $attribute): array {
         $sql = '
-                SELECT DISTINCT 
-                    offices_id AS id, offices_name AS name, offices_email AS email, offices_web_url AS web,
+                SELECT 
+                    offices_id AS id, offices_email AS email, offices_name AS name, offices_web_url AS web,
                     contacts_street AS street, contacts_city AS city, contacts_npa AS npa, contacts_cp AS cp, contacts_phone AS phone, contacts_fax AS fax
-                FROM offices
+                    FROM offices
                     LEFT JOIN contacts ON offices_id = contacts_offices_id
-                    WHERE 
-                          offices_id LIKE :attribute OR 
-                          LOWER(offices_name) LIKE :attribute OR 
-                          LOWER(offices_web_url) LIKE :attribute OR 
-                          LOWER(offices_email) LIKE :attribute OR 
-                          LOWER(contacts_street) LIKE :attribute OR 
-                          LOWER(contacts_city) LIKE :attribute OR 
-                          LOWER(contacts_npa) LIKE :attribute
-                    ORDER BY offices_name
+                    WHERE offices_id IN (
+                        SELECT DISTINCT 
+                            offices_id
+                        FROM offices
+                        LEFT JOIN contacts ON offices_id = contacts_offices_id
+                        WHERE 
+                            LOWER(offices_name) LIKE :attribute OR 
+                            LOWER(offices_web_url) LIKE :attribute OR 
+                            LOWER(offices_email) LIKE :attribute OR 
+                            LOWER(contacts_street) LIKE :attribute OR 
+                            LOWER(contacts_city) LIKE :attribute OR 
+                            LOWER(contacts_npa) LIKE :attribute OR
+                            LOWER(contacts_cp) LIKE :attribute OR
+                            LOWER(contacts_phone) LIKE :attribute OR 
+                            LOWER(contacts_fax) LIKE :attribute
+                    )
                ';
 
         $searchItem = strtolower('%' . $attribute . '%');

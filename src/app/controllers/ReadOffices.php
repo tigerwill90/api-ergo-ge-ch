@@ -45,7 +45,6 @@ final class ReadOffices
         $params = $request->getQueryParams();
         $search = $params['search'];
         try {
-            $offices = [];
             $isSearch = false;
             if (!empty($search) && strlen($search) > 2) {
                 $isSearch = true;
@@ -57,8 +56,8 @@ final class ReadOffices
             return $this->wrapper
                 ->addEntity(new Error(
                     Error::ERR_NOT_FOUND, $e->getMessage(),
-                    [],
-                    $isSearch ? 'Aucun cabinet trouvé correspondant à cet attribut de recherche' : 'Aucun cabinet trouvé'
+                    ['search' => $search],
+                    $isSearch ? 'Aucun cabinet trouvé correspondant à cet attribut de recherche : ' . $search : 'Aucun cabinet trouvé'
                 ))
                 ->addMeta()
                 ->throwResponse($response, 404);
