@@ -43,14 +43,22 @@ final class ReadOffices
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $params = $request->getQueryParams();
+        $search = $params['search'];
         try {
-            $offices = $this->officesDao->getOffices($params['attribute'], $params['sort']);
+            $offices = [];
+            $isSearch = false;
+            if (!empty($search) && strlen($search) > 2) {
+                $isSearch = true;
+                $offices = $this->officesDao->searchOffices($search);
+            } else {
+                $offices = $this->officesDao->getOffices($params['attribute'], $params['sort']);
+            }
         } catch (NoEntityException $e) {
             return $this->wrapper
                 ->addEntity(new Error(
                     Error::ERR_NOT_FOUND, $e->getMessage(),
                     [],
-                    'Aucun cabinet trouvé'
+                    $isSearch ? 'Aucun cabinet trouvé correspondant à cet attribut de recherche' : 'Aucun cabinet trouvé'
                 ))
                 ->addMeta()
                 ->throwResponse($response, 404);

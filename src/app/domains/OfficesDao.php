@@ -91,7 +91,7 @@ class OfficesDao
 
     /**
      * @param array $officesId
-     * @return array
+     * @return String[]
      * @throws NoEntityException
      */
     public function getOfficeNameByOfficesId(array $officesId) : array
@@ -125,7 +125,7 @@ class OfficesDao
     /**
      * @param string|null $orderAttribute
      * @param string|null $sortAttribute
-     * @return array
+     * @return Office[]
      * @throws NoEntityException
      * @throws \PDOException
      */
@@ -173,10 +173,62 @@ class OfficesDao
     }
 
     /**
+     * @param string $attribute
+     * @return Office[]
+     * @throws NoEntityException
+     */
+    public function searchOffices(string $attribute): array {
+        $sql = '
+                SELECT DISTINCT 
+                    offices_id AS id, offices_name AS name, offices_email AS email, offices_web_url AS web,
+                    contacts_street AS street, contacts_city AS city, contacts_npa AS npa, contacts_cp AS cp, contacts_phone AS phone, contacts_fax AS fax
+                FROM offices
+                    LEFT JOIN contacts ON offices_id = contacts_offices_id
+                    WHERE 
+                          offices_id LIKE :attribute OR 
+                          LOWER(offices_name) LIKE :attribute OR 
+                          LOWER(offices_web_url) LIKE :attribute OR 
+                          LOWER(offices_email) LIKE :attribute OR 
+                          LOWER(contacts_street) LIKE :attribute OR 
+                          LOWER(contacts_city) LIKE :attribute OR 
+                          LOWER(contacts_npa) LIKE :attribute
+                    ORDER BY offices_name
+               ';
+
+        $searchItem = strtolower('%' . $attribute . '%');
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':attribute', $searchItem);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+               throw new NoEntityException('No entities found for this attribute : ' . $attribute);
+            }
+            $offices = $officesId = [];
+            foreach ($data as $office) {
+                if (!in_array($office['id'], $officesId, true)) {
+                    $contacts = [];
+                    foreach ($data as $contact) {
+                        if ($office['id'] === $contact['id']) {
+                            $contacts[] = new Contact($contact);
+                        }
+                    }
+                    $offices[] = new Office($office, $contacts);
+                    $officesId[] = $office['id'];
+                }
+            }
+            return $offices;
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
      * @param int $id
      * @param string|null $orderAttribute
      * @param string|null $sortAttribute
-     * @return array
+     * @return Office[]
      * @throws NoEntityException
      */
     public function getOfficesByUserId(int $id, ?string $orderAttribute = 'name', ?string $sortAttribute = 'ASC'): array
