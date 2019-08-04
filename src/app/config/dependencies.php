@@ -211,6 +211,14 @@ $container[\Ergo\Controllers\ReadTherapistsOffice::class] = static function (Con
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadTherapists
+ */
+$container[\Ergo\Controllers\ReadTherapists::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ReadTherapists
+{
+    return new \Ergo\Controllers\ReadTherapists($c->get('therapistsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\Authentication
  */
 $container[\Ergo\Controllers\Authentication::class] = static function (ContainerInterface $c) : \Ergo\Controllers\Authentication

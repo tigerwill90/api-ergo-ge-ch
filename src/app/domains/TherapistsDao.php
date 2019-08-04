@@ -150,49 +150,114 @@ class TherapistsDao
             $stmt->execute();
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (empty($data)) {
-                throw new NoEntityException('No therapists entity found for this office id : ' . $officeId);
+                $message = 'No therapists entity found';
+                if ($officeId !== null) {
+                    $message .= 'for this office id : ' . $officeId;
+                }
+                throw new NoEntityException($message);
             }
+            return $this->assembleTherapists($data);
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
 
-            $therapists = $therapistsId = [];
-            foreach ($data as $therapist) {
-                if (!in_array($therapist['id'], $therapistsId, true)) {
-                    $currentTherapist = new Therapist($therapist);
+    /**
+     * @param array $data
+     * @return Therapist[]
+     */
+    private function assembleTherapists(array $data): array {
+        $therapists = $therapistsId = [];
+        foreach ($data as $therapist) {
+            if (!in_array($therapist['id'], $therapistsId, true)) {
+                $currentTherapist = new Therapist($therapist);
 
-                    $phonesId = $emailsId = $phones = $emails = $categories = $categoriesId = [];
-                    foreach ($data as $contact) {
-                        if ($therapist['id'] === $contact['id']) {
-                            if ($contact['phoneId'] !== null && !in_array($contact['phoneId'], $phonesId, true)) {
-                                $phones[] = [
-                                    'type' => $contact['phoneType'],
-                                    'number' => (string)$contact['phoneNumber']
-                                ];
-                                $phonesId[] = $contact['phoneId'];
-                            }
+                $phonesId = $emailsId = $phones = $emails = $categories = $categoriesId = [];
+                foreach ($data as $contact) {
+                    if ($therapist['id'] === $contact['id']) {
+                        if ($contact['phoneId'] !== null && !in_array($contact['phoneId'], $phonesId, true)) {
+                            $phones[] = [
+                                'type' => $contact['phoneType'],
+                                'number' => (string)$contact['phoneNumber']
+                            ];
+                            $phonesId[] = $contact['phoneId'];
+                        }
 
-                            if ($contact['emailId'] !== null && !in_array($contact['emailId'], $emailsId, true)) {
-                                $emails[] = $contact['emailAddress'];
-                                $emailsId[] = $contact['emailId'];
-                            }
+                        if ($contact['emailId'] !== null && !in_array($contact['emailId'], $emailsId, true)) {
+                            $emails[] = $contact['emailAddress'];
+                            $emailsId[] = $contact['emailId'];
+                        }
 
-                            if ($contact['categoryId'] !== null && !in_array($contact['categoryId'], $categoriesId, true)) {
-                                $categories[] = [
-                                    'id' => (int) $contact['categoryId'],
-                                    'name' => $contact['categoryName'],
-                                    'description' => $contact['categoryDescription']
-                                ];
-                                $categoriesId[] = $contact['categoryId'];
-                            }
+                        if ($contact['categoryId'] !== null && !in_array($contact['categoryId'], $categoriesId, true)) {
+                            $categories[] = [
+                                'id' => (int) $contact['categoryId'],
+                                'name' => $contact['categoryName'],
+                                'description' => $contact['categoryDescription']
+                            ];
+                            $categoriesId[] = $contact['categoryId'];
                         }
                     }
-                    $currentTherapist->setPhones($phones);
-                    $currentTherapist->setEmails($emails);
-                    $currentTherapist->setCategories($categories);
-                    $therapists[] = $currentTherapist;
-                    $therapistsId[] = $therapist['id'];
                 }
+                $currentTherapist->setPhones($phones);
+                $currentTherapist->setEmails($emails);
+                $currentTherapist->setCategories($categories);
+                $therapists[] = $currentTherapist;
+                $therapistsId[] = $therapist['id'];
             }
+        }
 
-            return $therapists;
+        return $therapists;
+    }
+
+    /**
+     * @param string $attribute
+     * @return array
+     * @throws NoEntityException
+     */
+    public function searchTherapists(string $attribute) : array {
+        $sql = '
+                SELECT 
+                    therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home,
+                    therapists_offices_id AS officeId,
+                    phones_id AS phoneId ,phones_type AS phoneType, phones_number AS phoneNumber,
+                    emails_id AS emailId, emails_address AS emailAddress,
+                    categories_id AS categoryId, categories_name AS categoryName, categories_description AS categoryDescription
+                        FROM therapists
+                        LEFT JOIN phones ON therapists_id = phones_therapists_id
+                        LEFT JOIN emails ON therapists_id = emails_therapists_id
+                        LEFT JOIN therapistsCategories ON therapists_id = therapistsCategories_therapists_id
+                        LEFT JOIN categories ON categories_id = therapistsCategories_categories_id
+                        WHERE therapists_id IN (
+                            SELECT DISTINCT 
+                                therapists_id
+                            FROM therapists
+                            LEFT JOIN phones ON therapists_id = phones_therapists_id
+                            LEFT JOIN emails ON therapists_id = emails_therapists_id
+                            LEFT JOIN therapistsCategories ON therapists_id = therapistsCategories_therapists_id
+                            LEFT JOIN categories ON categories_id = therapistsCategories_categories_id
+                            WHERE
+                                LOWER(therapists_firstname) LIKE :attribute OR
+                                LOWER(therapists_lastname) LIKE :attribute OR
+                                LOWER(CONCAT(therapists_firstname, \' \', therapists_lastname)) LIKE :attribute OR
+                                LOWER(phones_number) LIKE :attribute OR
+                                LOWER(emails_address) LIKE :attribute OR
+                                LOWER(categories_name) LIKE :attribute OR 
+                                LOWER(categories_description) LIKE :attribute
+                        )
+               ';
+
+        $searchItem = strtolower('%' . $attribute . '%');
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':attribute', $searchItem);
+            $stmt->execute();
+
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                throw new NoEntityException('No therapist entities found for this attribute : ' . $attribute);
+            }
+            return $this->assembleTherapists($data);
         } catch (\PDOException $e) {
             throw $e;
         }

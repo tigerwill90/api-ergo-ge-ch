@@ -1,45 +1,33 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Sylvain
- * Date: 25.02.2019
- * Time: 22:08
- */
 
 namespace Ergo\Controllers;
 
 use Ergo\Business\Error;
-use Ergo\Domains\OfficesDao;
+use Ergo\Domains\TherapistsDao;
 use Ergo\Exceptions\NoEntityException;
 use Ergo\Services\DataWrapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
-final class ReadOffices
+final class ReadTherapists
 {
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var OfficesDao */
-    private $officesDao;
+    /** @var TherapistsDao */
+    private $therapistsDao;
 
     /** @var DataWrapper */
     private $wrapper;
 
-    public function __construct(OfficesDao $officesDao, DataWrapper $wrapper, LoggerInterface $logger = null)
+    public function __construct(TherapistsDao $therapistsDao, DataWrapper $wrapper, LoggerInterface $logger = null)
     {
-        $this->officesDao = $officesDao;
+        $this->therapistsDao = $therapistsDao;
         $this->wrapper = $wrapper;
         $this->logger = $logger;
     }
 
-    /**
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     * @throws \Exception
-     */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $params = $request->getQueryParams();
@@ -48,25 +36,22 @@ final class ReadOffices
             $isSearch = false;
             if (!empty($search) && strlen($search) > 2) {
                 $isSearch = true;
-                $offices = $this->officesDao->searchOffices($search);
+                $therapists = $this->therapistsDao->searchTherapists($search);
             } else {
-                $offices = $this->officesDao->getOffices($params['attribute'], $params['sort']);
+                $therapists = $this->therapistsDao->getTherapists();
             }
         } catch (NoEntityException $e) {
             return $this->wrapper
                 ->addEntity(new Error(
                     Error::ERR_NOT_FOUND, $e->getMessage(),
                     $isSearch ? ['search' => $search] : [],
-                    $isSearch ? 'Aucun cabinet trouvé correspondant à cet attribut de recherche : ' . $search : 'Aucun cabinet trouvé'
+                    $isSearch ? 'Aucun ergothérapeute trouvé correspondant à cet attribut de recherche : ' . $search : 'Aucun ergothérapeute trouvé'
                 ))
                 ->addMeta()
                 ->throwResponse($response, 404);
-        } catch (\Exception $e) {
-            throw $e;
         }
-
         return $this->wrapper
-            ->addCollection($offices)
+            ->addCollection($therapists)
             ->addMeta()
             ->throwResponse($response);
     }

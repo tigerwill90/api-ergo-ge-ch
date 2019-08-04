@@ -153,20 +153,7 @@ class OfficesDao
             if (empty($data)) {
                 throw new NoEntityException('No entity found for offices');
             }
-            $offices = $officesId = [];
-            foreach ($data as $office) {
-                if (!in_array($office['id'], $officesId, true)) {
-                    $contacts = [];
-                    foreach ($data as $contact) {
-                        if ($office['id'] === $contact['id']) {
-                            $contacts[] = new Contact($contact);
-                        }
-                    }
-                    $offices[] = new Office($office, $contacts);
-                    $officesId[] = $office['id'];
-                }
-            }
-            return $offices;
+            return $this->assembleOffices($data);
         } catch (\PDOException $e) {
             throw $e;
         }
@@ -210,25 +197,33 @@ class OfficesDao
             $stmt->execute();
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (empty($data)) {
-               throw new NoEntityException('No entities found for this attribute : ' . $attribute);
+               throw new NoEntityException('No office entities found for this attribute : ' . $attribute);
             }
-            $offices = $officesId = [];
-            foreach ($data as $office) {
-                if (!in_array($office['id'], $officesId, true)) {
-                    $contacts = [];
-                    foreach ($data as $contact) {
-                        if ($office['id'] === $contact['id']) {
-                            $contacts[] = new Contact($contact);
-                        }
-                    }
-                    $offices[] = new Office($office, $contacts);
-                    $officesId[] = $office['id'];
-                }
-            }
-            return $offices;
+            return $this->assembleOffices($data);
         } catch (\PDOException $e) {
             throw $e;
         }
+    }
+
+    /**
+     * @param array $data
+     * @return Office[]
+     */
+    private function assembleOffices(array $data) : array {
+        $offices = $officesId = [];
+        foreach ($data as $office) {
+            if (!in_array($office['id'], $officesId, true)) {
+                $contacts = [];
+                foreach ($data as $contact) {
+                    if ($office['id'] === $contact['id']) {
+                        $contacts[] = new Contact($contact);
+                    }
+                }
+                $offices[] = new Office($office, $contacts);
+                $officesId[] = $office['id'];
+            }
+        }
+        return $offices;
     }
 
     /**
@@ -264,20 +259,7 @@ class OfficesDao
             if (empty($data)) {
                 throw new NoEntityException('No entity found for offices');
             }
-            $offices = $officesId = [];
-            foreach ($data as $office) {
-                if (!in_array($office['id'], $officesId, true)) {
-                    $contacts = [];
-                    foreach ($data as $contact) {
-                        if ($office['id'] === $contact['id']) {
-                            $contacts[] = new Contact($contact);
-                        }
-                    }
-                    $offices[] = new Office($office, $contacts);
-                    $officesId[] = $office['id'];
-                }
-            }
-            return $offices;
+            return $this->assembleOffices($data);
         } catch (\PDOException $e) {
             throw $e;
         }
