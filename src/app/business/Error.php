@@ -29,6 +29,7 @@ class Error implements EntityInterface
     public const ERR_CONFLICT = 'Conflict';
     public const ERR_FORBIDDEN = 'Forbidden';
     public const ERR_TOO_MANY_REQUEST = 'Too Many Requests';
+    public const ERR_INTERNAL_SERVER = 'Internal Server Error';
 
     public function __construct(string $name, string $description, array $context = [], string $userMessage = null)
     {

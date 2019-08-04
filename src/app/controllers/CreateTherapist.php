@@ -98,6 +98,16 @@ final class CreateTherapist
                     ))
                     ->addMeta()
                     ->throwResponse($response, 409);
+            } catch (NoEntityException $e) {
+                return $this->dataWrapper
+                    ->addEntity(new Error(
+                        Error::ERR_INTERNAL_SERVER,
+                        $e->getMessage(),
+                        [],
+                        'Une erreur inattendue est survenue lors de la création de la ressource'
+                    ))
+                    ->addMeta()
+                    ->throwResponse($response, 500);
             }
 
             return $this->dataWrapper

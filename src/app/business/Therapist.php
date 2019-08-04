@@ -34,6 +34,12 @@ class Therapist implements EntityInterface
     /** @var array */
     private $emails;
 
+    /** @var string */
+    private $created;
+
+    /** @var string */
+    private $updated;
+
     /** @var array */
     private $categories;
 
@@ -47,6 +53,8 @@ class Therapist implements EntityInterface
         $this->officeId = (int) $therapist['officeId'];
         $this->phones = $phones;
         $this->emails = $emails;
+        if (!empty($therapist['created'])) $this->created = $therapist['created'];
+        if (!empty($therapist['updated'])) $this->updated = $therapist['updated'];
         $this->categories = $categories;
     }
 
@@ -221,6 +229,42 @@ class Therapist implements EntityInterface
     }
 
     /**
+     * @return string
+     */
+    public function getCreated(): string
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param string $created
+     * @return Therapist
+     */
+    public function setCreated(string $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUpdated(): string
+    {
+        return $this->updated;
+    }
+
+    /**
+     * @param string $updated
+     * @return Therapist
+     */
+    public function setUpdated(string $updated): self
+    {
+        $this->updated = $updated;
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getEntity(): array
@@ -234,7 +278,9 @@ class Therapist implements EntityInterface
             'phones' => $this->phones,
             'emails' => array_map('strtolower', $this->emails),
             'categories' => $this->categories,
-            'office_id' => $this->officeId
+            'office_id' => $this->officeId,
+            'created' => $this->created,
+            'updated' => $this->updated
         ];
     }
 }

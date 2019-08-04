@@ -42,6 +42,7 @@ class TherapistsDao
             '
                 SELECT 
                     therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home, therapists_offices_id as officeId,
+                    therapists_created AS created, therapists_updated AS updated,
                     phones_id AS phoneId ,phones_type AS phoneType, phones_number AS phoneNumber,
                     emails_id AS emailId, emails_address AS emailAddress,
                     categories_id AS categoryId, categories_name AS categoryName, categories_description AS categoryDescription
@@ -127,7 +128,7 @@ class TherapistsDao
             '
                 SELECT 
                     therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home,
-                    therapists_offices_id AS officeId,
+                    therapists_offices_id AS officeId, therapists_created AS created, therapists_updated AS updated,
                     phones_id AS phoneId ,phones_type AS phoneType, phones_number AS phoneNumber,
                     emails_id AS emailId, emails_address AS emailAddress,
                     categories_id AS categoryId, categories_name AS categoryName, categories_description AS categoryDescription
@@ -218,7 +219,7 @@ class TherapistsDao
         $sql = '
                 SELECT 
                     therapists_id AS id, therapists_title AS title, therapists_firstname AS firstname, therapists_lastname AS lastname, therapists_home AS home,
-                    therapists_offices_id AS officeId,
+                    therapists_offices_id AS officeId, therapists_created AS created, therapists_updated AS updated,
                     phones_id AS phoneId ,phones_type AS phoneType, phones_number AS phoneNumber,
                     emails_id AS emailId, emails_address AS emailAddress,
                     categories_id AS categoryId, categories_name AS categoryName, categories_description AS categoryDescription
@@ -266,6 +267,7 @@ class TherapistsDao
     /**
      * @param Therapist $therapist
      * @throws IntegrityConstraintException
+     * @throws NoEntityException
      */
     public function createTherapist(Therapist $therapist) : void
     {
@@ -291,6 +293,7 @@ class TherapistsDao
 
             $id = (int) $this->pdo->lastInsertId();
             $therapist->setId($id);
+            $this->setTherapistDateTime($therapist);
             $this->createEmail($id, $therapist->getEmails());
             $this->createPhone($id, $therapist->getPhones());
             $this->linkTherapistToCategories($therapist);
@@ -307,7 +310,29 @@ class TherapistsDao
 
     /**
      * @param Therapist $therapist
+     * @throws NoEntityException
+     */
+    private function setTherapistDateTime(Therapist $therapist): void {
+        $sql = 'SELECT therapists_created AS created, therapists_updated AS updated FROM therapists WHERE therapists_id = ' . $therapist->getId();
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                throw new NoEntityException('No entity found for this therapist id : ' . $therapist->getId());
+            }
+            $therapist->setCreated($data[0]['created']);
+            $therapist->setUpdated($data[0]['updated']);
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @param Therapist $therapist
      * @throws IntegrityConstraintException
+     * @throws NoEntityException
      */
     public function updateTherapist(Therapist $therapist) : void
     {
@@ -344,6 +369,8 @@ class TherapistsDao
             $officeId = $therapist->getOfficeId();
             $stmt->bindParam(':officeId', $officeId);
             $stmt->execute();
+
+            $this->setTherapistDateTime($therapist);
 
             $this->pdo->commit();
 
@@ -393,6 +420,7 @@ class TherapistsDao
             foreach ($phones as $phone) {
                 $stmt->bindParam(':type', $phone['type']);
                 $stmt->bindParam(':number', $phone['number']);
+                /** @noinspection DisconnectedForeachInstructionInspection */
                 $stmt->execute();
             }
 
@@ -416,6 +444,7 @@ class TherapistsDao
             $categories = $therapist->getCategories();
             foreach ($categories as $category) {
                 $stmt->bindParam('categoryId', $category['id']);
+                /** @noinspection DisconnectedForeachInstructionInspection */
                 $stmt->execute();
             }
         } catch (\PDOException $e) {

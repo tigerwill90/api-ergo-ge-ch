@@ -62,7 +62,6 @@ final class CreateUser
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface
-     * @throws \Exception
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
@@ -126,6 +125,16 @@ final class CreateUser
                     ))
                     ->addMeta()
                     ->throwResponse($response, 409);
+            } catch (NoEntityException $e) {
+                return $this->dataWrapper
+                    ->addEntity(new Error(
+                      Error::ERR_INTERNAL_SERVER,
+                        $e->getMessage(),
+                        [],
+                        'Une erreur inattendue est survenue lors de la création de la ressource'
+                    ))
+                    ->addMeta()
+                    ->throwResponse($response, 500);
             }
 
             $send = true;

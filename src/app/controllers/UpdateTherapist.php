@@ -136,6 +136,15 @@ final class UpdateTherapist
                     ))
                     ->addMeta()
                     ->throwResponse($response, 409);
+            } catch (NoEntityException $e) {
+                return $this->dataWrapper
+                    ->addEntity(new Error(
+                        Error::ERR_NOT_FOUND, 'No therapist entity found for this id : ' . $data['id'],
+                        [],
+                        'Impossible de mettre à jour cet ergothérapeute. La ressource n\'existe pas'
+                    ))
+                    ->addMeta()
+                    ->throwResponse($response, 404);
             }
         }
 

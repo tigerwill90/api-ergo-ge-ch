@@ -54,8 +54,8 @@ class User implements EntityInterface
         $this->firstname = $user['firstname'];
         $this->lastname = $user['lastname'];
         $this->active = (bool) $user['active'];
-        $this->created = $user['created'];
-        $this->updated = $user['updated'];
+        if (!empty($user['created'])) $this->created = $user['created'];
+        if (!empty($user['updated'])) $this->updated = $user['updated'];
         $this->officesId = $officesId;
         $this->officesName = $officesName;
     }
