@@ -217,6 +217,16 @@ $container[\Ergo\Controllers\ReadTherapists::class] = static function (Container
 {
     return new \Ergo\Controllers\ReadTherapists($c->get('therapistsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\CreateEvent
+ */
+$container[\Ergo\Controllers\CreateEvent::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateEvent
+{
+    return new \Ergo\Controllers\CreateEvent($c->get('validationManager'), $c->get('eventsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
 /**
  * @param ContainerInterface $c
  * @return \Ergo\Controllers\Authentication
@@ -326,6 +336,14 @@ $container[\Ergo\Controllers\SendContactMail::class] = static function (Containe
 };
 
 /** ----------------- DOMAINS ----------------- */
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Domains\EventsDao
+ */
+$container['eventsDao'] = static function (ContainerInterface $c) : \Ergo\Domains\EventsDao
+{
+    return new \Ergo\Domains\EventsDao($c->get('pdo'), $c->get('appDebug'));
+};
 
 /**
  * @param ContainerInterface $c

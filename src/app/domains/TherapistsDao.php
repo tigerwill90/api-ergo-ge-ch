@@ -312,7 +312,7 @@ class TherapistsDao
      * @param Therapist $therapist
      * @throws NoEntityException
      */
-    private function setTherapistDateTime(Therapist $therapist): void {
+    private function setTherapistDateTime(Therapist $therapist) : void {
         $sql = 'SELECT therapists_created AS created, therapists_updated AS updated FROM therapists WHERE therapists_id = ' . $therapist->getId();
 
         try {
