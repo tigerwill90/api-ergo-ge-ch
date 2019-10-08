@@ -140,6 +140,26 @@ class EventsDao
     }
 
     /**
+     * @param int $id
+     * @throws NoEntityException
+     */
+    public function deleteEvent(int $id) : void
+    {
+        $sql = 'DELETE FROM events WHERE events_id = :id';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+            if ($stmt->rowCount() === 0) {
+                throw new NoEntityException('No entity found for this event id : ' . $id);
+            }
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
      * @param Event $event
      * @throws NoEntityException
      */

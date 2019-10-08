@@ -29,6 +29,7 @@ $app->group('/categories', function(\Slim\App $app) {
 $app->group('/events', function (\Slim\App $app) {
     $app->post('', \Ergo\Controllers\CreateEvent::class);
     $app->put('/{id:[0-9]+}', \Ergo\Controllers\UpdateEvent::class);
+    $app->delete('/{id:[0-9]+}', \Ergo\Controllers\DeleteEvent::class);
     $app->post('/{id:[0-9]+}/images', \Ergo\Controllers\UploadImageEvent::class);
 });
 

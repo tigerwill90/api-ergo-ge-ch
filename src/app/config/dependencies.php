@@ -227,9 +227,22 @@ $container[\Ergo\Controllers\CreateEvent::class] = static function (ContainerInt
     return new \Ergo\Controllers\CreateEvent($c->get('validationManager'), $c->get('eventsDao'), $c->get('dataWrapper'), $c->get('authenticationService'), $c->get('appDebug'));
 };
 
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\UpdateEvent
+ */
 $container[\Ergo\Controllers\UpdateEvent::class] = static function(ContainerInterface $c) : \Ergo\Controllers\UpdateEvent
 {
     return new \Ergo\Controllers\UpdateEvent($c->get('validationManager'), $c->get('eventsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\DeleteEvent
+ */
+$container[\Ergo\Controllers\DeleteEvent::class] = static function(ContainerInterface $c) : \Ergo\Controllers\DeleteEvent
+{
+    return new \Ergo\Controllers\DeleteEvent($c->get('eventsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
 /**
