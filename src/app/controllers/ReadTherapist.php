@@ -52,8 +52,6 @@ final class ReadTherapist
                 ))
                 ->addMeta()
                 ->throwResponse($response, 404);
-        } catch (\Exception $e) {
-            throw $e;
         }
 
         return $this->wrapper

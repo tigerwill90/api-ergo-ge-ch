@@ -55,6 +55,37 @@ class EventsDao
     }
 
     /**
+     * @return Event[]
+     * @throws NoEntityException
+     */
+    public function getEvents() : array
+    {
+        $sql = '
+                SELECT 
+                        events_id AS id, events_title AS title, events_img_alt AS imgAlt, events_subtitle AS subtitle, events_date AS date, 
+                        events_description AS description, events_url AS url, events_img_id AS imgId, events_img_name AS imgName,
+                        events_created AS created, events_updated AS updated
+                    FROM events 
+               ';
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                throw new NoEntityException('No entity found for events');
+            }
+            $events = [];
+            foreach ($data as $event) {
+                $events[] = new Event($event);
+            }
+            return $events;
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
      * @param Event $event
      * @throws NoEntityException
      */

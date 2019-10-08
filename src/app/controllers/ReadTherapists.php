@@ -50,6 +50,7 @@ final class ReadTherapists
                 ->addMeta()
                 ->throwResponse($response, 404);
         }
+
         return $this->wrapper
             ->addCollection($therapists)
             ->addMeta()

@@ -53,9 +53,8 @@ final class ReadCategory
                 ))
                 ->addMeta()
                 ->throwResponse($response, 404);
-        } catch (\Exception $e) {
-            throw $e;
         }
+
         return $this->wrapper
                 ->addEntity($category)
                 ->addMeta()

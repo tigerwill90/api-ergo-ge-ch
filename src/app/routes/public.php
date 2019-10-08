@@ -6,7 +6,7 @@
  * Time: 22:01
  */
 
-$app->get('/events', \Ergo\Controllers\ReadEvents::class);
+$app->get('/calendars', \Ergo\Controllers\ReadCalendarEvents::class);
 
 $app->group('/documents', function (\Slim\App $app) {
     $app->get('', \Ergo\Controllers\ListDocuments::class);
@@ -27,6 +27,7 @@ $app->group('/categories', function(\Slim\App $app) {
 });
 
 $app->group('/events', function (\Slim\App $app) {
+    $app->get('', \Ergo\Controllers\ReadEvents::class);
     $app->post('', \Ergo\Controllers\CreateEvent::class);
     $app->put('/{id:[0-9]+}', \Ergo\Controllers\UpdateEvent::class);
     $app->delete('/{id:[0-9]+}', \Ergo\Controllers\DeleteEvent::class);

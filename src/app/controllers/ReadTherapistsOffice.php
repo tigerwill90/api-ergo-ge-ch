@@ -54,9 +54,8 @@ final class ReadTherapistsOffice
                 ))
                 ->addMeta()
                 ->throwResponse($response, 404);
-        } catch (\Exception $e) {
-            throw $e;
         }
+
         return $this->wrapper
                 ->addCollection($therapists)
                 ->addMeta()

@@ -31,11 +31,11 @@ $container[\Ergo\Controllers\DownloadImage::class] = static function (ContainerI
 
 /**
  * @param ContainerInterface $c
- * @return \Ergo\Controllers\ReadEvents
+ * @return \Ergo\Controllers\ReadCalendarEvents
  */
-$container[\Ergo\Controllers\ReadEvents::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ReadEvents
+$container[\Ergo\Controllers\ReadCalendarEvents::class] = static function (ContainerInterface $c) : \Ergo\Controllers\ReadCalendarEvents
 {
-    return new \Ergo\Controllers\ReadEvents($c->get('calendarClient'), $c->get('dataWrapper'), $c->get('appDebug'));
+    return new \Ergo\Controllers\ReadCalendarEvents($c->get('calendarClient'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
 /**
@@ -243,6 +243,15 @@ $container[\Ergo\Controllers\UpdateEvent::class] = static function(ContainerInte
 $container[\Ergo\Controllers\DeleteEvent::class] = static function(ContainerInterface $c) : \Ergo\Controllers\DeleteEvent
 {
     return new \Ergo\Controllers\DeleteEvent($c->get('eventsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadEvents
+ */
+$container[\Ergo\Controllers\ReadEvents::class] = static function(ContainerInterface $c) : \Ergo\Controllers\ReadEvents
+{
+    return new \Ergo\Controllers\ReadEvents($c->get('eventsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
 };
 
 /**
