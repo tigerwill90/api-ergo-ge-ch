@@ -28,6 +28,7 @@ $app->group('/categories', function(\Slim\App $app) {
 
 $app->group('/events', function (\Slim\App $app) {
     $app->post('', \Ergo\Controllers\CreateEvent::class);
+    $app->post('/{id:[0-9]+}/images', \Ergo\Controllers\UploadImageEvent::class);
 });
 
 $app->group('/offices', function(\Slim\App $app) {

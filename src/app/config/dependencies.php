@@ -229,6 +229,14 @@ $container[\Ergo\Controllers\CreateEvent::class] = static function (ContainerInt
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\UploadImageEvent
+ */
+$container[\Ergo\Controllers\UploadImageEvent::class] = static function (ContainerInterface $c) : \Ergo\Controllers\UploadImageEvent
+{
+    return new \Ergo\Controllers\UploadImageEvent($c->get('eventsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\Authentication
  */
 $container[\Ergo\Controllers\Authentication::class] = static function (ContainerInterface $c) : \Ergo\Controllers\Authentication

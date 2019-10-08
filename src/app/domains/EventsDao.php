@@ -6,6 +6,7 @@ use Ergo\Business\Event;
 use Ergo\Exceptions\NoEntityException;
 use Psr\Log\LoggerInterface;
 use PDO;
+use Respect\Validation\Rules\Even;
 
 class EventsDao
 {
@@ -19,6 +20,35 @@ class EventsDao
     {
         $this->pdo = $pdo;
         $this->logger = $logger;
+    }
+
+    /**
+     * @param int $id
+     * @return Event
+     * @throws NoEntityException
+     */
+    public function getEvent(int $id) : Event
+    {
+        $sql = '
+                SELECT 
+                        events_id AS id, events_title AS title, events_img_alt AS imgAlt, events_subtitle AS subtitle, events_date AS date, 
+                        events_description AS description, events_url AS url, events_img_id AS imgId, events_img_name AS imgName,
+                        events_created AS created, events_updated AS updated
+                    FROM events 
+                    WHERE events_id = 
+               ' . $id;
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($data)) {
+                throw new NoEntityException('No entity found for this event id : ' . $id);
+            }
+            return new Event($data[0]);
+        } catch (\PDOException $e) {
+            throw $e;
+        }
     }
 
     /**
