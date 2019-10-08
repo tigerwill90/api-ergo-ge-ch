@@ -23,6 +23,15 @@ class Event implements EntityInterface
     private $url;
 
     /** @var string */
+    private $imgAlt;
+
+    /** @var string */
+    private $imgId;
+
+    /** @var string */
+    private $imgName;
+
+    /** @var string */
     private $created;
 
     /** @var string */
@@ -36,6 +45,9 @@ class Event implements EntityInterface
         if (!empty($event['date'])) $this->date = $event['date'];
         $this->description = $event['description'];
         if (!empty($event['url'])) $this->url = $event['url'];
+        $this->imgAlt = $event['imgAlt'];
+        $this->imgName = $event['imgName'];
+        $this->imgId = $event['imgId'];
         if (!empty($event['created'])) $this->created = $event['created'];
         if (!empty($event['updated'])) $this->updated = $event['updated'];
     }
@@ -79,7 +91,7 @@ class Event implements EntityInterface
     /**
      * @return string
      */
-    public function getSubtitle(): string
+    public function getSubtitle(): ?string
     {
         return $this->subtitle;
     }
@@ -97,7 +109,7 @@ class Event implements EntityInterface
     /**
      * @return string
      */
-    public function getDate(): string
+    public function getDate(): ?string
     {
         return $this->date;
     }
@@ -133,7 +145,7 @@ class Event implements EntityInterface
     /**
      * @return string
      */
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return $this->url;
     }
@@ -184,16 +196,72 @@ class Event implements EntityInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
+    public function getImgAlt(): string
+    {
+        return $this->imgAlt;
+    }
+
+    /**
+     * @param string $imgAlt
+     * @return Event
+     */
+    public function setImgAlt(string $imgAlt): self
+    {
+        $this->imgAlt = $imgAlt;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getImgId(): string
+    {
+        return $this->imgId;
+    }
+
+    /**
+     * @param string $imgId
+     * @return Event
+     */
+    public function setImgId(string $imgId): self
+    {
+        $this->imgId = $imgId;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getImgName(): string
+    {
+        return $this->imgName;
+    }
+
+    /**
+     * @param string $imgName
+     * @return Event
+     */
+    public function setImgName(string $imgName): self
+    {
+        $this->imgName = $imgName;
+        return $this;
+    }
+
 
     public function getEntity(): array
     {
         return [
             'id' => $this->id,
             'title' => ucfirst($this->title),
-            'subtitle' => ucfirst($this->subtitle),
+            'subtitle' => $this->subtitle !== null ? ucfirst($this->subtitle) : null,
             'date' => $this->date,
             'description' => $this->description,
             'url' => $this->url,
+            'img_name' => $this->imgName,
+            'img_alt' => $this->imgAlt,
             'created' => $this->created,
             'updated' => $this->updated
         ];

@@ -27,13 +27,15 @@ class EventsDao
      */
     public function createEvent(Event $event) : void
     {
-        $sql =  'INSERT INTO events (events_title, events_subtitle, events_date, events_description, events_url) values (:title, :subtitle, :date, :description, :url)';
+        $sql =  'INSERT INTO events (events_title, events_img_alt, events_subtitle, events_date, events_description, events_url, events_img_id, events_img_name) values (:title, :imgAlt, :subtitle, :date, :description, :url, :imgId, :imgName)';
 
         try {
             $this->pdo->beginTransaction();
             $stmt = $this->pdo->prepare($sql);
             $title = $event->getTitle();
             $stmt->bindParam(':title', $title);
+            $alt = $event->getImgAlt();
+            $stmt->bindParam(':imgAlt', $alt);
             $subtitle = $event->getSubtitle();
             $stmt->bindParam(':subtitle', $subtitle);
             $date = $event->getDate();
@@ -42,7 +44,10 @@ class EventsDao
             $stmt->bindParam(':description', $description);
             $url = $event->getUrl();
             $stmt->bindParam(':url', $url);
-
+            $imgId = $event->getImgId();
+            $stmt->bindParam(':imgId', $imgId);
+            $imgName = $event->getImgName();
+            $stmt->bindParam(':imgName', $imgName);
             $stmt->execute();
             $event->setId((int) $this->pdo->lastInsertId());
 
@@ -72,6 +77,20 @@ class EventsDao
             }
             $event->setCreated($data[0]['created']);
             $event->setUpdated($data[0]['updated']);
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    public function isImageIdExist(string $imgId) : bool
+    {
+        $sql = 'SELECT EXISTS(SELECT * FROM events WHERE events_img_id = :imgId)';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':imgId', $imgId);
+            $stmt->execute();
+            return (bool) $stmt->fetchAll(PDO::FETCH_COLUMN)[0];
         } catch (\PDOException $e) {
             throw $e;
         }

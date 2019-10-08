@@ -26,6 +26,10 @@ $app->group('/categories', function(\Slim\App $app) {
     $app->delete('/{id:[0-9]+}', \Ergo\Controllers\DeleteCategory::class);
 });
 
+$app->group('/events', function (\Slim\App $app) {
+    $app->post('', \Ergo\Controllers\CreateEvent::class);
+});
+
 $app->group('/offices', function(\Slim\App $app) {
     $app->get('', \Ergo\Controllers\ReadOffices::class);
     $app->post('', \Ergo\Controllers\CreateOffice::class);

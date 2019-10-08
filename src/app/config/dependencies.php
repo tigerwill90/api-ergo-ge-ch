@@ -224,7 +224,7 @@ $container[\Ergo\Controllers\ReadTherapists::class] = static function (Container
  */
 $container[\Ergo\Controllers\CreateEvent::class] = static function (ContainerInterface $c) : \Ergo\Controllers\CreateEvent
 {
-    return new \Ergo\Controllers\CreateEvent($c->get('validationManager'), $c->get('eventsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+    return new \Ergo\Controllers\CreateEvent($c->get('validationManager'), $c->get('eventsDao'), $c->get('dataWrapper'), $c->get('authenticationService'), $c->get('appDebug'));
 };
 
 /**
@@ -442,7 +442,8 @@ $container['validationManager'] = static function (ContainerInterface $c) : \Erg
         ->add('therapist', [$c->get('therapistParameter')])
         ->add('category', [$c->get('categoryParameter')])
         ->add('update_password_token', [$c->get('updatePasswordTokenParameter')])
-        ->add('reset_password', [$c->get('resetPassword')]);
+        ->add('reset_password', [$c->get('resetPassword')])
+        ->add('create_event', [$c->get('eventParameter')]);
 };
 
 /**
@@ -525,6 +526,22 @@ $container['contactSendMailParameter'] = static function () : \Ergo\Services\Val
         ->add('subject', new \Ergo\Services\Validators\Rules\SubjectRule(true))
         ->add('message', new \Ergo\Services\Validators\Rules\MessageRule(true))
         ->add('token', new \Ergo\Services\Validators\Rules\TokenRule(true));
+};
+
+/**
+ * @return \Ergo\Services\Validators\Validator
+ */
+$container['eventParameter'] = static function() : \Ergo\Services\Validators\Validator
+{
+    $validator = new \Ergo\Services\Validators\ParameterValidator();
+    return $validator
+        ->add('title', new \Ergo\Services\Validators\Rules\EventTitleRule(true))
+        ->add('subtitle', new \Ergo\Services\Validators\Rules\EventTitleRule(false))
+        ->add('img_alt', new \Ergo\Services\Validators\Rules\AltRule(true))
+        ->add('img_name', new \Ergo\Services\Validators\Rules\ImgNameRule(true))
+        ->add('description', new \Ergo\Services\Validators\Rules\EventDescriptionRule(true))
+        ->add('date', new \Ergo\Services\Validators\Rules\DateRule(false))
+        ->add('url', new \Ergo\Services\Validators\Rules\UrlRule(false));
 };
 
 /**

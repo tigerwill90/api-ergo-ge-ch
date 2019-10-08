@@ -123,7 +123,7 @@ final class Authentication
           'authorization' => [
               'access_token' => $this->auth->createJwt($user, $exp),
               'token_type' => 'jwt',
-              'expires_in' => $exp,
+              'expires_at' => $exp,
               'scope' => $user->getRoles()
           ]
         ];
