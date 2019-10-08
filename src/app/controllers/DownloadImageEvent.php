@@ -65,10 +65,16 @@ final class DownloadImageEvent
 
         $fh = fopen(self::PATH . $event->getImgId(), 'rb');
         $ext = pathinfo($event->getImgName(), PATHINFO_EXTENSION);
+        if ($ext === 'svg') {
+            $ext = 'svg+xml';
+        } else if ($ext === 'jpg') {
+            $ext = 'jpeg';
+        }
         $stream = new Stream($fh);
         return $response
             ->withBody($stream)
-            ->withHeader('Content-Type', 'image/' . ($ext === 'svg' ? $ext . '+xml' : $ext));
+            ->withHeader('Content-Type', 'image/' . $ext)
+            ->withHeader('Content-Disposition', 'inline; filename=' . $event->getImgName());
     }
 
     /**

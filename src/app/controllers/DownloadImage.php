@@ -47,9 +47,17 @@ final class DownloadImage
         if (null !== $file = $this->utils->searchFile($filename, ['png', 'jpg', 'jpeg', 'svg'], self::PATH)) {
             $fh = fopen(self::PATH . $file['filename'] . '.' . $file['extension'], 'rb');
             $stream = new Stream($fh);
+            if ($file['extension'] === 'svg') {
+                $mimeTypeExtension = 'svg+xml';
+            } else if ($file['extension'] === 'jpg') {
+                $mimeTypeExtension = 'jpeg';
+            } else {
+                $mimeTypeExtension = $file['extension'];
+            }
             return $response
                 ->withBody($stream)
-                ->withHeader('Content-Type', 'image/' . ($file['extension'] === 'svg' ? $file['extension'] . '+xml' : $file['extension']));
+                ->withHeader('Content-Type', 'image/' . $mimeTypeExtension)
+                ->withHeader('Content-Disposition', 'inline; filename=' . $file['filename'] . '.' . $file['extension']);
         }
 
         return $this->wrapper
