@@ -4,6 +4,7 @@ namespace Ergo\Domains;
 
 use Ergo\Business\Event;
 use Ergo\Exceptions\NoEntityException;
+use Ergo\Exceptions\UniqueException;
 use Psr\Log\LoggerInterface;
 use PDO;
 use Respect\Validation\Rules\Even;
@@ -15,6 +16,8 @@ class EventsDao
 
     /** @var LoggerInterface */
     private $logger;
+
+    private const INTEGRITY_CONSTRAINT_VIOLATION = 23000;
 
     public function __construct(PDO $pdo, LoggerInterface $logger = null)
     {
@@ -86,6 +89,52 @@ class EventsDao
             $this->pdo->commit();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * @param Event $event
+     * @throws UniqueException
+     */
+    public function updateEvent(Event $event) : void
+    {
+        $sql = 'UPDATE events SET 
+                  events_title = :title,
+                  events_subtitle = :subtitle,
+                  events_date = :date,
+                  events_description = :description,
+                  events_url = :url,
+                  events_img_alt = :imgAlt,
+                  events_img_name = :imgName,
+                  events_img_id = :imgId
+                WHERE events_id = :id';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $title = $event->getTitle();
+            $stmt->bindParam(':title', $title);
+            $subtitle = $event->getSubtitle();
+            $stmt->bindParam(':subtitle', $subtitle);
+            $date = $event->getDate();
+            $stmt->bindParam(':date', $date);
+            $description = $event->getDescription();
+            $stmt->bindParam(':description', $description);
+            $url = $event->getUrl();
+            $stmt->bindParam(':url', $url);
+            $imgAlt = $event->getImgAlt();
+            $stmt->bindParam(':imgAlt', $imgAlt);
+            $imgName = $event->getImgName();
+            $stmt->bindParam(':imgName', $imgName);
+            $imgId = $event->getImgId();
+            $stmt->bindParam(':imgId', $imgId);
+            $id = $event->getId();
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+                throw new UniqueException('This event image id already exist', $e->getCode());
+            }
             throw $e;
         }
     }

@@ -13,6 +13,6 @@ class MessageRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::notBlank()->length(5, 1000);
+        return Validator::notBlank()->length(5, 1000)->stringType();
     }
 }

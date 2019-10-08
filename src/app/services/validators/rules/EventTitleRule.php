@@ -14,6 +14,6 @@ class EventTitleRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-'(),&")->notBlank()->length(3, 50);
+        return  Validator::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-'(),&")->notBlank()->length(3, 50)->stringType();
     }
 }

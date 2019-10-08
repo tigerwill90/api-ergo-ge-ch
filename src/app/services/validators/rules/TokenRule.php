@@ -13,6 +13,6 @@ class TokenRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::notBlank();
+        return Validator::notBlank()->stringType();
     }
 }

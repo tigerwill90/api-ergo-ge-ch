@@ -18,6 +18,7 @@ class CreateEventsTable extends AbstractMigration
             ->addColumn('events_img_name', 'string', ['limit' => 100])
             ->addColumn('events_created', 'datetime', ['default' => 'CURRENT_TIMESTAMP'])
             ->addColumn('events_updated', 'datetime')
+            ->addIndex(['events_img_id'], ['unique' => true, 'name' => 'events_img_id_UNIQUE'])
             ->create();
 
         $this->execute('ALTER TABLE `events` MODIFY COLUMN `events_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');

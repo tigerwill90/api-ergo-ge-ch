@@ -13,6 +13,6 @@ class PasswordRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::notBlank()->length(10, 50);
+        return Validator::notBlank()->length(10, 50)->stringType();
     }
 }

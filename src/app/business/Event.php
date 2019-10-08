@@ -41,10 +41,10 @@ class Event implements EntityInterface
     {
         if (!empty($event['id'])) $this->id = $event['id'];
         $this->title = $event['title'];
-        if (!empty($event['subtitle'])) $this->subtitle = $event['subtitle'];
-        if (!empty($event['date'])) $this->date = $event['date'];
+        $this->subtitle = $event['subtitle'];
+        $this->date = $event['date'];
         $this->description = $event['description'];
-        if (!empty($event['url'])) $this->url = $event['url'];
+        $this->url = $event['url'];
         $this->imgAlt = $event['imgAlt'];
         $this->imgName = $event['imgName'];
         $this->imgId = $event['imgId'];
@@ -100,7 +100,7 @@ class Event implements EntityInterface
      * @param string $subtitle
      * @return Event
      */
-    public function setSubtitle(string $subtitle): self
+    public function setSubtitle(?string $subtitle): self
     {
         $this->subtitle = $subtitle;
         return $this;
@@ -118,7 +118,7 @@ class Event implements EntityInterface
      * @param string $date
      * @return Event
      */
-    public function setDate(string $date): self
+    public function setDate(?string $date): self
     {
         $this->date = $date;
         return $this;
@@ -154,7 +154,7 @@ class Event implements EntityInterface
      * @param string $url
      * @return Event
      */
-    public function setUrl(string $url): self
+    public function setUrl(?string $url): self
     {
         $this->url = $url;
         return $this;
@@ -269,10 +269,6 @@ class Event implements EntityInterface
 
     public function getCollection(): array
     {
-        return [
-            'id' => $this->id,
-            'title' => ucfirst($this->title),
-            'date' => $this->date
-        ];
+        return $this->getEntity();
     }
 }

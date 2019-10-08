@@ -14,6 +14,6 @@ class AltRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-'(),&")->notBlank()->length(3, 30);
+        return Validator::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-'(),&")->notBlank()->length(3, 30)->stringType();
     }
 }

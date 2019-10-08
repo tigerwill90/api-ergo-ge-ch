@@ -13,6 +13,6 @@ class DescriptionRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::notBlank()->length(3, 255);
+        return Validator::notBlank()->length(3, 255)->stringType();
     }
 }

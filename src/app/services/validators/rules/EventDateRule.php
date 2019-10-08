@@ -5,7 +5,7 @@ namespace Ergo\Services\Validators\Rules;
 use Ergo\Services\Validators\RuleValidator;
 use Respect\Validation\Validator;
 
-class OfficeNameRule extends RuleValidator
+class EventDateRule extends RuleValidator
 {
 
     /**
@@ -14,6 +14,9 @@ class OfficeNameRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-'(),&")->notBlank()->length(3, 60)->stringType();
+        return Validator::oneOf(
+            Validator::date()->notBlank(),
+            Validator::nullType()
+        );
     }
 }

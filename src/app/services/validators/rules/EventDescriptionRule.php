@@ -14,6 +14,6 @@ class EventDescriptionRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::notBlank()->length(3, 350);
+        return Validator::notBlank()->length(3, 350)->stringType();
     }
 }

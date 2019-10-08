@@ -13,6 +13,6 @@ class SubjectRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::notBlank()->length(5, 100);
+        return Validator::notBlank()->length(5, 100)->stringType();
     }
 }

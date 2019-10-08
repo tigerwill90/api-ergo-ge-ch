@@ -16,12 +16,12 @@ class ContactsRule extends RuleValidator
         return V::arrayType()
             ->notEmpty()
             ->each(
-                V::key('street', V::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-.,'")->notBlank()->length(5, 80))
-                ->key('city', V::alpha("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-/'")->notBlank()->length(2, 45))
-                ->key('npa', V::alnum()->notBlank()->length(2, 10))
-                ->key('cp', V::alnum('-')->notBlank()->length(2, 10), false)
-                ->key('phone', V::alnum('+')->notBlank()->length(8, 45), false)
-                ->key('fax', V::alnum('+')->notBlank()->length(8, 45), false)
+                V::key('street', V::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-.,'")->notBlank()->length(5, 80)->stringType())
+                ->key('city', V::alpha("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-/'")->notBlank()->length(2, 45)->stringType())
+                ->key('npa', V::alnum()->notBlank()->length(2, 10)->stringType())
+                ->key('cp', V::alnum('-')->notBlank()->length(2, 10)->stringType(), false)
+                ->key('phone', V::alnum('+')->notBlank()->length(8, 45)->stringType(), false)
+                ->key('fax', V::alnum('+')->notBlank()->length(8, 45)->stringType(), false)
             );
     }
 }
