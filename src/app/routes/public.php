@@ -32,6 +32,7 @@ $app->group('/events', function (\Slim\App $app) {
     $app->put('/{id:[0-9]+}', \Ergo\Controllers\UpdateEvent::class);
     $app->delete('/{id:[0-9]+}', \Ergo\Controllers\DeleteEvent::class);
     $app->post('/{id:[0-9]+}/images', \Ergo\Controllers\UploadImageEvent::class);
+    $app->get('/{id:[0-9]+}/images', \Ergo\Controllers\DownloadImageEvent::class);
 });
 
 $app->group('/offices', function(\Slim\App $app) {

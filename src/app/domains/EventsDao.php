@@ -7,7 +7,6 @@ use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
 use Psr\Log\LoggerInterface;
 use PDO;
-use Respect\Validation\Rules\Even;
 
 class EventsDao
 {

@@ -256,6 +256,15 @@ $container[\Ergo\Controllers\ReadEvents::class] = static function(ContainerInter
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\DownloadImageEvent
+ */
+$container[\Ergo\Controllers\DownloadImageEvent::class] = static function(ContainerInterface $c) : \Ergo\Controllers\DownloadImageEvent
+{
+    return new \Ergo\Controllers\DownloadImageEvent($c->get('eventsDao'), $c->get('fileUtility'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\UploadImageEvent
  */
 $container[\Ergo\Controllers\UploadImageEvent::class] = static function (ContainerInterface $c) : \Ergo\Controllers\UploadImageEvent

@@ -48,6 +48,7 @@ final class ReadTherapist
             return $this->wrapper
                 ->addEntity(new Error(
                     Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
                     'Cet ergothérapeute n\'existe pas'
                 ))
                 ->addMeta()

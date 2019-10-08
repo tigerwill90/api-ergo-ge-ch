@@ -3,7 +3,6 @@
 namespace Ergo\Domains;
 
 use Ergo\Business\User;
-use Ergo\Exceptions\IntegrityConstraintException;
 use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
 use Psr\Log\LoggerInterface;
