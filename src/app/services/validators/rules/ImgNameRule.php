@@ -14,6 +14,6 @@ class ImgNameRule extends RuleValidator
      */
     public function getValidator(): Validator
     {
-        return Validator::regex('/^[A-z0-9]+\.(png|jpeg|jpg|svg)$/')->notBlank()->length(5, 100);
+        return Validator::regex('/^[A-z0-9_]+\.(png|jpeg|jpg|svg)$/')->notBlank()->length(5, 100);
     }
 }
