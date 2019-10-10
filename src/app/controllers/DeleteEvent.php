@@ -21,6 +21,8 @@ final class DeleteEvent
     /** @var LoggerInterface  */
     private $logger;
 
+    private const PATH = __DIR__ . '/../../assets/images/';
+
     public function __construct(EventsDao $eventsDao, DataWrapper $dataWrapper, LoggerInterface $logger = null)
     {
         $this->eventsDao = $eventsDao;
@@ -45,7 +47,21 @@ final class DeleteEvent
         }
 
         try {
+            $event = $this->eventsDao->getEvent($request->getAttribute('id'));
+        } catch (NoEntityException $e) {
+            return $this->dataWrapper
+                ->addEntity(new Error(
+                    Error::ERR_NOT_FOUND, $e->getMessage(),
+                    [],
+                    'Suppression impossible, cet évènement n\'existe pas'
+                ))
+                ->addMeta()
+                ->throwResponse($response, 404);
+        }
+
+        try {
             $this->eventsDao->deleteEvent($request->getAttribute('id'));
+            unlink(self::PATH . $event->getImgId());
         } catch (NoEntityException $e) {
             return $this->dataWrapper
                 ->addEntity(new Error(

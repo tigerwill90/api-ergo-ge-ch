@@ -64,7 +64,8 @@ class EventsDao
                         events_id AS id, events_title AS title, events_img_alt AS imgAlt, events_subtitle AS subtitle, events_date AS date, 
                         events_description AS description, events_url AS url, events_img_id AS imgId, events_img_name AS imgName,
                         events_created AS created, events_updated AS updated
-                    FROM events 
+                    FROM events
+                    ORDER BY events_date
                ';
 
         try {
