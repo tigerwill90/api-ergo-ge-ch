@@ -47,8 +47,8 @@ final class CreateTherapist
             $token = $request->getAttribute('token');
             $scopes = explode(' ', $token['scope']);
             $params = $request->getParsedBody();
-            // check if admin or self create, reject user who try to associate a new therapist to an no owned office
-            if (!in_array('admin', $scopes, true) && !in_array($params['office_id'], $token['offices_id'], true)) {
+            // As discussed with the customer, only administrator must be able to add new therapist to an office
+            if (!in_array('admin', $scopes, true)) {
                 return $this->dataWrapper
                     ->addEntity(new Error(
                         Error::ERR_FORBIDDEN, 'Insufficient privileges to create a new therapist for office id : ' . $params['office_id'],

@@ -30,6 +30,7 @@ class ReadUsersOffices
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
+        // TODO user office should be selected only by admin or what ?
         $id = $request->getAttribute('id');
         $params = $request->getQueryParams();
         try {

@@ -93,9 +93,16 @@ final class UpdateTherapist
                     ->throwResponse($response, 404);
             }
 
-            $data['title'] = $params['title'];
-            $data['firstname'] = $params['first_name'];
-            $data['lastname'] = $params['last_name'];
+            // title, firstname and lastname are only updated if user is an admin
+            if (in_array('admin', $scopes, true)) {
+                $data['title'] = $params['title'];
+                $data['firstname'] = $params['first_name'];
+                $data['lastname'] = $params['last_name'];
+            } else {
+                $data['title'] = $currentTherapist->getTitle();
+                $data['firstname'] = $currentTherapist->getFirstname();
+                $data['lastname'] = $currentTherapist->getLastname();
+            }
             $data['home'] = $params['home'];
             $data['officeId'] = $params['office_id'];
             $phones = array_unique((array) $params['phones'], SORT_REGULAR);
