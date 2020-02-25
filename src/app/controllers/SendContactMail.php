@@ -62,7 +62,7 @@ final class SendContactMail
                                     <br>
                                     <span><b>Score de la requête :</b> %s</span>
                                 ';
-
+                // TODO use mailer service
                 try {
                     $this->mailer->setFrom($params['email']);
                     $this->mailer->addAddress(getenv('ADDRESS_TO'));

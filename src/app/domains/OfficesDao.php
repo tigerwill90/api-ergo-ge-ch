@@ -388,6 +388,7 @@ class OfficesDao
                 $stmt->bindParam(':fax', $fax);
                 $stmt->bindParam(':officeId', $officeId);
                 $stmt->execute();
+                $contact->setId($this->pdo->lastInsertId());
             }
         } catch (\PDOException $e) {
             throw $e;

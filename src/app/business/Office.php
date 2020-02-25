@@ -82,7 +82,7 @@ class Office implements EntityInterface
      * @param string $email
      * @return Office
      */
-    public function setEmail(string $email): self
+    public function setEmail(?string $email): self
     {
         $this->email = $email;
         return $this;
@@ -100,7 +100,7 @@ class Office implements EntityInterface
      * @param string $webUrl
      * @return Office
      */
-    public function setWebUrl(string $webUrl): self
+    public function setWebUrl(?string $webUrl): self
     {
         $this->webUrl = $webUrl;
         return $this;
@@ -141,8 +141,8 @@ class Office implements EntityInterface
         $entity = [
             'id' => $this->id,
             'name' => $this->name,
-            'email' => strtolower($this->email),
-            'web' => strtolower($this->webUrl),
+            'email' => $this->email === null ? null : strtolower($this->email),
+            'web' => $this->getWebUrl() === null ? null : strtolower($this->webUrl),
             'contacts' => []
         ];
 

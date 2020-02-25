@@ -15,7 +15,7 @@ class EventSubtitleRule extends RuleValidator
     public function getValidator(): Validator
     {
         return Validator::oneOf(
-            Validator::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-'(),&")->notBlank()->length(3, 50)->stringType(),
+            Validator::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ:-'(),&")->notBlank()->length(3, 50)->stringType(),
             Validator::nullType()
         );
     }

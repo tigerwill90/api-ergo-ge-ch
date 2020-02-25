@@ -108,7 +108,7 @@ class Contact implements EntityInterface
      * @param string $npa
      * @return Contact
      */
-    public function setNpa(string $npa): self
+    public function setNpa(?string $npa): self
     {
         $this->npa = $npa;
         return $this;
@@ -126,7 +126,7 @@ class Contact implements EntityInterface
      * @param string $cp
      * @return Contact
      */
-    public function setCp(string $cp): self
+    public function setCp(?string $cp): self
     {
         $this->cp = $cp;
         return $this;
@@ -144,7 +144,7 @@ class Contact implements EntityInterface
      * @param string $phone
      * @return Contact
      */
-    public function setPhone(string $phone): self
+    public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
         return $this;
@@ -162,7 +162,7 @@ class Contact implements EntityInterface
      * @param string $fax
      * @return Contact
      */
-    public function setFax(string $fax): self
+    public function setFax(?string $fax): self
     {
         $this->fax = $fax;
         return $this;
