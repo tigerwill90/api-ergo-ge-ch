@@ -257,7 +257,7 @@ class Event implements EntityInterface
             'id' => $this->id,
             'title' => ucfirst($this->title),
             'subtitle' => $this->subtitle !== null ? ucfirst($this->subtitle) : null,
-            'date' => $this->dates,
+            'dates' => $this->dates,
             'description' => $this->description,
             'url' => $this->url,
             'img_name' => $this->imgName,
