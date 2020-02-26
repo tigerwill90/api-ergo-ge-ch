@@ -13,8 +13,8 @@ class Event implements EntityInterface
     /** @var string */
     private $subtitle;
 
-    /** @var string */
-    private $date;
+    /** @var string[] */
+    private $dates;
 
     /** @var string */
     private $description;
@@ -42,7 +42,7 @@ class Event implements EntityInterface
         if (!empty($event['id'])) $this->id = $event['id'];
         $this->title = $event['title'];
         $this->subtitle = $event['subtitle'];
-        $this->date = $event['date'];
+        $this->dates = $event['dates'];
         $this->description = $event['description'];
         $this->url = $event['url'];
         $this->imgAlt = $event['imgAlt'];
@@ -107,20 +107,20 @@ class Event implements EntityInterface
     }
 
     /**
-     * @return string
+     * @return string[]
      */
-    public function getDate(): ?string
+    public function getDates(): array
     {
-        return $this->date;
+        return $this->dates;
     }
 
     /**
-     * @param string $date
+     * @param string[] $dates
      * @return Event
      */
-    public function setDate(?string $date): self
+    public function setDates(array $dates): self
     {
-        $this->date = $date;
+        $this->dates = $dates;
         return $this;
     }
 
@@ -257,7 +257,7 @@ class Event implements EntityInterface
             'id' => $this->id,
             'title' => ucfirst($this->title),
             'subtitle' => $this->subtitle !== null ? ucfirst($this->subtitle) : null,
-            'date' => $this->date,
+            'date' => $this->dates,
             'description' => $this->description,
             'url' => $this->url,
             'img_name' => $this->imgName,

@@ -61,7 +61,9 @@ final class DeleteEvent
 
         try {
             $this->eventsDao->deleteEvent($request->getAttribute('id'));
-            unlink(self::PATH . $event->getImgId());
+            if (file_exists(self::PATH . $event->getImgId())) {
+                unlink(self::PATH . $event->getImgId());
+            }
         } catch (NoEntityException $e) {
             return $this->dataWrapper
                 ->addEntity(new Error(

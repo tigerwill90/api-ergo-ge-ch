@@ -256,6 +256,15 @@ $container[\Ergo\Controllers\ReadEvents::class] = static function(ContainerInter
 
 /**
  * @param ContainerInterface $c
+ * @return \Ergo\Controllers\ReadEvent
+ */
+$container[\Ergo\Controllers\ReadEvent::class] = static function(ContainerInterface $c) : \Ergo\Controllers\ReadEvent
+{
+    return new \Ergo\Controllers\ReadEvent($c->get('eventsDao'), $c->get('dataWrapper'), $c->get('appDebug'));
+};
+
+/**
+ * @param ContainerInterface $c
  * @return \Ergo\Controllers\DownloadImageEvent
  */
 $container[\Ergo\Controllers\DownloadImageEvent::class] = static function(ContainerInterface $c) : \Ergo\Controllers\DownloadImageEvent
@@ -584,7 +593,7 @@ $container['eventParameter'] = static function() : \Ergo\Services\Validators\Val
         ->add('img_alt', new \Ergo\Services\Validators\Rules\AltRule(true))
         ->add('img_name', new \Ergo\Services\Validators\Rules\ImgNameRule(true))
         ->add('description', new \Ergo\Services\Validators\Rules\EventDescriptionRule(true))
-        ->add('date', new \Ergo\Services\Validators\Rules\EventDateRule(true))
+        ->add('dates', new \Ergo\Services\Validators\Rules\EventDateRule(true))
         ->add('url', new \Ergo\Services\Validators\Rules\EventUrlRule(true));
 };
 

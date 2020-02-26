@@ -32,9 +32,17 @@ $envLoader->required('COOKIE_NAME')->notEmpty();
 $envLoader->required('FRONTEND_FQDN')->notEmpty();
 date_default_timezone_set(getenv('TIMEZONE'));
 
+$debug = filter_var(getenv('DEBUG'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+if ($debug) {
+    ini_set('display_errors', 'On');
+} else {
+    ini_set('display_errors', 'Off');
+}
+
 $app = new \Slim\App([
    'settings' => [
-       'displayErrorDetails' => filter_var(getenv('DEBUG'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+       'displayErrorDetails' => $debug
    ]
 ]);
 

@@ -67,14 +67,18 @@ final class UpdateEvent
             $params = $request->getParsedBody();
             $event->setTitle($params['title']);
             $event->setSubtitle($params['subtitle']);
-            if ($params['date'] !== null) {
-                try {
-                    $date = new \DateTime($params['date']);
-                    $event->setDate($date->format('Y-m-d'));
-                } catch (\Exception $e) {
-                    throw new \RuntimeException($e->getMessage());
+            $eventDates = [];
+            if (!empty($params['dates'])) {
+                foreach ($params['dates'] as $stringDate) {
+                    try {
+                        $date = new \DateTime($stringDate);
+                        $eventDates[] = $date->format('Y-m-d H:i:s');
+                    } catch (\Exception $e) {
+                        throw new \RuntimeException($e->getMessage());
+                    }
                 }
             }
+            $event->setDates(array_unique($eventDates));
             $event->setDescription($params['description']);
             $event->setUrl($params['url']);
             $event->setImgAlt($params['img_alt']);

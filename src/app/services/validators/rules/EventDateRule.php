@@ -15,7 +15,7 @@ class EventDateRule extends RuleValidator
     public function getValidator(): Validator
     {
         return Validator::oneOf(
-            Validator::date()->notBlank(),
+            Validator::arrayType()->each(Validator::date()->notBlank()),
             Validator::nullType()
         );
     }

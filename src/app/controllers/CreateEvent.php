@@ -63,14 +63,18 @@ final class CreateEvent
             $params = $request->getParsedBody();
             $data['title'] = $params['title'];
             $data['subtitle'] = $params['subtitle'];
-            if ($params['date'] !== null) {
-                try {
-                    $date = new \DateTime($params['date']);
-                    $data['date'] = $date->format('Y-m-d');
-                } catch (\Exception $e) {
-                    throw new \RuntimeException($e->getMessage());
+            $eventDates = [];
+            if (!empty($params['dates'])) {
+                foreach ($params['dates'] as $stringDate) {
+                    try {
+                        $date = new \DateTime($stringDate);
+                        $eventDates[] = $date->format('Y-m-d H:i:s');
+                    } catch (\Exception $e) {
+                        throw new \RuntimeException($e->getMessage());
+                    }
                 }
             }
+            $data['dates'] = array_unique($eventDates);
             $data['description'] = $params['description'];
             $data['url'] = $params['url'];
             $data['imgAlt'] = $params['img_alt'];

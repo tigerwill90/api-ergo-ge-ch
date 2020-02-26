@@ -5,6 +5,7 @@ namespace Ergo\Domains;
 use Ergo\Business\Event;
 use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
+use http\Encoding\Stream\Enbrotli;
 use Psr\Log\LoggerInterface;
 use PDO;
 
@@ -33,10 +34,12 @@ class EventsDao
     {
         $sql = '
                 SELECT 
-                        events_id AS id, events_title AS title, events_img_alt AS imgAlt, events_subtitle AS subtitle, events_date AS date, 
+                        events_id AS id, events_title AS title, events_img_alt AS imgAlt, events_subtitle AS subtitle, 
                         events_description AS description, events_url AS url, events_img_id AS imgId, events_img_name AS imgName,
-                        events_created AS created, events_updated AS updated
+                        events_created AS created, events_updated AS updated,
+                        dates_date AS date
                     FROM events 
+                    LEFT JOIN dates ON events_id = dates_events_id
                     WHERE events_id = 
                ' . $id;
 
@@ -47,7 +50,19 @@ class EventsDao
             if (empty($data)) {
                 throw new NoEntityException('No entity found for this event id : ' . $id);
             }
-            return new Event($data[0]);
+
+            $event = new Event($data[0]);
+
+            $eventsDates = [];
+            foreach ($data as $date) {
+                if ($date['date'] !== null) {
+                    $eventsDates[] = $date['date'];
+                }
+            }
+
+            $event->setDates($eventsDates);
+
+            return $event;
         } catch (\PDOException $e) {
             throw $e;
         }
@@ -61,11 +76,13 @@ class EventsDao
     {
         $sql = '
                 SELECT 
-                        events_id AS id, events_title AS title, events_img_alt AS imgAlt, events_subtitle AS subtitle, events_date AS date, 
+                        events_id AS id, events_title AS title, events_img_alt AS imgAlt, events_subtitle AS subtitle, 
                         events_description AS description, events_url AS url, events_img_id AS imgId, events_img_name AS imgName,
-                        events_created AS created, events_updated AS updated
+                        events_created AS created, events_updated AS updated,
+                        dates_date AS date
                     FROM events
-                    ORDER BY events_date
+                    LEFT JOIN dates ON events_id = dates_events_id
+                    ORDER BY date
                ';
 
         try {
@@ -75,9 +92,23 @@ class EventsDao
             if (empty($data)) {
                 throw new NoEntityException('No entity found for events');
             }
-            $events = [];
+
+            $events = $eventsId = [];
             foreach ($data as $event) {
-                $events[] = new Event($event);
+                if (!in_array($event['id'], $eventsId, true)) {
+                    $currentEvent = new Event($event);
+
+                    $eventsDates = [];
+                    foreach ($data as $date) {
+                        if ($event['id'] === $date['id'] && $date['date'] !== null) {
+                            $eventsDates[] = $date['date'];
+                        }
+                    }
+
+                    $currentEvent->setDates($eventsDates);
+                    $events[] = $currentEvent;
+                    $eventsId[] = $event['id'];
+                }
             }
             return $events;
         } catch (\PDOException $e) {
@@ -91,7 +122,7 @@ class EventsDao
      */
     public function createEvent(Event $event) : void
     {
-        $sql =  'INSERT INTO events (events_title, events_img_alt, events_subtitle, events_date, events_description, events_url, events_img_id, events_img_name) values (:title, :imgAlt, :subtitle, :date, :description, :url, :imgId, :imgName)';
+        $sql =  'INSERT INTO events (events_title, events_img_alt, events_subtitle, events_description, events_url, events_img_id, events_img_name) VALUES (:title, :imgAlt, :subtitle, :description, :url, :imgId, :imgName)';
 
         try {
             $this->pdo->beginTransaction();
@@ -102,8 +133,6 @@ class EventsDao
             $stmt->bindParam(':imgAlt', $alt);
             $subtitle = $event->getSubtitle();
             $stmt->bindParam(':subtitle', $subtitle);
-            $date = $event->getDate();
-            $stmt->bindParam(':date', $date);
             $description = $event->getDescription();
             $stmt->bindParam(':description', $description);
             $url = $event->getUrl();
@@ -114,12 +143,31 @@ class EventsDao
             $stmt->bindParam(':imgName', $imgName);
             $stmt->execute();
             $event->setId((int) $this->pdo->lastInsertId());
-
+            if (!empty($event->getDates())) {
+                $this->createDate($event);
+            }
             $this->setEventDateTime($event);
 
             $this->pdo->commit();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    private function createDate(Event $event) : void
+    {
+        $sql = 'INSERT INTO dates (dates_date, dates_events_id) VALUES (:date, :eventId)';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $eventId = $event->getId();
+            foreach ($event->getDates() as $date) {
+                $stmt->bindParam(':date', $date);
+                $stmt->bindParam(':eventId', $eventId);
+                $stmt->execute();
+            }
+        } catch (\PDOException $e) {
             throw $e;
         }
     }
@@ -133,7 +181,6 @@ class EventsDao
         $sql = 'UPDATE events SET 
                   events_title = :title,
                   events_subtitle = :subtitle,
-                  events_date = :date,
                   events_description = :description,
                   events_url = :url,
                   events_img_alt = :imgAlt,
@@ -142,13 +189,16 @@ class EventsDao
                 WHERE events_id = :id';
 
         try {
+            $this->pdo->beginTransaction();
+
+            $this->deleteDatesByEventId($event->getId());
+            $this->createDate($event);
+
             $stmt = $this->pdo->prepare($sql);
             $title = $event->getTitle();
             $stmt->bindParam(':title', $title);
             $subtitle = $event->getSubtitle();
             $stmt->bindParam(':subtitle', $subtitle);
-            $date = $event->getDate();
-            $stmt->bindParam(':date', $date);
             $description = $event->getDescription();
             $stmt->bindParam(':description', $description);
             $url = $event->getUrl();
@@ -162,7 +212,10 @@ class EventsDao
             $id = $event->getId();
             $stmt->bindParam(':id', $id);
             $stmt->execute();
+
+            $this->pdo->commit();
         } catch (\PDOException $e) {
+            $this->pdo->rollBack();
             if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
                 throw new UniqueException('This event image id already exist', $e->getCode());
             }
@@ -179,12 +232,34 @@ class EventsDao
         $sql = 'DELETE FROM events WHERE events_id = :id';
 
         try {
+            $this->pdo->beginTransaction();
+            $this->deleteDatesByEventId($id);
+
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':id', $id);
             $stmt->execute();
+
             if ($stmt->rowCount() === 0) {
                 throw new NoEntityException('No entity found for this event id : ' . $id);
             }
+
+            $this->pdo->commit();
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * @param int $id
+     */
+    private function deleteDatesByEventId(int $id): void
+    {
+        $sql = 'DELETE FROM dates WHERE dates_events_id = ' . $id;
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
         } catch (\PDOException $e) {
             throw $e;
         }
