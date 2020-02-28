@@ -5,7 +5,6 @@ namespace Ergo\Domains;
 use Ergo\Business\Event;
 use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
-use http\Encoding\Stream\Enbrotli;
 use Psr\Log\LoggerInterface;
 use PDO;
 
