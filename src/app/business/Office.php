@@ -140,7 +140,7 @@ class Office implements EntityInterface
     {
         $entity = [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => ucfirst($this->name),
             'email' => $this->email === null ? null : strtolower($this->email),
             'web' => $this->getWebUrl() === null ? null : strtolower($this->webUrl),
             'contacts' => []
