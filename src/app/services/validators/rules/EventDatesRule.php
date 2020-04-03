@@ -5,7 +5,7 @@ namespace Ergo\Services\Validators\Rules;
 use Ergo\Services\Validators\RuleValidator;
 use Respect\Validation\Validator;
 
-class EventUrlRule extends RuleValidator
+class EventDatesRule extends RuleValidator
 {
 
     /**
@@ -15,7 +15,7 @@ class EventUrlRule extends RuleValidator
     public function getValidator(): Validator
     {
         return Validator::oneOf(
-            Validator::regex("/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&'\(\)\*\+,;=.]+$/")->notBlank()->length(5, 250),
+            Validator::arrayType()->each(Validator::date()->notBlank()),
             Validator::nullType()
         );
     }

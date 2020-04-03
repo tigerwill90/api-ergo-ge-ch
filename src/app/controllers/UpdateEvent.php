@@ -14,27 +14,31 @@ use Psr\Log\LoggerInterface;
 
 final class UpdateEvent
 {
-    /** @var ValidatorManagerInterface  */
+    /** @var ValidatorManagerInterface */
     private $validatorManager;
 
     /** @var EventsDao */
     private $eventsDao;
 
-    /** @var DataWrapper  */
+    /** @var DataWrapper */
     private $dataWrapper;
 
-    /** @var LoggerInterface  */
+    /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(ValidatorManagerInterface $validatorManager, EventsDao $eventsDao, DataWrapper $dataWrapper, LoggerInterface $logger = null)
-    {
+    public function __construct(
+        ValidatorManagerInterface $validatorManager,
+        EventsDao $eventsDao,
+        DataWrapper $dataWrapper,
+        LoggerInterface $logger = null
+    ) {
         $this->validatorManager = $validatorManager;
         $this->eventsDao = $eventsDao;
         $this->dataWrapper = $dataWrapper;
         $this->logger = $logger;
     }
 
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $token = $request->getAttribute('token');
         $scope = explode(' ', $token['scope']);
@@ -80,7 +84,11 @@ final class UpdateEvent
             }
             $event->setDates(array_unique($eventDates));
             $event->setDescription($params['description']);
-            $event->setUrl($params['url']);
+            $eventUrls = [];
+            if (!empty($params['urls'])) {
+                $eventUrls = array_unique($params['urls']);
+            }
+            $event->setUrls($eventUrls);
             $event->setImgAlt($params['img_alt']);
             $event->setImgName($params['img_name']);
 
@@ -118,7 +126,7 @@ final class UpdateEvent
      * @param string $message
      * @param array $context
      */
-    private function log(string $message, array $context = []) : void
+    private function log(string $message, array $context = []): void
     {
         if ($this->logger !== null) {
             $this->logger->debug($message, $context);

@@ -15,10 +15,10 @@ final class ReadEvent
     /** @var EventsDao */
     private $eventsDao;
 
-    /** @var DataWrapper  */
+    /** @var DataWrapper */
     private $dataWrapper;
 
-    /** @var LoggerInterface  */
+    /** @var LoggerInterface */
     private $logger;
 
     public function __construct(EventsDao $eventsDao, DataWrapper $dataWrapper, LoggerInterface $logger = null)
@@ -28,7 +28,7 @@ final class ReadEvent
         $this->logger = $logger;
     }
 
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         try {
             $event = $this->eventsDao->getEvent($request->getAttribute('id'));
@@ -50,7 +50,7 @@ final class ReadEvent
 
     }
 
-    private function log(string $message, array $context = []) : void
+    private function log(string $message, array $context = []): void
     {
         if ($this->logger !== null) {
             $this->logger->debug($message, $context);

@@ -15,27 +15,32 @@ use Psr\Log\LoggerInterface;
 
 final class CreateEvent
 {
-    /** @var ValidatorManagerInterface  */
+    /** @var ValidatorManagerInterface */
     private $validatorManager;
 
     /** @var EventsDao */
     private $eventsDao;
 
-    /** @var DataWrapper  */
+    /** @var DataWrapper */
     private $dataWrapper;
 
     /** @var Auth */
     private $auth;
 
-    /** @var LoggerInterface  */
+    /** @var LoggerInterface */
     private $logger;
 
     private const PATH = __DIR__ . '/../../assets/images/';
     private const MAX_ATTEMPT = 5;
     private const FILE_ID_LENGTH = 100;
 
-    public function __construct(ValidatorManagerInterface $validatorManager, EventsDao $eventsDao, DataWrapper $dataWrapper, Auth $auth, LoggerInterface $logger = null)
-    {
+    public function __construct(
+        ValidatorManagerInterface $validatorManager,
+        EventsDao $eventsDao,
+        DataWrapper $dataWrapper,
+        Auth $auth,
+        LoggerInterface $logger = null
+    ) {
         $this->validatorManager = $validatorManager;
         $this->eventsDao = $eventsDao;
         $this->dataWrapper = $dataWrapper;
@@ -43,7 +48,7 @@ final class CreateEvent
         $this->logger = $logger;
     }
 
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $token = $request->getAttribute('token');
         $scope = explode(' ', $token['scope']);
@@ -74,9 +79,13 @@ final class CreateEvent
                     }
                 }
             }
+            $eventUrls = [];
+            if (!empty($params['urls'])) {
+                $eventUrls = array_unique($params['urls']);
+            }
+            $data['urls'] = $eventUrls;
             $data['dates'] = array_unique($eventDates);
             $data['description'] = $params['description'];
-            $data['url'] = $params['url'];
             $data['imgAlt'] = $params['img_alt'];
             $data['imgName'] = $params['img_name'];
 
@@ -128,7 +137,7 @@ final class CreateEvent
      * @param string $message
      * @param array $context
      */
-    private function log(string $message, array $context = []) : void
+    private function log(string $message, array $context = []): void
     {
         if ($this->logger !== null) {
             $this->logger->debug($message, $context);

@@ -29,16 +29,18 @@ class EventsDao
      * @return Event
      * @throws NoEntityException
      */
-    public function getEvent(int $id) : Event
+    public function getEvent(int $id): Event
     {
         $sql = '
                 SELECT 
                         events_id AS id, events_title AS title, events_img_alt AS imgAlt, events_subtitle AS subtitle, 
-                        events_description AS description, events_url AS url, events_img_id AS imgId, events_img_name AS imgName,
+                        events_description AS description, events_img_id AS imgId, events_img_name AS imgName,
                         events_created AS created, events_updated AS updated,
-                        dates_date AS date
+                        dates_date AS date,
+                        urls_url AS url
                     FROM events 
                     LEFT JOIN dates ON events_id = dates_events_id
+                    LEFT JOIN urls ON events_id = urls_events_id
                     WHERE events_id = 
                ' . $id;
 
@@ -52,14 +54,17 @@ class EventsDao
 
             $event = new Event($data[0]);
 
-            $eventsDates = [];
-            foreach ($data as $date) {
-                if ($date['date'] !== null) {
-                    $eventsDates[] = $date['date'];
+            $eventsDates = $eventsUrls = [];
+            foreach ($data as $entry) {
+                if ($entry['date'] !== null) {
+                    $eventsDates[] = $entry['date'];
+                }
+                if ($entry['url'] !== null) {
+                    $eventsUrls[] = $entry['url'];
                 }
             }
-
             $event->setDates($eventsDates);
+            $event->setUrls($eventsUrls);
 
             return $event;
         } catch (\PDOException $e) {
@@ -71,16 +76,18 @@ class EventsDao
      * @return Event[]
      * @throws NoEntityException
      */
-    public function getEvents() : array
+    public function getEvents(): array
     {
         $sql = '
                 SELECT 
                         events_id AS id, events_title AS title, events_img_alt AS imgAlt, events_subtitle AS subtitle, 
-                        events_description AS description, events_url AS url, events_img_id AS imgId, events_img_name AS imgName,
+                        events_description AS description, events_img_id AS imgId, events_img_name AS imgName,
                         events_created AS created, events_updated AS updated,
-                        dates_date AS date
+                        dates_date AS date,
+                        urls_url AS url
                     FROM events
                     LEFT JOIN dates ON events_id = dates_events_id
+                    LEFT JOIN urls ON events_id = urls_events_id
                     ORDER BY date
                ';
 
@@ -97,14 +104,19 @@ class EventsDao
                 if (!in_array($event['id'], $eventsId, true)) {
                     $currentEvent = new Event($event);
 
-                    $eventsDates = [];
-                    foreach ($data as $date) {
-                        if ($event['id'] === $date['id'] && $date['date'] !== null) {
-                            $eventsDates[] = $date['date'];
+                    $eventsDates = $eventsUrls = [];
+                    foreach ($data as $entry) {
+                        if ($event['id'] === $entry['id'] && $entry['date'] !== null) {
+                            $eventsDates[] = $entry['date'];
+                        }
+
+                        if ($event['id'] === $entry['id'] && $entry['url'] !== null) {
+                            $eventsUrls[] = $entry['url'];
                         }
                     }
 
                     $currentEvent->setDates($eventsDates);
+                    $currentEvent->setUrls($eventsUrls);
                     $events[] = $currentEvent;
                     $eventsId[] = $event['id'];
                 }
@@ -119,9 +131,9 @@ class EventsDao
      * @param Event $event
      * @throws NoEntityException
      */
-    public function createEvent(Event $event) : void
+    public function createEvent(Event $event): void
     {
-        $sql =  'INSERT INTO events (events_title, events_img_alt, events_subtitle, events_description, events_url, events_img_id, events_img_name) VALUES (:title, :imgAlt, :subtitle, :description, :url, :imgId, :imgName)';
+        $sql = 'INSERT INTO events (events_title, events_img_alt, events_subtitle, events_description, events_img_id, events_img_name) VALUES (:title, :imgAlt, :subtitle, :description, :imgId, :imgName)';
 
         try {
             $this->pdo->beginTransaction();
@@ -134,17 +146,19 @@ class EventsDao
             $stmt->bindParam(':subtitle', $subtitle);
             $description = $event->getDescription();
             $stmt->bindParam(':description', $description);
-            $url = $event->getUrl();
-            $stmt->bindParam(':url', $url);
             $imgId = $event->getImgId();
             $stmt->bindParam(':imgId', $imgId);
             $imgName = $event->getImgName();
             $stmt->bindParam(':imgName', $imgName);
             $stmt->execute();
-            $event->setId((int) $this->pdo->lastInsertId());
+            $event->setId((int)$this->pdo->lastInsertId());
             if (!empty($event->getDates())) {
                 $this->createDate($event);
             }
+            if (!empty($event->getUrls())) {
+                $this->createUrl($event);
+            }
+
             $this->setEventDateTime($event);
 
             $this->pdo->commit();
@@ -154,7 +168,7 @@ class EventsDao
         }
     }
 
-    private function createDate(Event $event) : void
+    private function createDate(Event $event): void
     {
         $sql = 'INSERT INTO dates (dates_date, dates_events_id) VALUES (:date, :eventId)';
 
@@ -171,17 +185,33 @@ class EventsDao
         }
     }
 
+    private function createUrl(Event $event): void
+    {
+        $sql = 'INSERT INTO urls (urls_url, urls_events_id) VALUES (:url, :eventId)';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $eventId = $event->getId();
+            foreach ($event->getUrls() as $url) {
+                $stmt->bindParam(':url', $url);
+                $stmt->bindParam('eventId', $eventId);
+                $stmt->execute();
+            }
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
     /**
      * @param Event $event
      * @throws UniqueException
      */
-    public function updateEvent(Event $event) : void
+    public function updateEvent(Event $event): void
     {
         $sql = 'UPDATE events SET 
                   events_title = :title,
                   events_subtitle = :subtitle,
                   events_description = :description,
-                  events_url = :url,
                   events_img_alt = :imgAlt,
                   events_img_name = :imgName,
                   events_img_id = :imgId
@@ -192,6 +222,8 @@ class EventsDao
 
             $this->deleteDatesByEventId($event->getId());
             $this->createDate($event);
+            $this->deleteUrlsByEventId($event->getId());
+            $this->createUrl($event);
 
             $stmt = $this->pdo->prepare($sql);
             $title = $event->getTitle();
@@ -200,8 +232,6 @@ class EventsDao
             $stmt->bindParam(':subtitle', $subtitle);
             $description = $event->getDescription();
             $stmt->bindParam(':description', $description);
-            $url = $event->getUrl();
-            $stmt->bindParam(':url', $url);
             $imgAlt = $event->getImgAlt();
             $stmt->bindParam(':imgAlt', $imgAlt);
             $imgName = $event->getImgName();
@@ -215,7 +245,7 @@ class EventsDao
             $this->pdo->commit();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
-            if ((int) $e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
+            if ((int)$e->getCode() === self::INTEGRITY_CONSTRAINT_VIOLATION) {
                 throw new UniqueException('This event image id already exist', $e->getCode());
             }
             throw $e;
@@ -226,13 +256,14 @@ class EventsDao
      * @param int $id
      * @throws NoEntityException
      */
-    public function deleteEvent(int $id) : void
+    public function deleteEvent(int $id): void
     {
         $sql = 'DELETE FROM events WHERE events_id = :id';
 
         try {
             $this->pdo->beginTransaction();
             $this->deleteDatesByEventId($id);
+            $this->deleteUrlsByEventId($id);
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':id', $id);
@@ -264,11 +295,23 @@ class EventsDao
         }
     }
 
+    private function deleteUrlsByEventId(int $id): void
+    {
+        $sql = 'DELETE FROM urls WHERE urls_events_id = ' . $id;
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
     /**
      * @param Event $event
      * @throws NoEntityException
      */
-    private function setEventDateTime(Event $event) : void
+    private function setEventDateTime(Event $event): void
     {
         $sql = 'SELECT events_created AS created, events_updated AS updated FROM events WHERE events_id = ' . $event->getId();
 
@@ -286,7 +329,7 @@ class EventsDao
         }
     }
 
-    public function isImageIdExist(string $imgId) : bool
+    public function isImageIdExist(string $imgId): bool
     {
         $sql = 'SELECT EXISTS(SELECT * FROM events WHERE events_img_id = :imgId)';
 
@@ -294,7 +337,7 @@ class EventsDao
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':imgId', $imgId);
             $stmt->execute();
-            return (bool) $stmt->fetchAll(PDO::FETCH_COLUMN)[0];
+            return (bool)$stmt->fetchAll(PDO::FETCH_COLUMN)[0];
         } catch (\PDOException $e) {
             throw $e;
         }
@@ -304,7 +347,7 @@ class EventsDao
      * @param string $message
      * @param array $context
      */
-    private function log(string $message, array $context = []) : void
+    private function log(string $message, array $context = []): void
     {
         if ($this->logger !== null) {
             $this->logger->debug($message, $context);

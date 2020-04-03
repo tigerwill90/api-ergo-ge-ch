@@ -19,8 +19,8 @@ class Event implements EntityInterface
     /** @var string */
     private $description;
 
-    /** @var string */
-    private $url;
+    /** @var string[] */
+    private $urls;
 
     /** @var string */
     private $imgAlt;
@@ -39,17 +39,23 @@ class Event implements EntityInterface
 
     public function __construct(array $event)
     {
-        if (!empty($event['id'])) $this->id = $event['id'];
+        if (!empty($event['id'])) {
+            $this->id = $event['id'];
+        }
         $this->title = $event['title'];
         $this->subtitle = $event['subtitle'];
         $this->dates = $event['dates'];
         $this->description = $event['description'];
-        $this->url = $event['url'];
+        $this->urls = $event['urls'];
         $this->imgAlt = $event['imgAlt'];
         $this->imgName = $event['imgName'];
         $this->imgId = $event['imgId'];
-        if (!empty($event['created'])) $this->created = $event['created'];
-        if (!empty($event['updated'])) $this->updated = $event['updated'];
+        if (!empty($event['created'])) {
+            $this->created = $event['created'];
+        }
+        if (!empty($event['updated'])) {
+            $this->updated = $event['updated'];
+        }
     }
 
     /**
@@ -143,20 +149,20 @@ class Event implements EntityInterface
     }
 
     /**
-     * @return string
+     * @return string[]
      */
-    public function getUrl(): ?string
+    public function getUrls(): array
     {
-        return $this->url;
+        return $this->urls;
     }
 
     /**
-     * @param string $url
+     * @param string[] $urls
      * @return Event
      */
-    public function setUrl(?string $url): self
+    public function setUrls(array $urls): self
     {
-        $this->url = $url;
+        $this->urls = $urls;
         return $this;
     }
 
@@ -259,7 +265,7 @@ class Event implements EntityInterface
             'subtitle' => $this->subtitle !== null ? ucfirst($this->subtitle) : null,
             'dates' => $this->dates,
             'description' => $this->description,
-            'url' => $this->url,
+            'urls' => $this->urls,
             'img_name' => $this->imgName,
             'img_alt' => $this->imgAlt,
             'created' => $this->created,
