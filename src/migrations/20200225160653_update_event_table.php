@@ -17,9 +17,9 @@ class UpdateEventTable extends AbstractMigration
         $table
             ->addColumn('dates_date', 'datetime')
             ->addColumn('dates_events_id', 'integer')
-            ->addForeignKey('dates_events_id', 'events', 'events_id',  [
-                'delete'=> 'NO_ACTION',
-                'update'=> 'NO_ACTION',
+            ->addForeignKey('dates_events_id', 'events', 'events_id', [
+                'delete' => 'NO_ACTION',
+                'update' => 'NO_ACTION',
                 'constraint' => 'fk_dates_events_id'
             ])
             ->create();

@@ -29,7 +29,7 @@ class AddWebUrlToOffice extends AbstractMigration
      * Remember to call "create()" or "update()" and NOT "save()" when working
      * with the Table class.
      */
-    public function up() : void
+    public function up(): void
     {
         $table = $this->table('offices');
         $table
@@ -38,7 +38,7 @@ class AddWebUrlToOffice extends AbstractMigration
             ->update();
     }
 
-    public function down() : void
+    public function down(): void
     {
         $table = $this->table('offices');
         $table->removeColumn('offices_web_url')->save();

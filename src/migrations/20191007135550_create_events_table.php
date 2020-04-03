@@ -4,7 +4,7 @@ use Phinx\Migration\AbstractMigration;
 
 class CreateEventsTable extends AbstractMigration
 {
-    public function change() : void
+    public function change(): void
     {
         $table = $this->table('events', ['id' => 'events_id']);
         $table

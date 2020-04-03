@@ -29,7 +29,7 @@ class CreateModelMigration extends AbstractMigration
      * Remember to call "create()" or "update()" and NOT "save()" when working
      * with the Table class.
      */
-    public function change() : void
+    public function change(): void
     {
         $this->createUsers();
         $this->createOffices();
@@ -43,7 +43,7 @@ class CreateModelMigration extends AbstractMigration
         $this->insertCategories();
     }
 
-    public function createUsers() : void
+    public function createUsers(): void
     {
         $table = $this->table('users', ['id' => 'users_id']);
         $table
@@ -65,7 +65,7 @@ class CreateModelMigration extends AbstractMigration
         $this->execute('ALTER TABLE `users` MODIFY COLUMN `users_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');
     }
 
-    public function createOffices() : void
+    public function createOffices(): void
     {
         $table = $this->table('offices', ['id' => 'offices_id']);
         $table
@@ -80,28 +80,29 @@ class CreateModelMigration extends AbstractMigration
         $this->execute('ALTER TABLE `offices` MODIFY COLUMN `offices_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');
     }
 
-    public function createOfficesUsers() : void
+    public function createOfficesUsers(): void
     {
-        $table = $this->table('officesUsers', ['id' => false, 'primary_key' => ['officesUsers_users_id', 'officesUsers_offices_id']]);
+        $table = $this->table('officesUsers',
+            ['id' => false, 'primary_key' => ['officesUsers_users_id', 'officesUsers_offices_id']]);
         $table
             ->addColumn('officesUsers_users_id', 'integer')
             ->addColumn('officesUsers_offices_id', 'integer')
             ->addIndex(['officesUsers_users_id'], ['name' => 'fk_officesUsers_users_id_idx'])
             ->addIndex(['officesUsers_offices_id'], ['name' => 'fk_officesUsers_offices_id_idx'])
             ->addForeignKey('officesUsers_users_id', 'users', 'users_id', [
-                'delete'=> 'NO_ACTION',
-                'update'=> 'NO_ACTION',
+                'delete' => 'NO_ACTION',
+                'update' => 'NO_ACTION',
                 'constraint' => 'fk_officesUsers_users_id'
             ])
             ->addForeignKey('officesUsers_offices_id', 'offices', 'offices_id', [
-                'delete'=> 'NO_ACTION',
-                'update'=> 'NO_ACTION',
+                'delete' => 'NO_ACTION',
+                'update' => 'NO_ACTION',
                 'constraint' => 'fk_officesUsers_offices_id'
             ])
             ->create();
     }
 
-    public function createContacts() : void
+    public function createContacts(): void
     {
         $table = $this->table('contacts', ['id' => 'contacts_id', 'primary_key' => ['contacts_offices_id']]);
         $table
@@ -116,8 +117,8 @@ class CreateModelMigration extends AbstractMigration
             ->addColumn('contacts_offices_id', 'integer')
             ->addIndex(['contacts_street'], ['unique' => true, 'name' => 'contacts_street_UNIQUE'])
             ->addForeignKey('contacts_offices_id', 'offices', 'offices_id', [
-                'delete'=> 'NO_ACTION',
-                'update'=> 'NO_ACTION',
+                'delete' => 'NO_ACTION',
+                'update' => 'NO_ACTION',
                 'constraint' => 'fk_contacts_offices_id'
             ])
             ->create();
@@ -125,7 +126,7 @@ class CreateModelMigration extends AbstractMigration
         $this->execute('ALTER TABLE `contacts` MODIFY COLUMN `contacts_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');
     }
 
-    public function createTherapists() : void
+    public function createTherapists(): void
     {
         $table = $this->table('therapists', ['id' => 'therapists_id']);
         $table
@@ -137,8 +138,8 @@ class CreateModelMigration extends AbstractMigration
             ->addColumn('therapists_updated', 'datetime')
             ->addColumn('therapists_offices_id', 'integer')
             ->addForeignKey('therapists_offices_id', 'offices', 'offices_id', [
-                'delete'=> 'NO_ACTION',
-                'update'=> 'NO_ACTION',
+                'delete' => 'NO_ACTION',
+                'update' => 'NO_ACTION',
                 'constraint' => 'fk_therapists_offices_id'
             ])
             ->create();
@@ -146,7 +147,7 @@ class CreateModelMigration extends AbstractMigration
         $this->execute('ALTER TABLE `therapists` MODIFY COLUMN `therapists_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');
     }
 
-    public function createPhones() : void
+    public function createPhones(): void
     {
         $table = $this->table('phones', ['id' => 'phones_id']);
         $table
@@ -154,28 +155,28 @@ class CreateModelMigration extends AbstractMigration
             ->addColumn('phones_number', 'string', ['limit' => 45])
             ->addColumn('phones_therapists_id', 'integer')
             ->addForeignKey('phones_therapists_id', 'therapists', 'therapists_id', [
-                'delete'=> 'NO_ACTION',
-                'update'=> 'NO_ACTION',
+                'delete' => 'NO_ACTION',
+                'update' => 'NO_ACTION',
                 'constraint' => 'fk_phones_therapists_id'
             ])
             ->create();
     }
 
-    public function createEmails() : void
+    public function createEmails(): void
     {
         $table = $this->table('emails', ['id' => 'emails_id']);
         $table
             ->addColumn('emails_address', 'string', ['limit' => '250'])
             ->addColumn('emails_therapists_id', 'integer')
             ->addForeignKey('emails_therapists_id', 'therapists', 'therapists_id', [
-                'delete'=> 'NO_ACTION',
-                'update'=> 'NO_ACTION',
+                'delete' => 'NO_ACTION',
+                'update' => 'NO_ACTION',
                 'constraint' => 'fk_emails_therapists_id'
             ])
             ->create();
     }
 
-    public function createCategories() : void
+    public function createCategories(): void
     {
         $table = $this->table('categories', ['id' => 'categories_id']);
         $table
@@ -185,28 +186,31 @@ class CreateModelMigration extends AbstractMigration
             ->create();
     }
 
-    public function createTherapistsCategories() : void
+    public function createTherapistsCategories(): void
     {
-        $table = $this->table('therapistsCategories', ['id' => false, 'primary_key' => ['therapistsCategories_therapists_id', 'therapistsCategories_categories_id']]);
+        $table = $this->table('therapistsCategories', [
+            'id' => false,
+            'primary_key' => ['therapistsCategories_therapists_id', 'therapistsCategories_categories_id']
+        ]);
         $table
             ->addColumn('therapistsCategories_therapists_id', 'integer')
             ->addColumn('therapistsCategories_categories_id', 'integer')
             ->addIndex(['therapistsCategories_therapists_id'], ['name' => 'fk_therapistsCategories_therapists_id_idx'])
             ->addIndex(['therapistsCategories_categories_id'], ['name' => 'fk_therapistsCategories_categories_id_idx'])
             ->addForeignKey('therapistsCategories_therapists_id', 'therapists', 'therapists_id', [
-                'delete'=> 'NO_ACTION',
-                'update'=> 'NO_ACTION',
+                'delete' => 'NO_ACTION',
+                'update' => 'NO_ACTION',
                 'constraint' => 'fk_therapistsCategories_therapists_id'
             ])
             ->addForeignKey('therapistsCategories_categories_id', 'categories', 'categories_id', [
-                'delete'=> 'NO_ACTION',
-                'update'=> 'NO_ACTION',
+                'delete' => 'NO_ACTION',
+                'update' => 'NO_ACTION',
                 'constraint' => 'fk_therapistsCategories_categories_id'
             ])
             ->create();
     }
 
-    public function insertCategories() : void
+    public function insertCategories(): void
     {
         $rows = [
             [

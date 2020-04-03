@@ -4,7 +4,8 @@ use Phinx\Migration\AbstractMigration;
 
 class RemoveUniqueIndexOnOfficesAndContacts extends AbstractMigration
 {
-    public function up(): void {
+    public function up(): void
+    {
         $table = $this->table('offices');
         $table->changeColumn('offices_email', 'string', ['limit' => 250, 'null' => true]);
         $table->save();
@@ -14,7 +15,8 @@ class RemoveUniqueIndexOnOfficesAndContacts extends AbstractMigration
         $table->save();
     }
 
-    public function down(): void {
+    public function down(): void
+    {
         $table = $this->table('offices');
         $table->changeColumn('offices_email', 'string', ['limit' => 250, 'null' => false]);
         $table->save();
