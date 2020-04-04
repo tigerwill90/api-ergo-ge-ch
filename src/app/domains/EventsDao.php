@@ -57,15 +57,10 @@ class EventsDao
 
             $urlsId = $eventsDates = $eventsUrls = [];
             foreach ($data as $entry) {
-                if (!in_array($entry['urlId'], $urlsId, true)) {
+                if (!in_array($entry['date'], $eventsDates, true)) {
                     $eventsDates[] = $entry['date'];
-                    $urlsId[] = $entry['urlId'];
                 }
 
-            }
-
-            $urlsId = [];
-            foreach ($data as $entry) {
                 if (!in_array($entry['urlId'], $urlsId, true)) {
                     $url = [
                         'id' => $entry['urlId'],
@@ -76,6 +71,7 @@ class EventsDao
                     $urlsId[] = $entry['urlId'];
                 }
             }
+
             $event->setDates($eventsDates);
             $event->setUrls($eventsUrls);
 
@@ -117,15 +113,15 @@ class EventsDao
                 if (!in_array($event['id'], $eventsId, true)) {
                     $currentEvent = new Event($event);
 
-                    $urlsId = $eventsDates = $eventsUrls = [];
+                    $eventsDates = [];
                     foreach ($data as $entry) {
-                        if ($event['id'] === $entry['id'] && $entry['date'] !== null && !in_array($entry['urlId'], $urlsId, true)) {
+                        if ($event['id'] === $entry['id'] && $entry['date'] !== null && !in_array($entry['date'], $eventsDates, true)) {
                             $eventsDates[] = $entry['date'];
                             $urlsId[] = $entry['urlId'];
                         }
                     }
 
-                    $urlsId = [];
+                    $urlsId = $eventsUrls = [];
                     foreach ($data as $entry) {
                         if ($event['id'] === $entry['id'] && $entry['url'] !== null && !in_array($entry['urlId'], $urlsId, true)) {
                             $url = [
