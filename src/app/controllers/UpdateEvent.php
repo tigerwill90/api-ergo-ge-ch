@@ -3,6 +3,7 @@
 namespace Ergo\Controllers;
 
 use Ergo\Business\Error;
+use Ergo\Business\Url;
 use Ergo\Domains\EventsDao;
 use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
@@ -84,11 +85,13 @@ final class UpdateEvent
             }
             $event->setDates(array_unique($eventDates));
             $event->setDescription($params['description']);
-            $eventUrls = [];
-            if (!empty($params['urls'])) {
-                $eventUrls = array_unique($params['urls']);
+            $urls = [];
+            if ($params['urls'] !== null) {
+                foreach ($params['urls'] as $url) {
+                    $urls[] = new Url($url);
+                }
             }
-            $event->setUrls($eventUrls);
+            $event->setUrls($urls);
             $event->setImgAlt($params['img_alt']);
             $event->setImgName($params['img_name']);
 

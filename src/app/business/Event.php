@@ -19,7 +19,7 @@ class Event implements EntityInterface
     /** @var string */
     private $description;
 
-    /** @var string[] */
+    /** @var Url[] */
     private $urls;
 
     /** @var string */
@@ -46,7 +46,6 @@ class Event implements EntityInterface
         $this->subtitle = $event['subtitle'];
         $this->dates = $event['dates'];
         $this->description = $event['description'];
-        $this->urls = $event['urls'];
         $this->imgAlt = $event['imgAlt'];
         $this->imgName = $event['imgName'];
         $this->imgId = $event['imgId'];
@@ -149,7 +148,7 @@ class Event implements EntityInterface
     }
 
     /**
-     * @return string[]
+     * @return Url[]
      */
     public function getUrls(): array
     {
@@ -157,7 +156,7 @@ class Event implements EntityInterface
     }
 
     /**
-     * @param string[] $urls
+     * @param Url[] $urls
      * @return Event
      */
     public function setUrls(array $urls): self
@@ -259,18 +258,25 @@ class Event implements EntityInterface
 
     public function getEntity(): array
     {
-        return [
+
+        $urls = [
             'id' => $this->id,
             'title' => ucfirst($this->title),
             'subtitle' => $this->subtitle !== null ? ucfirst($this->subtitle) : null,
+            'urls' => [],
             'dates' => $this->dates,
             'description' => $this->description,
-            'urls' => $this->urls,
             'img_name' => $this->imgName,
             'img_alt' => $this->imgAlt,
             'created' => $this->created,
             'updated' => $this->updated
         ];
+
+        foreach ($this->urls as $url) {
+            $urls['urls'][] = $url->getEntity();
+        }
+
+        return $urls;
     }
 
     public function getCollection(): array

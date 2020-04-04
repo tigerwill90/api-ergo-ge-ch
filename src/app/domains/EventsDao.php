@@ -3,6 +3,7 @@
 namespace Ergo\Domains;
 
 use Ergo\Business\Event;
+use Ergo\Business\Url;
 use Ergo\Exceptions\NoEntityException;
 use Ergo\Exceptions\UniqueException;
 use Psr\Log\LoggerInterface;
@@ -37,7 +38,7 @@ class EventsDao
                         events_description AS description, events_img_id AS imgId, events_img_name AS imgName,
                         events_created AS created, events_updated AS updated,
                         dates_date AS date,
-                        urls_url AS url
+                        urls_id AS urlId, urls_url AS url, urls_name AS name
                     FROM events 
                     LEFT JOIN dates ON events_id = dates_events_id
                     LEFT JOIN urls ON events_id = urls_events_id
@@ -54,13 +55,25 @@ class EventsDao
 
             $event = new Event($data[0]);
 
-            $eventsDates = $eventsUrls = [];
+            $urlsId = $eventsDates = $eventsUrls = [];
             foreach ($data as $entry) {
-                if ($entry['date'] !== null) {
+                if (!in_array($entry['urlId'], $urlsId, true)) {
                     $eventsDates[] = $entry['date'];
+                    $urlsId[] = $entry['urlId'];
                 }
-                if ($entry['url'] !== null) {
-                    $eventsUrls[] = $entry['url'];
+
+            }
+
+            $urlsId = [];
+            foreach ($data as $entry) {
+                if (!in_array($entry['urlId'], $urlsId, true)) {
+                    $url = [
+                        'id' => $entry['urlId'],
+                        'name' => $entry['name'],
+                        'url' => $entry['url']
+                    ];
+                    $eventsUrls[] = new Url($url);
+                    $urlsId[] = $entry['urlId'];
                 }
             }
             $event->setDates($eventsDates);
@@ -84,7 +97,7 @@ class EventsDao
                         events_description AS description, events_img_id AS imgId, events_img_name AS imgName,
                         events_created AS created, events_updated AS updated,
                         dates_date AS date,
-                        urls_url AS url
+                        urls_id AS urlId, urls_name AS name, urls_url AS url
                     FROM events
                     LEFT JOIN dates ON events_id = dates_events_id
                     LEFT JOIN urls ON events_id = urls_events_id
@@ -104,14 +117,24 @@ class EventsDao
                 if (!in_array($event['id'], $eventsId, true)) {
                     $currentEvent = new Event($event);
 
-                    $eventsDates = $eventsUrls = [];
+                    $urlsId = $eventsDates = $eventsUrls = [];
                     foreach ($data as $entry) {
-                        if ($event['id'] === $entry['id'] && $entry['date'] !== null) {
+                        if ($event['id'] === $entry['id'] && $entry['date'] !== null && !in_array($entry['urlId'], $urlsId, true)) {
                             $eventsDates[] = $entry['date'];
+                            $urlsId[] = $entry['urlId'];
                         }
+                    }
 
-                        if ($event['id'] === $entry['id'] && $entry['url'] !== null) {
-                            $eventsUrls[] = $entry['url'];
+                    $urlsId = [];
+                    foreach ($data as $entry) {
+                        if ($event['id'] === $entry['id'] && $entry['url'] !== null && !in_array($entry['urlId'], $urlsId, true)) {
+                            $url = [
+                                'id' => $entry['urlId'],
+                                'name' => $entry['name'],
+                                'url' => $entry['url']
+                            ];
+                            $eventsUrls[] = new Url($url);
+                            $urlsId[] = $entry['urlId'];
                         }
                     }
 
@@ -187,15 +210,19 @@ class EventsDao
 
     private function createUrl(Event $event): void
     {
-        $sql = 'INSERT INTO urls (urls_url, urls_events_id) VALUES (:url, :eventId)';
+        $sql = 'INSERT INTO urls (urls_name, urls_url, urls_events_id) VALUES (:name, :url, :eventId)';
 
         try {
             $stmt = $this->pdo->prepare($sql);
             $eventId = $event->getId();
-            foreach ($event->getUrls() as $url) {
+            foreach ($event->getUrls() as $entity) {
+                $name = $entity->getName();
+                $stmt->bindParam(':name', $name);
+                $url = $entity->getUrl();
                 $stmt->bindParam(':url', $url);
                 $stmt->bindParam('eventId', $eventId);
                 $stmt->execute();
+                $entity->setId((int)$this->pdo->lastInsertId());
             }
         } catch (\PDOException $e) {
             throw $e;

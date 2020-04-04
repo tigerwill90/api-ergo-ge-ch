@@ -4,6 +4,7 @@ namespace Ergo\Controllers;
 
 use Ergo\Business\Error;
 use Ergo\Business\Event;
+use Ergo\Business\Url;
 use Ergo\Domains\EventsDao;
 use Ergo\Exceptions\NoEntityException;
 use Ergo\Services\Auth;
@@ -68,6 +69,7 @@ final class CreateEvent
             $params = $request->getParsedBody();
             $data['title'] = $params['title'];
             $data['subtitle'] = $params['subtitle'];
+
             $eventDates = [];
             if (!empty($params['dates'])) {
                 foreach ($params['dates'] as $stringDate) {
@@ -79,11 +81,7 @@ final class CreateEvent
                     }
                 }
             }
-            $eventUrls = [];
-            if (!empty($params['urls'])) {
-                $eventUrls = array_unique($params['urls']);
-            }
-            $data['urls'] = $eventUrls;
+
             $data['dates'] = array_unique($eventDates);
             $data['description'] = $params['description'];
             $data['imgAlt'] = $params['img_alt'];
@@ -100,7 +98,16 @@ final class CreateEvent
             }
 
             $data['imgId'] = $imgId;
+
+            $urls = [];
+            if ($params['urls'] !== null) {
+                foreach ($params['urls'] as $url) {
+                    $urls[] = new Url($url);
+                }
+            }
+
             $event = new Event($data);
+            $event->setUrls($urls);
 
             try {
                 $this->eventsDao->createEvent($event);

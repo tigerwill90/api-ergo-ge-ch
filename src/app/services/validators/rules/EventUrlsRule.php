@@ -3,21 +3,26 @@
 namespace Ergo\Services\Validators\Rules;
 
 use Ergo\Services\Validators\RuleValidator;
-use Respect\Validation\Validator;
+use Respect\Validation\Validator as V;
 
 class EventUrlsRule extends RuleValidator
 {
 
     /**
      * Get a validator instance
-     * @return Validator
+     * @return V
      */
-    public function getValidator(): Validator
+    public function getValidator(): V
     {
-        return Validator::oneOf(
-            Validator::arrayType()->each(Validator::regex("/(^|[\s.:;?\-\]<\(])(https?:\/\/[-\w;\/?:@&=+$\|\_.!~*\|'()\[\]%#,☺]+[\w\/#](\(\))?)(?=$|[\s',\|\(\).:;?\-\[\]>\)])/")->notBlank()->length(5,
-                250)),
-            Validator::nullType()
+        return V::oneOf(
+            V::arrayType()->notEmpty()->each(
+                V::key('name',
+                    V::alnum("àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ-'(),&")->notBlank()->length(3, 100)->stringType())
+                    ->key('url',
+                        V::regex("/(^|[\s.:;?\-\]<\(])(https?:\/\/[-\w;\/?:@&=+$\|\_.!~*\|'()\[\]%#,☺]+[\w\/#](\(\))?)(?=$|[\s',\|\(\).:;?\-\[\]>\)])/")->notBlank()->length(5,
+                            250))
+            ),
+            V::nullType()
         );
     }
 }
