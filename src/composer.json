@@ -12,15 +12,15 @@
         "php": "^7.3",
         "ext-gmp" : "*",
         "slim/slim": "^3.11",
-        "vlucas/phpdotenv": "v4.1.0",
-        "monolog/monolog": "2.0.2",
+        "vlucas/phpdotenv": "^v4.1",
+        "monolog/monolog": "^2.0",
         "ext-json": "*",
         "ext-pdo": "*",
         "google/apiclient": "^2.0",
+        "respect/validation": "^1.1",
         "tuupola/cors-middleware": "^1.0",
         "tuupola/slim-jwt-auth": "^3.3",
         "firebase/php-jwt": "^5.0",
-        "respect/validation": "^1.1",
         "phpmailer/phpmailer": "^6.0",
         "google/recaptcha": "^1.2",
         "dflydev/fig-cookies": "^2.0",
@@ -30,9 +30,9 @@
     "require-dev" : {
         "roave/security-advisories": "dev-master",
         "phpunit/phpunit": "^9.0.1",
-        "squizlabs/php_codesniffer" : "^3.3.2",
-        "phpstan/phpstan": "0.12.11",
-        "phpstan/phpdoc-parser": "0.4.3"
+        "squizlabs/php_codesniffer" : "^3.3",
+        "phpstan/phpstan": "^0.12",
+        "phpstan/phpdoc-parser": "^0.4"
     },
     "autoload": {
         "psr-4": {
