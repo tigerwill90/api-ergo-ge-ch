@@ -259,12 +259,12 @@ class Event implements EntityInterface
     public function getEntity(): array
     {
 
-        $urls = [
+        $entity = [
             'id' => $this->id,
             'title' => ucfirst($this->title),
             'subtitle' => $this->subtitle !== null ? ucfirst($this->subtitle) : null,
             'urls' => [],
-            'dates' => $this->dates,
+            'dates' => [],
             'description' => $this->description,
             'img_name' => $this->imgName,
             'img_alt' => $this->imgAlt,
@@ -272,11 +272,20 @@ class Event implements EntityInterface
             'updated' => $this->updated
         ];
 
-        foreach ($this->urls as $url) {
-            $urls['urls'][] = $url->getEntity();
+        foreach ($this->dates as $stringDate) {
+            try {
+                $date = $date = new \DateTime($stringDate);
+                $entity['dates'][] = $date->format(\DateTime::ATOM);
+            } catch (\Exception $e) {
+                throw new \RuntimeException($e->getMessage());
+            }
         }
 
-        return $urls;
+        foreach ($this->urls as $url) {
+            $entity['urls'][] = $url->getEntity();
+        }
+
+        return $entity;
     }
 
     public function getCollection(): array
